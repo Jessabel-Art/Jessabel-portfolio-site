@@ -1,0 +1,12 @@
+# robots.txt for jessabel.art
+
+User-agent: *
+Allow: /
+
+# Disallow these folders if they exist
+Disallow: /admin/
+Disallow: /private/
+Disallow: /drafts/
+
+# Sitemap (good for SEO if you generate one)
+Sitemap: https://jessabel.art/sitemap.xml
