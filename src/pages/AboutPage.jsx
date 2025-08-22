@@ -8,7 +8,9 @@ import { Button } from '@/components/ui/button';
 // Local assets
 import artistPortrait from '@/assets/about/artist-portrait.png';
 import toolsStatsBg from '@/assets/about/tools-stats-bg-strip.jpg';
-import processBg from '@/assets/images/process-background.jpg'; // ← add this file
+import processBg from '@/assets/images/process-background.jpg'; // make sure this exists
+
+const WARM_BROWN = 'var(--warm-brown, #5a3a2a)';
 
 const AboutPage = () => {
   const journey = [
@@ -84,7 +86,7 @@ const AboutPage = () => {
               My Story in Color
             </h1>
 
-            <div className="space-y-6 text-lg text-[hsl(var(--muted-foreground))] leading-relaxed">
+            <div className="space-y-6 text-lg leading-relaxed" style={{ color: WARM_BROWN }}>
               <p>
                 I didn’t start out calling myself a designer. My roots have always been creative, sketching,
                 experimenting with layouts, and bringing ideas to life visually. Long before I knew the term UX existed,
@@ -119,7 +121,7 @@ const AboutPage = () => {
             {/* Education — concise bullets */}
             <div className="mt-4">
               <h3 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2">Education</h3>
-              <ul className="list-disc pl-5 space-y-1 text-[hsl(var(--muted-foreground))]">
+              <ul className="list-disc pl-5 space-y-1" style={{ color: WARM_BROWN }}>
                 {education.map((e) => (
                   <li key={`${e.school}-${e.year}`}>
                     <span className="font-semibold text-[hsl(var(--foreground))]">{e.school}</span> — {e.degree} <span className="opacity-80">({e.year})</span>
@@ -174,8 +176,8 @@ const AboutPage = () => {
                       {item.year}
                     </span>
                     <h3 className="mt-2 text-xl font-bold text-[hsl(var(--foreground))]">{item.title}</h3>
-                    <p className="text-[hsl(var(--muted-foreground))] text-sm font-semibold mb-3">{item.company}</p>
-                    <p className="text-[hsl(var(--muted-foreground))]">{item.description}</p>
+                    <p className="text-sm font-semibold mb-3" style={{ color: WARM_BROWN }}>{item.company}</p>
+                    <p style={{ color: WARM_BROWN }}>{item.description}</p>
                   </div>
                 </div>
               </motion.div>
@@ -184,20 +186,20 @@ const AboutPage = () => {
         </motion.div>
       </section>
 
-      {/* Skills + Stats (HIGH CONTRAST) */}
+      {/* Skills + Stats (NO full overlay; readable cards) */}
       <section
         className="py-16 bg-cover bg-center relative"
         style={{ backgroundImage: `url(${toolsStatsBg})` }}
       >
-        {/* Brighter overlay for readability */}
-        <div className="absolute inset-0 bg-white/90 backdrop-blur-[1px]" />
-
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-center">
             <motion.div {...fadeIn} className="lg:col-span-2">
               <h2
-                className="text-3xl md:text-4xl font-bold mb-6 text-center lg:text-left glow-yellow"
-                style={{ color: 'hsl(var(--headline-yellow))', textShadow: '0 2px 14px rgba(0,0,0,0.12)' }}
+                className="text-3xl md:text-4xl font-bold mb-6 text-center lg:text-left"
+                style={{
+                  color: 'hsl(var(--headline-yellow))',
+                  textShadow: '0 3px 18px rgba(0,0,0,0.22), 0 0 0 #000'
+                }}
               >
                 What I Work With
               </h2>
@@ -214,7 +216,7 @@ const AboutPage = () => {
               )}
             </motion.div>
 
-            {/* Stats — darker text, crisp borders */}
+            {/* Stats — glass cards only */}
             <motion.ul {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.1 }} className="grid grid-cols-1 gap-4">
               <StatCard icon={<Layers className="mt-1 text-[#0B0F1A]" />} value="15 yrs" label="Design & ops experience" />
               <StatCard icon={<Users className="mt-1 text-[#0B0F1A]" />} value="5+" label="Industries served" />
@@ -230,28 +232,34 @@ const AboutPage = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))] mb-6 text-center">Design Footprints</h2>
 
           {collage.length === 0 ? (
-            <p className="text-center text-[hsl(var(--muted-foreground))]">Adding samples soon.</p>
+            <p className="text-center" style={{ color: WARM_BROWN }}>Adding samples soon.</p>
           ) : (
             <ImageMarquee images={collage} duration={36} />
           )}
         </motion.div>
       </section>
 
-      {/* CTA: Curious about my process (BACKGROUND + overlay for legibility) */}
+      {/* CTA: Curious about my process (dark vignette so it pops) */}
       <section
         className="py-20 bg-cover bg-center relative"
         style={{ backgroundImage: `url(${processBg})` }}
       >
-        <div className="absolute inset-0 bg-white/78" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.28) 55%, rgba(0,0,0,.35) 100%)'
+          }}
+        />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div {...fadeIn} className="mx-auto max-w-3xl">
             <h2
               className="text-4xl md:text-5xl font-bold mb-4"
-              style={{ color: 'hsl(var(--headline-yellow))', textShadow: '0 2px 14px rgba(0,0,0,0.12)' }}
+              style={{ color: 'hsl(var(--headline-yellow))', textShadow: '0 4px 22px rgba(0,0,0,0.35)' }}
             >
               Curious about my process?
             </h2>
-            <p className="text-xl text-[hsl(var(--muted-foreground))] mb-8">
+            <p className="text-xl mb-8" style={{ color: '#ffffff', textShadow: '0 2px 14px rgba(0,0,0,.35)' }}>
               See how I approach projects from discovery to launch.
             </p>
             <Button asChild size="lg" className="btn-primary rounded-full px-6 glow-yellow">
@@ -267,11 +275,14 @@ const AboutPage = () => {
 /* ---------- Small pieces ---------- */
 
 const StatCard = ({ icon, value, label }) => (
-  <li className="rounded-2xl p-6 md:p-7 bg-white/96 text-[#0B0F1A] border border-[hsl(var(--border))]/80 shadow-md flex items-start gap-3">
+  <li
+    className="rounded-2xl p-6 md:p-7 text-[#0B0F1A] border border-white/60 shadow-[0_10px_28px_rgba(0,0,0,.12)] flex items-start gap-3 backdrop-blur-md"
+    style={{ background: 'rgba(255,255,255,0.90)' }}
+  >
     {icon}
     <div>
       <p className="text-[1.9rem] md:text-4xl font-extrabold leading-none">{value}</p>
-      <p className="text-sm md:text-base text-[hsl(var(--muted-foreground))] mt-1">{label}</p>
+      <p className="text-sm md:text-base mt-1" style={{ color: WARM_BROWN }}>{label}</p>
     </div>
   </li>
 );
@@ -298,6 +309,7 @@ const ImageMarquee = ({ images = [], duration = 36 }) => {
   const doubled = [...images, ...images];
   return (
     <div className="w-full overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_72px,_black_calc(100%-72px),transparent_100%)]">
+    {/* slightly larger gaps help prevent visual strobing */}
       <ul
         className="flex items-center gap-5 animate-infinite-scroll"
         style={{ animationDuration: `${duration}s` }}
@@ -326,3 +338,4 @@ const Tile = ({ src }) => (
 );
 
 export default AboutPage;
+
