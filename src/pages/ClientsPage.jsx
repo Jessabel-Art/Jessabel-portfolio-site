@@ -9,7 +9,8 @@ import { Link } from 'react-router-dom';
 const CLIENTS = [
   { name: 'ACME Corp', pin: '7431', folder: 'acme' },
   { name: 'Neoterra Inc.', pin: '8190', folder: 'neoterra' },
-  { name: 'Sanchez Services', pin: '1122', folder: 'sanchez' },
+  // Sanchez default stage set to Design
+  { name: 'Sanchez Services', pin: '1122', folder: 'sanchez', stage: 'Design' },
 ];
 
 // Notion: open as a new tab via CTA (no iframe)
@@ -30,6 +31,21 @@ const btnGhost =
   'border border-[hsl(var(--border))] bg-transparent hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]';
 
 const STEPS = ['Intake', 'Discovery', 'Design', 'Build', 'Review', 'Handoff'];
+
+// High-contrast timeline styles
+const trackBase = 'bg-[hsl(var(--foreground)/0.14)]'; // neutral rail
+const trackFill =
+  'bg-[linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff),var(--btn-teal,#00c2b2))] ' +
+  'shadow-[inset_0_0_0_2px_rgba(255,255,255,.35),0_6px_18px_rgba(0,0,0,.18)]';
+const nodeInactive =
+  'bg-white text-[hsl(var(--foreground)/0.7)] border border-[hsl(var(--foreground)/0.15)] ' +
+  'shadow-[0_2px_10px_rgba(0,0,0,.08)]';
+const nodeActive =
+  'text-white bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] ' +
+  'shadow-[0_8px_20px_rgba(0,0,0,.22)] ring-2 ring-white/60';
+const nodeCompleted =
+  'text-white bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] ' +
+  'shadow-[0_6px_16px_rgba(0,0,0,.18)] opacity-[0.95]';
 
 const ClientsPage = () => {
   // PIN (single box)
@@ -53,15 +69,15 @@ const ClientsPage = () => {
       setError('');
       setShake(false);
       setClient(found);
-      // (Optional) set initial stage per client if you have it
-      setCurrentStage('Intake');
+      // Set default stage per client (falls back to Intake)
+      setCurrentStage(found.stage || 'Intake');
     } else {
       setError('Invalid PIN. Please try again or contact Jessabel.');
       setShake(true);
       setPinValue('');
       setTimeout(() => {
         setShake(false);
-        inputRef.current && inputRef.current.focus();
+        if (inputRef.current) inputRef.current.focus();
       }, 450);
     }
   };
@@ -124,40 +140,58 @@ const ClientsPage = () => {
 
     return (
       <div className="w-full">
-        <div className="flex items-center justify-between mb-3">
+        {/* Nodes + connectors */}
+        <div className="flex items-center justify-between mb-4">
           {STEPS.map((label, i) => {
-            const active = i <= idx;
+            const isActive = i === idx;
+            const isDone = i < idx;
+
             return (
               <div key={label} className="flex-1 flex items-center">
+                {/* Node */}
                 <div
                   className={[
-                    'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold',
-                    active ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]' : 'bg-muted text-muted-foreground',
-                    'shadow-sm',
+                    'w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold select-none',
+                    isActive ? nodeActive : isDone ? nodeCompleted : nodeInactive,
                   ].join(' ')}
-                  aria-current={i === idx ? 'step' : undefined}
+                  aria-current={isActive ? 'step' : undefined}
                   title={label}
                 >
                   {i + 1}
                 </div>
-                {i < STEPS.length - 1 && <div className="flex-1 h-1 bg-muted mx-2 rounded" />}
+
+                {/* Connector segment (not after last node) */}
+                {i < STEPS.length - 1 && (
+                  <div className="relative flex-1 mx-3">
+                    <div className={`h-1.5 rounded-full ${trackBase}`} />
+                    {/* filled portion for completed segments */}
+                    <div
+                      className={`absolute inset-y-0 left-0 h-1.5 rounded-full overflow-hidden ${
+                        isDone ? trackFill : 'opacity-0'
+                      }`}
+                      style={{ width: isDone ? '100%' : 0 }}
+                      aria-hidden="true"
+                    />
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
 
-        <div className="relative h-2 bg-muted/70 rounded overflow-hidden">
+        {/* Base progress rail + animated fill */}
+        <div className={`relative h-2 rounded-full overflow-hidden ${trackBase}`}>
           <motion.div
-            className="absolute left-0 top-0 h-full bg-[hsl(var(--primary))]"
+            className={`absolute left-0 top-0 h-full ${trackFill}`}
             initial={{ width: 0 }}
             animate={{ width: `${pct}%` }}
             transition={{ type: 'spring', stiffness: 120, damping: 20 }}
           />
         </div>
 
-        <div className="mt-2 text-sm text-muted-foreground flex justify-between">
-          <span>{STEPS[idx]}</span>
-          <span>
+        <div className="mt-3 text-sm flex justify-between items-center">
+          <span className="font-semibold text-[hsl(var(--foreground))]">{STEPS[idx]}</span>
+          <span className="text-[hsl(var(--foreground)/0.7)]">
             {idx + 1} / {STEPS.length}
           </span>
         </div>
@@ -190,7 +224,7 @@ const ClientsPage = () => {
             Enter your 4-digit PIN
           </Label>
 
-          <motion.div
+        <motion.div
             variants={shakeVariants}
             animate={shake ? 'shake' : 'still'}
             className="w-full"
