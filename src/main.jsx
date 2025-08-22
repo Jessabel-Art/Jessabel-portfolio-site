@@ -6,10 +6,10 @@ import '@/index.css';
 const META_COLOR_SCHEME = 'color-scheme';
 const META_THEME_COLOR = 'theme-color';
 
-// Tailwind HSLs converted to HEX-ish approximations for browser chrome
+// Browser chrome colors (brand aligned)
 const COLORS = {
-  darkBg: '#0B0F14',   // matches --background in .dark
-  lightBg: '#E7F2EC',  // matches --background in :root
+  light: '#d74708', // bold brand orange for light mode
+  dark:  '#0B0F1A', // deep neutral for dark mode
 };
 
 function ensureMeta(name) {
@@ -24,31 +24,34 @@ function ensureMeta(name) {
 
 function applyTheme(theme) {
   const html = document.documentElement;
+  const colorSchemeMeta = ensureMeta(META_COLOR_SCHEME);
+  const themeColorMeta   = ensureMeta(META_THEME_COLOR);
+
   if (theme === 'dark') {
     html.classList.add('dark');
-    ensureMeta(META_COLOR_SCHEME).setAttribute('content', 'dark light');
-    ensureMeta(META_THEME_COLOR).setAttribute('content', COLORS.darkBg);
+    colorSchemeMeta.setAttribute('content', 'dark light');
+    themeColorMeta.setAttribute('content', COLORS.dark);
   } else {
     html.classList.remove('dark');
-    ensureMeta(META_COLOR_SCHEME).setAttribute('content', 'light dark');
-    ensureMeta(META_THEME_COLOR).setAttribute('content', COLORS.lightBg);
+    colorSchemeMeta.setAttribute('content', 'light dark');
+    themeColorMeta.setAttribute('content', COLORS.light);
   }
 }
 
-// 1) Determine initial theme (default = dark)
+// Initial theme: honor explicit user choice -> else honor OS preference
 const stored = localStorage.getItem('theme'); // 'dark' | 'light' | null
 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-const initialTheme = stored || (prefersDark ? 'dark' : 'dark'); // default dark
+const initialTheme = stored || (prefersDark ? 'dark' : 'light');
 applyTheme(initialTheme);
 
-// 2) Keep up with OS changes (only if user hasn't explicitly chosen)
+// React to OS changes only if user hasn't explicitly chosen a theme
 const mq = window.matchMedia('(prefers-color-scheme: dark)');
 const onSchemeChange = (e) => {
   if (!localStorage.getItem('theme')) applyTheme(e.matches ? 'dark' : 'light');
 };
 mq.addEventListener?.('change', onSchemeChange);
 
-// Optional helpers if you later add a UI theme toggle:
+// If you add a theme toggle later, uncomment:
 // window.setTheme = (theme) => { localStorage.setItem('theme', theme); applyTheme(theme); };
 // window.clearTheme = () => { localStorage.removeItem('theme'); applyTheme(mq.matches ? 'dark' : 'light'); };
 

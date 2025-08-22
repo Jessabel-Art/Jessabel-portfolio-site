@@ -5,21 +5,20 @@
 /* Playfair Display font is loaded in index.html */
 
 /* ---------- Brand Tokens ---------- */
-/* Exact oranges you provided + gradient button colors */
 :root {
-  /* Brand oranges (hex kept for reference, hsl used where the theme expects hsl()) */
+  /* Brand oranges */
   --orange-100: #fee9a6; /* pale */
   --orange-200: #ffe574;
   --orange-400: #fec200;
   --orange-600: #fa8a00;
   --orange-800: #d74708;
 
-  /* Gradient CTA colors (used across components) */
-  --btn-pink: #ff3ea5;
-  --btn-teal: #00c2b2;
+  /* (kept in case you use them elsewhere) */
+  --btn-red: #ba0d0d;
+  --btn-yellow: #ecdf26;
 
   /* Site theme (LIGHT) */
-  --background: 47 97% 82%;               /* ≈ #fee9a6 */
+  --background: 47 97% 82%;         /* warm, bright base */
   --foreground: 224 44% 8%;
 
   --card: 0 0% 100%;
@@ -28,19 +27,19 @@
   --popover: 0 0% 100%;
   --popover-foreground: 224 44% 8%;
 
-  /* Use orange as primary now */
-  --primary: 28 100% 49%;                 /* ≈ #fa8a00 */
+  /* Primary = orange */
+  --primary: 28 100% 49%;           /* ≈ #fa8a00 */
   --primary-foreground: 0 0% 100%;
 
-  /* Secondary stays teal‑blue for contrast accents */
+  /* Secondary = teal-blue (subtle accents only) */
   --secondary: 193 100% 50%;
   --secondary-foreground: 224 44% 8%;
 
-  /* Accent = golden orange for badges/pills */
-  --accent: 46 100% 52%;                  /* ≈ #fec200 */
+  /* Accent = gold */
+  --accent: 46 100% 52%;            /* ≈ #fec200 */
   --accent-foreground: 224 44% 8%;
 
-  --muted: 36 100% 92%;                   /* soft orange tint */
+  --muted: 36 100% 92%;
   --muted-foreground: 224 15% 35%;
 
   --border: 30 40% 84%;
@@ -57,7 +56,7 @@
 
 /* ---------- Dark Theme ---------- */
 .dark {
-  --background: 24 90% 6%;                /* deep ink w/ warm hue */
+  --background: 24 90% 6%;          /* deep ink with warm hue */
   --foreground: 220 14% 94%;
 
   --card: 24 35% 12%;
@@ -66,7 +65,7 @@
   --popover: 24 35% 12%;
   --popover-foreground: 220 14% 94%;
 
-  --primary: 28 100% 52%;                 /* orange pops on dark */
+  --primary: 28 100% 52%;           /* orange pops on dark */
   --primary-foreground: 0 0% 0%;
 
   --secondary: 193 100% 50%;
@@ -90,7 +89,6 @@
 }
 
 /* ---------- Base ---------- */
-
 * { border-color: hsl(var(--border)); }
 html { scroll-behavior: smooth; }
 
@@ -108,15 +106,18 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
 }
 
+/* Links inherit color unless components override */
+a { color: inherit; }
+
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: hsl(var(--background)); }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--btn-pink), var(--btn-teal));
+  background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--accent)));
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, hsl(var(--secondary)), hsl(var(--accent)));
+  background: linear-gradient(180deg, hsl(var(--accent)), hsl(var(--primary)));
 }
 
 /* Gradient text helpers */
@@ -127,7 +128,7 @@ h1, h2, h3, h4, h5, h6 {
   background-clip: text;
 }
 .gradient-text-alt {
-  background: linear-gradient(135deg, hsl(var(--secondary)) 0%, var(--btn-pink) 100%);
+  background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--accent)) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -153,9 +154,9 @@ h1, h2, h3, h4, h5, h6 {
 .animate-infinite-scroll { animation: infinite-scroll 25s linear infinite; }
 
 /* ---------- Buttons ---------- */
-/* Replace solid primary with site‑wide gradient CTA */
+/* Brand CTA: red → yellow */
 .btn-primary {
-  background-image: linear-gradient(135deg, var(--btn-pink), var(--btn-teal));
+  background-image: linear-gradient(135deg, var(--btn-red), var(--btn-yellow));
   color: #fff;
   border-radius: 0.75rem;
   transition: transform 200ms ease, box-shadow 200ms ease, ring 200ms ease, filter 200ms ease;
@@ -170,24 +171,20 @@ h1, h2, h3, h4, h5, h6 {
   outline: none;
   box-shadow: 0 0 0 3px hsl(var(--ring) / .9);
 }
-.btn-ghost:hover {
-  background-color: hsl(var(--foreground) / 0.06);
-  color: hsl(var(--foreground));
-}
 
 /* ---------- Header & Footer Bars ---------- */
-/* Ensure strong contrast + tighter footer spacing */
+/* Use the same typography & color for both */
 .site-header,
 .site-footer {
-  background-color: var(--orange-800);
+  background-color: var(--orange-800); /* bold orange bar */
   color: #fff;
+  font-family: 'Playfair Display', serif;
 }
 .site-header a,
 .site-footer a { color: #fff; }
-.site-footer { padding-top: 1.25rem; padding-bottom: 1.25rem; } /* tightened */
+.site-footer { padding-top: 1.25rem; padding-bottom: 1.25rem; }
 
 /* ---------- HERO ---------- */
-
 .hero {
   position: relative;
   min-height: 86vh;
@@ -202,16 +199,17 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: saturate(1.05) contrast(1.05) brightness(.9);
+  filter: saturate(1.03) contrast(1.03) brightness(.95);
 }
+/* lighter scrim so the page doesn’t feel too dark */
 .hero-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     180deg,
-    hsl(var(--hero-scrim) / .55) 0%,
-    hsl(var(--hero-scrim) / .75) 70%,
-    hsl(var(--hero-scrim) / .9) 100%
+    hsl(var(--hero-scrim) / .35) 0%,
+    hsl(var(--hero-scrim) / .55) 60%,
+    hsl(var(--hero-scrim) / .68) 100%
   );
 }
 .hero-content { position: relative; z-index: 1; padding: clamp(16px, 3vw, 32px); }
@@ -238,7 +236,6 @@ h1, h2, h3, h4, h5, h6 {
 .hero-ctas { margin-top: 1.4rem; display: flex; gap: .8rem; flex-wrap: wrap; }
 
 /* ---------- Project Cards ---------- */
-
 .project-card {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
@@ -273,4 +270,3 @@ h1, h2, h3, h4, h5, h6 {
     0 1px 0 rgba(255,255,255,.12),
     0 6px 18px rgba(0,0,0,.35);
 }
-
