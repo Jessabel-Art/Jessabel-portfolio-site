@@ -4,9 +4,9 @@ import { Helmet } from 'react-helmet';
 import {
   ArrowRight,
   LayoutGrid,
-  PenTool,
   Lightbulb,
   Users,
+  PenTool,
   BarChart3,
   Briefcase,
   Star,
@@ -57,54 +57,52 @@ const HomePage = () => {
   return (
     <div className="overflow-x-hidden">
       <Helmet>
-        <title>Jessabel.Art · UX/UI Designer</title>
+        <title>Jessabel.Art · UX Designer</title>
         <meta
           name="description"
-          content="I map Ideas onto Screens — UX/UI, branding, and prototypes people actually enjoy using."
+          content="Research‑driven UX, thoughtful UI, and design systems that scale. I turn ideas into seamless, human‑centered digital experiences."
         />
       </Helmet>
 
-      {/* HERO */}
-      <section className="hero relative min-h-[72vh] sm:min-h-[82vh] md:min-h-[86vh] grid place-items-center overflow-clip">
+      {/* HERO (refreshed look) */}
+      <section className="relative min-h-[74vh] sm:min-h-[82vh] md:min-h-[86vh] grid place-items-center overflow-clip">
         <img src={heroBg} alt="" className="hero-image" loading="eager" decoding="async" />
-        <div className="hero-overlay" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.25))]" />
 
-        <div className="hero-content relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="max-w-4xl"
           >
+            {/* New gradient headline */}
             <h1
-              className="font-['Modak'] leading-[0.88] sm:leading-[0.9] text-[clamp(3rem,10vw,9rem)] text-[hsl(var(--headline-yellow))]"
-              style={{
-                textShadow: '0 4px 24px rgba(0,0,0,.35)',
-                WebkitTextStroke: '1.5px rgba(0,0,0,.45)',
-              }}
+              className="
+                font-['Playfair_Display'] font-extrabold tracking-[-0.01em]
+                text-[clamp(2.6rem,6vw,4.5rem)] leading-[1.05]
+                bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff),var(--btn-teal,#00c2b2))]
+                bg-clip-text text-transparent
+                drop-shadow-[0_6px_24px_rgba(0,0,0,.35)]
+              "
             >
-              <span className="block">
-                I map <em className="not-italic text-white">Ideas</em>
-              </span>
-              <span className="block">
-                onto <em className="not-italic text-white">Screens</em>
-              </span>
+              I design seamless, human‑centered digital experiences.
             </h1>
 
             <p
-              className="mt-4 sm:mt-6 font-['Playfair_Display'] text-[clamp(1.25rem,2.8vw,2rem)] max-w-3xl"
-              style={{
-                color: 'var(--orange-200)',
-                textShadow: '0 2px 12px rgba(0,0,0,.28)',
-              }}
+              className="mt-4 sm:mt-6 text-[clamp(1.05rem,2.1vw,1.35rem)] max-w-3xl"
+              style={{ color: 'var(--orange-200)', textShadow: '0 2px 12px rgba(0,0,0,.28)' }}
             >
-              Crafting experiences with UX/UI, branding, and prototypes people actually enjoy using.
+              Research‑driven UX, thoughtful UI, and design systems that scale—so your product feels intuitive,
+              inclusive, and measurable from day one.
             </p>
 
-            <div className="hero-ctas mt-6 sm:mt-9 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+            <div className="mt-7 sm:mt-9 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
               <Button
                 asChild
-                className="btn-primary w-full sm:w-auto rounded-full px-7 py-3.5 text-base sm:text-lg"
+                className="h-11 w-full sm:w-auto rounded-full px-7 text-base sm:text-lg font-semibold text-white shadow-lg
+                           bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
+                           focus:outline-none focus:ring-2 focus:ring-white/70"
                 onClick={handleConsultationClick}
               >
                 <Link to="/contact" aria-label="Start a project">
@@ -116,7 +114,9 @@ const HomePage = () => {
               <Button
                 asChild
                 variant="outline"
-                className="w-full sm:w-auto rounded-full px-7 py-3.5 text-base sm:text-lg border-white/30 text-white bg-white/10 backdrop-blur hover:bg-white/20"
+                className="h-11 w-full sm:w-auto rounded-full px-7 text-base sm:text-lg
+                           border-white/35 text-white bg-white/10 backdrop-blur hover:bg-white/20
+                           focus:outline-none focus:ring-2 focus:ring-white/70"
               >
                 <Link to="/portfolio" aria-label="See my work">
                   See my work
@@ -133,7 +133,7 @@ const HomePage = () => {
           <div className="text-left space-y-3 sm:space-y-4 mb-8 sm:mb-10">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold gradient-text">What I Bring to Every Project</h2>
             <p className="text-base sm:text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-3xl">
-              Strategy, taste, and rigorous usability—delivered through clear process.
+              Strategy, taste, and rigorous usability—delivered through a clear, collaborative process.
             </p>
           </div>
 
@@ -149,7 +149,8 @@ const HomePage = () => {
                   transition={{ duration: 0.45, delay: index * 0.05 }}
                   viewport={{ once: true }}
                   whileHover={{ y: -4 }}
-                  className={`relative rounded-2xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] shadow-sm hover:shadow-md transition-all ring-1 ring-transparent hover:${accent.ring}`}
+                  className={`relative rounded-2xl bg-[hsl(var(--card))] border border-[hsl(var(--border)/0.8)]
+                              shadow-sm hover:shadow-md transition-all ring-1 ring-transparent hover:${accent.ring}`}
                 >
                   <div className={`absolute inset-x-0 top-0 h-1 ${accent.chip}`} />
                   <div className="p-6 sm:p-8">
@@ -166,7 +167,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
+      {/* TESTIMONIALS — smoother spacing & contrast */}
       <section className="py-14 md:py-24 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h2
@@ -183,7 +184,8 @@ const HomePage = () => {
             <ul className="flex gap-4 sm:gap-6 animate-infinite-scroll" style={{ animationDuration: '40s' }}>
               {[...reviews, ...reviews].map((r, i) => (
                 <li key={i} className="min-w-[260px] sm:min-w-[320px]">
-                  <div className="rounded-2xl bg-white/90 backdrop-blur shadow-lg border border-[hsl(var(--border))] p-4 sm:p-5 h-full flex flex-col justify-between">
+                  <div className="rounded-2xl bg-white/92 backdrop-blur shadow-lg border border-[hsl(var(--border)/0.8)]
+                                  p-4 sm:p-5 h-full flex flex-col justify-between">
                     <div className="flex items-center gap-2 mb-2 sm:mb-3">
                       <Star className="w-4 h-4 text-[hsl(var(--accent))]" />
                       <span className="font-semibold text-foreground text-sm sm:text-base">{r.name}</span>
@@ -197,7 +199,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA (updated copy to match hero) */}
       <section className="py-16 md:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
@@ -207,15 +209,19 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="glass rounded-3xl p-6 sm:p-10 md:p-12"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">Ready to start your project?</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
+              Ready to design something people love?
+            </h2>
             <p className="text-base sm:text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto mt-3 sm:mt-4">
-              Let’s collaborate and bring your vision to life with exceptional design, strategy, and user experience.
+              Let’s collaborate and bring your vision to life with thoughtful UX, clean UI, and systems that scale.
             </p>
 
             <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
               <Button
                 asChild
-                className="btn-primary w-full sm:w-auto rounded-full px-6 sm:px-7 py-3 text-base sm:text-lg"
+                className="h-11 w-full sm:w-auto rounded-full px-7 text-base sm:text-lg font-semibold text-white shadow-lg
+                           bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
+                           focus:outline-none focus:ring-2 focus:ring-white/70"
                 onClick={handleConsultationClick}
               >
                 <Link to="/contact">
@@ -226,7 +232,8 @@ const HomePage = () => {
               <Button
                 asChild
                 variant="outline"
-                className="w-full sm:w-auto border-border rounded-full px-6 sm:px-7 py-3 text-base sm:text-lg"
+                className="h-11 w-full sm:w-auto rounded-full px-7 text-base sm:text-lg
+                           focus:outline-none focus:ring-2 focus:ring-white/70"
               >
                 <Link to="/portfolio">See recent work</Link>
               </Button>
