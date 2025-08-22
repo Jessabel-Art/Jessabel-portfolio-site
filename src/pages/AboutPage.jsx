@@ -75,7 +75,16 @@ const AboutPage = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
           <motion.div {...fadeIn} className="lg:col-span-3 space-y-8">
-            <h1 className="text-5xl md:text-6xl font-bold text-[hsl(var(--foreground))]">
+            {/* HERO: homepage font + gradient + undershadow */}
+            <h1
+              className="
+                font-hero font-extrabold tracking-tight
+                text-5xl md:text-6xl
+                bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff),var(--btn-teal,#00c2b2))]
+                bg-clip-text text-transparent
+              "
+              style={{ textShadow: '0 6px 22px rgba(0,0,0,0.22)' }}
+            >
               My Story in Color
             </h1>
 
@@ -170,12 +179,21 @@ const AboutPage = () => {
               >
                 <div className={`w-full lg:w-2/3 ${index % 2 === 0 ? 'pr-8 lg:text-right' : 'pl-8 text-left'}`}>
                   <div className="rounded-2xl p-6 bg-[hsl(var(--card))] border border-[hsl(var(--border))] shadow-md hover:shadow-lg transition-shadow relative">
+                    {/* YEAR PILL — larger size + shadow + subtle gradient */}
                     <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[hsl(var(--accent))] text-[#0B0F1A] ring-1 ring-[hsl(var(--accent))/0.5] ${index % 2 === 0 ? 'lg:absolute lg:-right-3 lg:-top-3' : 'lg:absolute lg:-left-3 lg:-top-3'}`}
+                      className={[
+                        'inline-flex items-center',
+                        'px-4 py-1.5 md:px-5 md:py-2',
+                        'rounded-full text-sm md:text-base font-bold',
+                        'shadow-md ring-1 ring-[hsl(var(--accent))/0.5]',
+                        'bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] text-white',
+                        index % 2 === 0 ? 'lg:absolute lg:-right-3 lg:-top-3' : 'lg:absolute lg:-left-3 lg:-top-3',
+                      ].join(' ')}
                     >
                       {item.year}
                     </span>
-                    <h3 className="mt-2 text-xl font-bold text-[hsl(var(--foreground))]">{item.title}</h3>
+
+                    <h3 className="mt-3 text-xl font-bold text-[hsl(var(--foreground))]">{item.title}</h3>
                     <p className="text-sm font-semibold mb-3" style={{ color: WARM_BROWN }}>
                       {item.company}
                     </p>
@@ -262,13 +280,14 @@ const AboutPage = () => {
         />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div {...fadeIn} className="mx-auto max-w-3xl">
+            {/* HEADER: hero font + stronger undershadow */}
             <h2
-              className="text-4xl md:text-5xl font-bold mb-4"
-              style={{ color: 'hsl(var(--headline-yellow))', textShadow: '0 4px 22px rgba(0,0,0,0.35)' }}
+              className="font-hero text-4xl md:text-5xl font-extrabold mb-4"
+              style={{ color: 'hsl(var(--headline-yellow))', textShadow: '0 6px 26px rgba(0,0,0,0.45)' }}
             >
               Curious about my process?
             </h2>
-            {/* Subheader bumped in size per request */}
+            {/* Subheader */}
             <p className="text-2xl md:text-3xl mb-8" style={{ color: '#ffffff', textShadow: '0 2px 14px rgba(0,0,0,.35)' }}>
               See how I approach projects from discovery to launch.
             </p>

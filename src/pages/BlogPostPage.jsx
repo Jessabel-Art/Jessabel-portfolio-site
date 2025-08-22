@@ -1,42 +1,26 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet';
 import { Calendar, User, ArrowLeft, ArrowRight, Clock, Share2, Copy, ListTree } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 
-type Post = {
-  id?: string | number;
-  slug?: string;
-  title: string;
-  excerpt?: string;
-  content?: string; // sanitized HTML upstream
-  date?: string; // ISO preferred
-  author?: string;
-  tags?: string[];
-  category?: string;
-  cover?: string;
-  heroImage?: string;
-  coverAlt?: string;
-  heroAlt?: string;
-};
-
-const BlogPostPage = ({ posts = [] as Post[] }) => {
+const BlogPostPage = ({ posts = [] }) => {
   // Support either /blog/:id or /blog/:postId
   const { id, postId } = useParams();
   const targetId = id ?? postId;
 
   // ---------- Helpers ----------
-  const parseDate = (d?: string) => (d ? new Date(d) : null);
-  const keyFor = (p?: Post | null) => (p?.slug ?? p?.id) as string | number | undefined;
-  const grad = 'bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] text-white font-semibold shadow-lg';
+  const parseDate = (d) => (d ? new Date(d) : null);
+  const keyFor = (p) => (p && (p.slug ?? p.id));
+  const grad =
+    'bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] text-white font-semibold shadow-lg';
   const outline = 'border border-[hsl(var(--border))]';
 
   // Normalize & order posts (newest first if dates exist)
   const ordered = useMemo(() => {
     const arr = posts.filter(Boolean);
-    const hasDates = arr.some(p => p.date);
+    const hasDates = arr.some((p) => p.date);
     if (!hasDates) return arr;
     return [...arr].sort((a, b) => {
       const da = parseDate(a.date)?.getTime() ?? 0;
@@ -47,10 +31,9 @@ const BlogPostPage = ({ posts = [] as Post[] }) => {
 
   // Find the current post robustly (slug OR id)
   const postIndex = useMemo(() => {
-    const idx = ordered.findIndex(
+    return ordered.findIndex(
       (p) => String(p.id) === String(targetId) || String(p.slug) === String(targetId)
     );
-    return idx;
   }, [ordered, targetId]);
 
   const post = postIndex >= 0 ? ordered[postIndex] : null;
@@ -58,8 +41,8 @@ const BlogPostPage = ({ posts = [] as Post[] }) => {
   const nextPost = postIndex >= 0 && postIndex < ordered.length - 1 ? ordered[postIndex + 1] : null;
 
   // UI state
-  const articleRef = useRef<HTMLElement | null>(null);
-  const [toc, setToc] = useState<{id: string; text: string; level: 2 | 3}[]>([]);
+  const articleRef = useRef(null);
+  const [toc, setToc] = useState([]); // [{id, text, level}]
   const [activeId, setActiveId] = useState('');
   const [progress, setProgress] = useState(0);
   const [tocOpen, setTocOpen] = useState(false);
@@ -97,13 +80,17 @@ const BlogPostPage = ({ posts = [] as Post[] }) => {
     const url = window.location.href;
     const data = { title: post.title, text: post.excerpt || post.title, url };
     if (navigator.share) {
-      try { await navigator.share(data); } catch {/* canceled */}
+      try {
+        await navigator.share(data);
+      } catch {
+        /* canceled */
+      }
     } else {
       handleCopyLink();
     }
   };
 
-  const shareTo = (network: 'x' | 'linkedin') => {
+  const shareTo = (network) => {
     const url = encodeURIComponent(window.location.href);
     const text = encodeURIComponent(post?.title || 'Article');
     let href = '';
@@ -163,14 +150,14 @@ const BlogPostPage = ({ posts = [] as Post[] }) => {
     const el = articleRef.current;
     if (!el) return;
 
-    const slugify = (s: string) =>
+    const slugify = (s) =>
       s.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
 
-    const headings = Array.from(el.querySelectorAll('h2, h3')) as HTMLElement[];
-    const tocItems: {id: string; text: string; level: 2 | 3}[] = [];
-    const used = new Set<string>();
+    const headings = Array.from(el.querySelectorAll('h2, h3'));
+    const tocItems = [];
+    const used = new Set();
     headings.forEach((h) => {
-      const level = (h.tagName.toLowerCase() === 'h3' ? 3 : 2) as 2 | 3;
+      const level = h.tagName.toLowerCase() === 'h3' ? 3 : 2;
       let base = h.id || slugify(h.textContent || '');
       if (!base) return;
       let unique = base;
@@ -186,7 +173,7 @@ const BlogPostPage = ({ posts = [] as Post[] }) => {
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible[0]) setActiveId((visible[0].target as HTMLElement).id);
+        if (visible[0]) setActiveId(visible[0].target.id);
       },
       { rootMargin: '0px 0px -70% 0px', threshold: [0, 0.25, 0.5, 1] }
     );
@@ -226,8 +213,10 @@ const BlogPostPage = ({ posts = [] as Post[] }) => {
 
       {/* Sticky reading progress */}
       <div aria-hidden="true" className="fixed top-0 left-0 right-0 h-[3px] z-40 bg-transparent" style={{ pointerEvents: 'none' }}>
-        <div className="h-full transition-[width] duration-150 ease-out"
-             style={{ width: `${progress}%`, background: 'linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))' }} />
+        <div
+          className="h-full transition-[width] duration-150 ease-out"
+          style={{ width: `${progress}%`, background: 'linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))' }}
+        />
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[260px,1fr] gap-10">
@@ -378,7 +367,7 @@ const BlogPostPage = ({ posts = [] as Post[] }) => {
           {/* Content */}
           {sanitizedHtml ? (
             <article
-              ref={articleRef as any}
+              ref={articleRef}
               className="
                 prose prose-lg max-w-none
                 prose-headings:font-bold prose-headings:scroll-mt-24
@@ -395,7 +384,7 @@ const BlogPostPage = ({ posts = [] as Post[] }) => {
                 dark:prose-invert
               "
               // Ensure post.content is sanitized HTML upstream
-              dangerouslySetInnerHTML={{ __html: post.content as string }}
+              dangerouslySetInnerHTML={{ __html: post.content }}
             />
           ) : (
             <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6">
@@ -446,4 +435,3 @@ const BlogPostPage = ({ posts = [] as Post[] }) => {
 };
 
 export default BlogPostPage;
-
