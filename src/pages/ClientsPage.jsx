@@ -9,8 +9,8 @@ import { Link } from 'react-router-dom';
 const CLIENTS = [
   { name: 'ACME Corp', pin: '7431', folder: 'acme' },
   { name: 'Neoterra Inc.', pin: '8190', folder: 'neoterra' },
-  // Sanchez default stage set to Design
-  { name: 'Sanchez Services', pin: '1122', folder: 'sanchez', stage: 'Design' },
+  // Default Sanchez to BUILD
+  { name: 'Sanchez Services', pin: '1122', folder: 'sanchez', stage: 'Build' },
 ];
 
 // Notion: open as a new tab via CTA (no iframe)
@@ -18,44 +18,37 @@ const NOTION_URL = 'https://apple-month-55e.notion.site/246ec2233e6f802a93aae01c
 
 const shakeVariants = {
   still: { x: 0 },
-  shake: {
-    x: [0, -8, 8, -6, 6, -3, 3, 0],
-    transition: { duration: 0.4, ease: 'easeInOut' },
-  },
+  shake: { x: [0, -8, 8, -6, 6, -3, 3, 0], transition: { duration: 0.4, ease: 'easeInOut' } },
 };
 
-// Updated button styles (tailwind-friendly)
+// Buttons
 const btnPrimary =
   'text-white font-semibold shadow-lg border-0 bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff))] hover:opacity-95';
 const btnGhost =
   'border border-[hsl(var(--border))] bg-transparent hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]';
 
+// Steps
 const STEPS = ['Intake', 'Discovery', 'Design', 'Build', 'Review', 'Handoff'];
 
 // High-contrast timeline styles
-const trackBase = 'bg-[hsl(var(--foreground)/0.14)]'; // neutral rail
+const trackBase = 'bg-[hsl(var(--foreground)/0.14)]';
 const trackFill =
-  'bg-[linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff),var(--btn-teal,#00c2b2))] ' +
-  'shadow-[inset_0_0_0_2px_rgba(255,255,255,.35),0_6px_18px_rgba(0,0,0,.18)]';
+  'bg-[linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff),var(--btn-teal,#00c2b2))] shadow-[inset_0_0_0_2px_rgba(255,255,255,.35),0_6px_18px_rgba(0,0,0,.18)]';
 const nodeInactive =
-  'bg-white text-[hsl(var(--foreground)/0.7)] border border-[hsl(var(--foreground)/0.15)] ' +
-  'shadow-[0_2px_10px_rgba(0,0,0,.08)]';
+  'bg-white text-[hsl(var(--foreground)/0.7)] border border-[hsl(var(--foreground)/0.15)] shadow-[0_2px_10px_rgba(0,0,0,.08)]';
 const nodeActive =
-  'text-white bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] ' +
-  'shadow-[0_8px_20px_rgba(0,0,0,.22)] ring-2 ring-white/60';
+  'text-white bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] shadow-[0_8px_20px_rgba(0,0,0,.22)] ring-2 ring-white/60';
 const nodeCompleted =
-  'text-white bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] ' +
-  'shadow-[0_6px_16px_rgba(0,0,0,.18)] opacity-[0.95]';
+  'text-white bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] shadow-[0_6px_16px_rgba(0,0,0,.18)] opacity-[0.95]';
 
 const ClientsPage = () => {
-  // PIN (single box)
+  // PIN (single box, seamless)
   const [pinValue, setPinValue] = useState('');
   const [error, setError] = useState('');
   const [shake, setShake] = useState(false);
-
   const [client, setClient] = useState(null);
 
-  // Project status tracker state (can be driven from Notion or your DB later)
+  // Project status
   const [currentStage, setCurrentStage] = useState('Intake');
 
   const inputRef = useRef(null);
@@ -69,7 +62,6 @@ const ClientsPage = () => {
       setError('');
       setShake(false);
       setClient(found);
-      // Set default stage per client (falls back to Intake)
       setCurrentStage(found.stage || 'Intake');
     } else {
       setError('Invalid PIN. Please try again or contact Jessabel.');
@@ -77,7 +69,7 @@ const ClientsPage = () => {
       setPinValue('');
       setTimeout(() => {
         setShake(false);
-        if (inputRef.current) inputRef.current.focus();
+        inputRef.current && inputRef.current.focus();
       }, 450);
     }
   };
@@ -87,6 +79,22 @@ const ClientsPage = () => {
     const next = v.replace(/\D/g, '').slice(0, 4);
     setPinValue(next);
     if (next.length === 4) attemptVerify(next);
+  };
+
+  const handlePaste = (e) => {
+    const text = (e.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 4);
+    if (text) {
+      e.preventDefault();
+      setPinValue(text);
+      attemptVerify(text);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      attemptVerify(sanitizedPin);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -121,7 +129,7 @@ const ClientsPage = () => {
   };
 
   useEffect(() => {
-    if (inputRef.current) inputRef.current.focus();
+    inputRef.current && inputRef.current.focus();
   }, []);
 
   const resetPortal = () => {
@@ -132,23 +140,19 @@ const ClientsPage = () => {
     setTimeout(() => inputRef.current && inputRef.current.focus(), 0);
   };
 
-  // ---- UI bits ----
-
+  // ---- Stepper ----
   const Stepper = ({ current }) => {
     const idx = STEPS.indexOf(current);
     const pct = Math.max(0, (idx / (STEPS.length - 1)) * 100);
 
     return (
       <div className="w-full">
-        {/* Nodes + connectors */}
         <div className="flex items-center justify-between mb-4">
           {STEPS.map((label, i) => {
             const isActive = i === idx;
             const isDone = i < idx;
-
             return (
               <div key={label} className="flex-1 flex items-center">
-                {/* Node */}
                 <div
                   className={[
                     'w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold select-none',
@@ -159,12 +163,9 @@ const ClientsPage = () => {
                 >
                   {i + 1}
                 </div>
-
-                {/* Connector segment (not after last node) */}
                 {i < STEPS.length - 1 && (
                   <div className="relative flex-1 mx-3">
                     <div className={`h-1.5 rounded-full ${trackBase}`} />
-                    {/* filled portion for completed segments */}
                     <div
                       className={`absolute inset-y-0 left-0 h-1.5 rounded-full overflow-hidden ${
                         isDone ? trackFill : 'opacity-0'
@@ -179,7 +180,6 @@ const ClientsPage = () => {
           })}
         </div>
 
-        {/* Base progress rail + animated fill */}
         <div className={`relative h-2 rounded-full overflow-hidden ${trackBase}`}>
           <motion.div
             className={`absolute left-0 top-0 h-full ${trackFill}`}
@@ -199,6 +199,7 @@ const ClientsPage = () => {
     );
   };
 
+  // ---- Views ----
   const PinForm = () => (
     <motion.div
       key="form"
@@ -210,9 +211,9 @@ const ClientsPage = () => {
     >
       <form onSubmit={handleSubmit} className="glass p-8 rounded-2xl shadow-lg space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-foreground">Client Postal</h1>
+          <h1 className="text-3xl font-bold text-foreground">Client Portal</h1>
           <p id="pin-help" className="text-muted-foreground mt-2">
-            Enter the 4-digit code we shared with you{' '}
+            Enter the 4‑digit code we shared with you{' '}
             <Link to="/contact" className="underline underline-offset-4">
               (Don’t have a code?)
             </Link>
@@ -221,10 +222,10 @@ const ClientsPage = () => {
 
         <div className="space-y-3">
           <Label className="text-muted-foreground" htmlFor="pin-box">
-            Enter your 4-digit PIN
+            Enter your 4‑digit PIN
           </Label>
 
-        <motion.div
+          <motion.div
             variants={shakeVariants}
             animate={shake ? 'shake' : 'still'}
             className="w-full"
@@ -233,17 +234,24 @@ const ClientsPage = () => {
             <Input
               id="pin-box"
               ref={inputRef}
-              type="password"
+              // TIP: type="tel" + inputMode="numeric" gives best mobile keypad
+              type="tel"
               inputMode="numeric"
+              enterKeyHint="go"
+              autoFocus
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="one-time-code"
+              aria-label="PIN code"
               pattern="\d{4}"
               maxLength={4}
               value={sanitizedPin}
               onChange={(e) => handlePinChange(e.target.value)}
-              onFocus={(e) => e.currentTarget.select()}
-              placeholder="••••"
-              autoComplete="one-time-code"
+              onPaste={handlePaste}
+              onKeyDown={handleKeyDown}
+              onDrop={(e) => e.preventDefault()}
+              placeholder="1234"
               className="h-14 text-2xl tracking-[0.6em] text-center"
-              aria-label="PIN code"
             />
           </motion.div>
         </div>
@@ -265,7 +273,7 @@ const ClientsPage = () => {
             onClick={() => {
               setPinValue('');
               setError('');
-              if (inputRef.current) inputRef.current.focus();
+              inputRef.current && inputRef.current.focus();
             }}
           >
             Clear
@@ -334,7 +342,7 @@ const ClientsPage = () => {
   return (
     <div className="min-h-[70vh] flex items-center justify-center py-20 px-4">
       <Helmet>
-        <title>Client Postal - Jessabel.Art</title>
+        <title>Client Portal - Jessabel.Art</title>
         <meta name="description" content="Secure client portal for project access." />
       </Helmet>
 
