@@ -41,17 +41,9 @@ const AboutPage = () => {
     'Branding', 'Identity', 'SEO', 'React', 'Tailwind', 'GitHub', 'WordPress', 'Framer',
   ];
 
-  const pillClass = (label = '') => {
-    const t = label.toLowerCase();
-    const primary = 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-sm';
-    const secondary = 'bg-[hsl(var(--secondary))] text-white shadow-sm';
-    const accent = 'bg-[hsl(var(--accent))] text-[#0B0F1A] shadow-sm';
-    const neutral = 'bg-[hsl(var(--foreground))/0.08] text-[hsl(var(--foreground))]';
-    if (['ux', 'user research', 'research'].includes(t)) return secondary;
-    if (['ui', 'figma', 'prototyping', 'design systems', 'react', 'tailwind', 'github', 'framer', 'wordpress'].includes(t)) return primary;
-    if (['branding', 'identity', 'seo'].includes(t)) return accent;
-    return neutral;
-  };
+  // unified pill style to reduce color chaos on busy photo bg
+  const pillStyle =
+    'px-3 py-1.5 rounded-full text-sm font-semibold bg-[hsl(var(--accent))] text-[#0B0F1A] shadow-sm hover:shadow-md hover:brightness-[1.02] transition';
 
   const fadeIn = {
     initial: { opacity: 0, y: 30 },
@@ -196,44 +188,51 @@ const AboutPage = () => {
         </motion.div>
       </section>
 
-      {/* Skills + Stats (no full overlay; readable cards on image) */}
+      {/* Skills + Stats (refined layout) */}
       <section
         className="py-16 bg-cover bg-center relative"
         style={{ backgroundImage: `url(${toolsStatsBg})` }}
       >
+        {/* subtle corner vignette to boost legibility without “overlaying” the whole image */}
+        <div className="pointer-events-none absolute inset-0 [background:radial-gradient(1200px_500px_at_20%_20%,rgba(0,0,0,.18),transparent_60%),radial-gradient(900px_400px_at_90%_50%,rgba(0,0,0,.14),transparent_55%)]" />
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-center">
-            <motion.div {...fadeIn} className="lg:col-span-2">
-              <h2
-                className="text-3xl md:text-4xl font-bold mb-6 text-center lg:text-left glow-yellow"
-                style={{ color: 'hsl(var(--headline-yellow))', textShadow: '0 3px 18px rgba(0,0,0,0.22)' }}
-              >
-                What I Work With
-              </h2>
+          {/* Heading */}
+          <motion.h2
+            {...fadeIn}
+            className="text-3xl md:text-4xl font-bold text-center mb-8 glow-yellow"
+            style={{ color: 'hsl(var(--headline-yellow))', textShadow: '0 3px 18px rgba(0,0,0,.22)' }}
+          >
+            What I Work With
+          </motion.h2>
 
-              {/* One smooth marquee row */}
-              {skills.length > 0 && (
-                <MarqueeRow
-                  items={skills}
-                  render={(s) => (
-                    <span className={`text-sm px-3 py-1.5 rounded-full font-semibold pill-contrast ${pillClass(s)}`}>{s}</span>
-                  )}
-                  duration={30}
-                />
-              )}
-            </motion.div>
+          {/* Skills — unified glass card with grid pills */}
+          <motion.div
+            {...fadeIn}
+            transition={{ ...fadeIn.transition, delay: 0.05 }}
+            className="mx-auto max-w-5xl rounded-2xl border border-white/25 bg-white/10 backdrop-blur-md shadow-lg p-4 sm:p-6"
+            aria-label="Skill toolkit"
+          >
+            <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+              {skills.map((s) => (
+                <li key={s} className="flex">
+                  <span className={pillStyle}>{s}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
 
-            {/* Stats — bright “glass” cards for legibility */}
-            <motion.ul
-              {...fadeIn}
-              transition={{ ...fadeIn.transition, delay: 0.1 }}
-              className="grid grid-cols-1 gap-4"
-            >
-              <StatCard icon={<Layers className="mt-1 text-[#0B0F1A]" />} value="15 yrs" label="Design & ops experience" />
-              <StatCard icon={<Users className="mt-1 text-[#0B0F1A]" />} value="5+" label="Industries served" />
-              <StatCard icon={<Award className="mt-1 text-[#0B0F1A]" />} value="100%" label="Client-first approach" />
-            </motion.ul>
-          </div>
+          {/* Stats — cohesive, centered block under skills */}
+          <motion.ul
+            {...fadeIn}
+            transition={{ ...fadeIn.transition, delay: 0.12 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-5xl mx-auto"
+            aria-label="Experience highlights"
+          >
+            <StatCard icon={<Layers className="mt-1 text-[#0B0F1A]" />} value="15 yrs" label="Design & ops experience" />
+            <StatCard icon={<Users className="mt-1 text-[#0B0F1A]" />} value="5+" label="Industries served" />
+            <StatCard icon={<Award className="mt-1 text-[#0B0F1A]" />} value="100%" label="Client-first approach" />
+          </motion.ul>
         </div>
       </section>
 

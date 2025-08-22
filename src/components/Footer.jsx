@@ -18,7 +18,6 @@ const Footer = () => {
   const navLinks = [
     { label: 'Home', path: '/' },
     { label: 'About', path: '/about' },
-    // { label: 'Portfolio', path: '/portfolio' },
     { label: 'Blog', path: '/blog' },
     { label: 'Clients', path: '/clients' },
   ];
@@ -58,20 +57,22 @@ const Footer = () => {
                 Jessabel<span>.Art</span>
               </span>
             </Link>
-            <p className="mt-3 text-sm text-white/85 max-w-xs">
+            <p className="mt-3 text-base text-white/90 max-w-xs font-medium">
               Designing usable, beautiful interfaces and purposeful brands.
             </p>
           </div>
 
           {/* Navigate */}
           <nav aria-label="Footer navigation" className="flex flex-col items-center md:items-start">
-            <h3 className="font-semibold text-lg text-white mb-3">Navigate</h3>
+            <h3 className="font-semibold text-lg text-white mb-3 underline underline-offset-4 decoration-white/70">
+              Navigate
+            </h3>
             <ul className="space-y-1.5">
               {navLinks.map(({ label, path }) => (
                 <li key={label}>
                   <Link
                     to={path}
-                    className="text-white/85 hover:text-white transition-colors"
+                    className="text-white/85 hover:text-white hover:underline underline-offset-4 transition-colors"
                   >
                     {label}
                   </Link>
@@ -101,7 +102,7 @@ const Footer = () => {
 
             <a
               href="mailto:hello@jessabel.art"
-              className="mt-3 text-sm font-semibold underline decoration-white/70 underline-offset-4 hover:no-underline text-white"
+              className="mt-3 text-sm text-white/85 hover:text-white transition-colors"
             >
               hello@jessabel.art
             </a>
@@ -120,7 +121,7 @@ const Footer = () => {
               <Link
                 key={label}
                 to={path}
-                className="text-sm text-white/85 hover:text-white transition-colors"
+                className="text-sm text-white/85 hover:text-white hover:underline underline-offset-4 transition-colors"
               >
                 {label}
               </Link>

@@ -74,7 +74,7 @@ const Navigation = () => {
           </Link>
 
           {/* Desktop nav links */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-2">
             {navItems.map((item) => {
               const active = isRouteActive(item.path);
               return (
@@ -82,15 +82,15 @@ const Navigation = () => {
                   key={item.path}
                   to={item.path}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative px-4 py-2 rounded-full font-semibold transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
-                    active ? 'text-black' : 'text-white/90 hover:text-white'
+                  className={`relative px-5 py-2.5 rounded-full font-semibold transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
+                    active ? 'text-black' : 'text-white/90 hover:text-white hover:underline underline-offset-4'
                   }`}
                 >
                   <span className="relative z-10">{item.label}</span>
                   {active && (
                     <motion.div
                       layoutId="active-nav-item"
-                      className="absolute inset-0 rounded-full"
+                      className="absolute inset-0 rounded-full shadow-[0_6px_16px_rgba(0,0,0,.18)]"
                       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                       style={{ background: ACTIVE_PILL }}
                       aria-hidden="true"
@@ -103,6 +103,7 @@ const Navigation = () => {
 
           {/* Desktop CTA group */}
           <div className="hidden md:flex items-center">
+            {/* “Clients” remains high-contrast on the orange bar */}
             <Button
               asChild
               variant="outline"
@@ -124,8 +125,10 @@ const Navigation = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle navigation"
+              onClick={() => setIsOpen((v) => !v)}
+              aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={isOpen}
+              aria-pressed={isOpen}
               className="text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/60"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -184,4 +187,3 @@ const Navigation = () => {
 };
 
 export default Navigation;
-
