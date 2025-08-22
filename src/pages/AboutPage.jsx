@@ -5,9 +5,10 @@ import { Layers, Award, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
-// Local assets (place in /src/assets/about/)
+// Local assets
 import artistPortrait from '@/assets/about/artist-portrait.png';
 import toolsStatsBg from '@/assets/about/tools-stats-bg-strip.jpg';
+import processBg from '@/assets/images/process-background.jpg'; // ← add this file
 
 const AboutPage = () => {
   const journey = [
@@ -24,11 +25,12 @@ const AboutPage = () => {
     },
   ];
 
+  // Reverse chronological
   const education = [
-    { school:'Community College of Rhode Island', degree:'A.S. Business Administration', year:'2022' },
-    { school:'Western Governors University', degree:'B.S. Business Administration, Management', year:'2024' },
     { school:'Western Governors University', degree:'MBA (in progress)', year:'2025' },
+    { school:'Western Governors University', degree:'B.S. Business Administration, Management', year:'2024' },
     { school:'Full Sail University', degree:'Certificate in User Experience', year:'2024' },
+    { school:'Community College of Rhode Island', degree:'A.S. Business Administration', year:'2022' },
   ];
 
   const skills = [
@@ -84,12 +86,33 @@ const AboutPage = () => {
 
             <div className="space-y-6 text-lg text-[hsl(var(--muted-foreground))] leading-relaxed">
               <p>
-                With a background in business and a love for problem solving, I design digital experiences that feel bold and human.
-                I’ve worked across healthcare, finance, and HR, which gives me a clear view of how technology can support people in complex systems.
+                I didn’t start out calling myself a designer. My roots have always been creative, sketching,
+                experimenting with layouts, and bringing ideas to life visually. Long before I knew the term UX existed,
+                I was already mapping workflows, reorganizing dashboards, and tweaking web layouts to make things feel smoother.
+                At the time, I thought I was just fixing things. In reality, I was building the foundation of user experience.
               </p>
               <p>
-                My first taste of collaborative design was in <strong>2011</strong> during an internship at <strong>New Urban Arts</strong> for <em>NUA on the Move</em>. Our team planned the layout for a new studio so different art disciplines had the space and flow they needed. I also exhibited my own pieces, which taught me how environment, audience, and craft intersect.
-                Today I help founders and teams stand out by blending formal training, 15+ years of experience, and a curiosity for what makes an interface feel right.
+                In my early career in HR and operations, I became the person people turned to when systems felt clunky.
+                I would draw workflows on paper, sketch intranet structures, or redesign onboarding steps so people could
+                actually use the tools in front of them. That drive to make processes more human eventually pulled me
+                fully into UX and web design.
+              </p>
+              <p>
+                Outside of corporate roles, I’ve freelanced with small businesses and startups, helping them build branding systems,
+                design websites, and shape digital experiences from the ground up. Those projects gave me a front row seat to the
+                scrappy side of design. I loved helping a founder translate their vision into a visual identity, crafting user flows
+                that welcomed their first customers, and blending brand personality with usability.
+              </p>
+              <p>
+                Today I merge that creative background with more than 15 years of business experience to design solutions that are both
+                strategic and bold. I’ve wireframed corporate intranets for 20,000 employees, redesigned onboarding flows that cut errors
+                by 40 percent, and crafted customer journeys that aligned startup goals with user needs. Along the way, I earned my MBA
+                and a UX certificate from Full Sail University, which deepened both the strategic and creative sides of my toolkit.
+              </p>
+              <p>
+                My design style reflects who I am: colorful, unapologetic, and a little unexpected. I believe good design should spark curiosity
+                and feel as natural as conversation. Whether I’m sketching workflows, building a brand system, or prototyping in Figma,
+                I bring both the spreadsheet and the sketchbook to the table.
               </p>
             </div>
 
@@ -107,8 +130,8 @@ const AboutPage = () => {
               <div className="flex flex-wrap gap-3 mt-6">
                 <Link
                   to="/case-study/full-sail"
-                  className="inline-flex items-center justify-center rounded-full px-5 py-3 text-center font-semibold text-white shadow-lg"
-                  style={{ background: 'linear-gradient(135deg, var(--btn-red,#ba0d0d), var(--btn-teal,#ecdf26))' }}
+                  className="inline-flex items-center justify-center rounded-full px-5 py-3 text-center font-semibold text-white shadow-lg glow-yellow"
+                  style={{ background: 'linear-gradient(135deg, var(--btn-red,#ba0d0d), var(--btn-yellow,#ecdf26))' }}
                 >
                   View Full Sail Cert Case Study
                 </Link>
@@ -132,7 +155,7 @@ const AboutPage = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div {...fadeIn}>
           <h2 className="text-4xl md:text-5xl font-bold text-[hsl(var(--foreground))] mb-12 text-center lg:text-left">
-            My Professional Journey
+            My UX Journey
           </h2>
           <div className="relative space-y-12">
             <div className="absolute left-1/2 lg:left-[calc(33.333%-0.25rem)] lg:translate-x-0 -translate-x-1/2 h-full w-0.5 bg-gradient-to-b from-[hsl(var(--primary))/0.25] to-[hsl(var(--secondary))/0.25] rounded-full" />
@@ -161,18 +184,21 @@ const AboutPage = () => {
         </motion.div>
       </section>
 
-      {/* Skills + Stats (light, high-contrast) */}
+      {/* Skills + Stats (HIGH CONTRAST) */}
       <section
         className="py-16 bg-cover bg-center relative"
         style={{ backgroundImage: `url(${toolsStatsBg})` }}
       >
-        {/* LIGHT overlay for contrast; no dark‑theme variants */}
-        <div className="absolute inset-0 bg-white/82" />
+        {/* Brighter overlay for readability */}
+        <div className="absolute inset-0 bg-white/90 backdrop-blur-[1px]" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-center">
             <motion.div {...fadeIn} className="lg:col-span-2">
-              <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))] mb-6 text-center lg:text-left">
+              <h2
+                className="text-3xl md:text-4xl font-bold mb-6 text-center lg:text-left glow-yellow"
+                style={{ color: 'hsl(var(--headline-yellow))', textShadow: '0 2px 14px rgba(0,0,0,0.12)' }}
+              >
                 What I Work With
               </h2>
 
@@ -183,22 +209,22 @@ const AboutPage = () => {
                   render={(s) => (
                     <span className={`text-sm px-3 py-1.5 rounded-full font-semibold ${pillClass(s)}`}>{s}</span>
                   )}
-                  duration={32}
+                  duration={30}
                 />
               )}
             </motion.div>
 
-            {/* Stats — readable on light overlay */}
+            {/* Stats — darker text, crisp borders */}
             <motion.ul {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.1 }} className="grid grid-cols-1 gap-4">
-              <StatCard icon={<Layers className="mt-1" />} value="15 yrs" label="Design & ops experience" />
-              <StatCard icon={<Users className="mt-1" />} value="5+" label="Industries served" />
-              <StatCard icon={<Award className="mt-1" />} value="100%" label="Client-first approach" />
+              <StatCard icon={<Layers className="mt-1 text-[#0B0F1A]" />} value="15 yrs" label="Design & ops experience" />
+              <StatCard icon={<Users className="mt-1 text-[#0B0F1A]" />} value="5+" label="Industries served" />
+              <StatCard icon={<Award className="mt-1 text-[#0B0F1A]" />} value="100%" label="Client-first approach" />
             </motion.ul>
           </div>
         </div>
       </section>
 
-      {/* Design Footprints — single marquee row with larger tiles (object-contain to avoid cropping) */}
+      {/* Design Footprints — single marquee row (object-contain to avoid cropping) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div {...fadeIn}>
           <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))] mb-6 text-center">Design Footprints</h2>
@@ -206,18 +232,29 @@ const AboutPage = () => {
           {collage.length === 0 ? (
             <p className="text-center text-[hsl(var(--muted-foreground))]">Adding samples soon.</p>
           ) : (
-            <ImageMarquee images={collage} duration={38} />
+            <ImageMarquee images={collage} duration={36} />
           )}
         </motion.div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 bg-[hsl(var(--card))]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div {...fadeIn}>
-            <h2 className="text-4xl font-bold text-[hsl(var(--foreground))] mb-4">Curious about my process?</h2>
-            <p className="text-xl text-[hsl(var(--muted-foreground))] mb-8 max-w-2xl mx-auto">See how I approach projects from discovery to launch.</p>
-            <Button asChild size="lg" className="btn-primary rounded-full px-6">
+      {/* CTA: Curious about my process (BACKGROUND + overlay for legibility) */}
+      <section
+        className="py-20 bg-cover bg-center relative"
+        style={{ backgroundImage: `url(${processBg})` }}
+      >
+        <div className="absolute inset-0 bg-white/78" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div {...fadeIn} className="mx-auto max-w-3xl">
+            <h2
+              className="text-4xl md:text-5xl font-bold mb-4"
+              style={{ color: 'hsl(var(--headline-yellow))', textShadow: '0 2px 14px rgba(0,0,0,0.12)' }}
+            >
+              Curious about my process?
+            </h2>
+            <p className="text-xl text-[hsl(var(--muted-foreground))] mb-8">
+              See how I approach projects from discovery to launch.
+            </p>
+            <Button asChild size="lg" className="btn-primary rounded-full px-6 glow-yellow">
               <Link to="/process">View My UX Process</Link>
             </Button>
           </motion.div>
@@ -230,11 +267,11 @@ const AboutPage = () => {
 /* ---------- Small pieces ---------- */
 
 const StatCard = ({ icon, value, label }) => (
-  <li className="rounded-2xl p-5 bg-white/95 text-[hsl(var(--foreground))] border border-[hsl(var(--border))] shadow-sm flex items-start gap-3">
+  <li className="rounded-2xl p-6 md:p-7 bg-white/96 text-[#0B0F1A] border border-[hsl(var(--border))]/80 shadow-md flex items-start gap-3">
     {icon}
     <div>
-      <p className="text-3xl font-extrabold leading-none">{value}</p>
-      <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">{label}</p>
+      <p className="text-[1.9rem] md:text-4xl font-extrabold leading-none">{value}</p>
+      <p className="text-sm md:text-base text-[hsl(var(--muted-foreground))] mt-1">{label}</p>
     </div>
   </li>
 );
@@ -257,7 +294,7 @@ const MarqueeRow = ({ items = [], render, duration = 30 }) => {
   );
 };
 
-const ImageMarquee = ({ images = [], duration = 40 }) => {
+const ImageMarquee = ({ images = [], duration = 36 }) => {
   const doubled = [...images, ...images];
   return (
     <div className="w-full overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_72px,_black_calc(100%-72px),transparent_100%)]">
@@ -289,7 +326,3 @@ const Tile = ({ src }) => (
 );
 
 export default AboutPage;
-
-
-
-
