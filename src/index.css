@@ -1,3 +1,286 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Playfair Display + Modak are loaded in index.html */
+
+/* ---------- Brand Tokens (LIGHT ONLY) ---------- */
+:root {
+  /* Brand oranges */
+  --orange-100: #fee9a6; /* pale */
+  --orange-200: #ffe574; /* header pill yellow */
+  --orange-400: #fec200;
+  --orange-600: #fa8a00;
+  --orange-800: #d74708; /* header/footer bar */
+
+  /* CTA gradient (red → yellow) */
+  --btn-red: #ba0d0d;
+  --btn-yellow: #ecdf26;
+
+  /* Site theme */
+  --background: 47 97% 82%;         /* warm, bright base */
+  --foreground: 224 44% 8%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 224 44% 8%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 224 44% 8%;
+
+  /* Primary = orange */
+  --primary: 28 100% 49%;           /* ≈ #fa8a00 */
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary = teal-blue (subtle accents only) */
+  --secondary: 193 100% 50%;
+  --secondary-foreground: 224 44% 8%;
+
+  /* Accent = gold */
+  --accent: 46 100% 52%;            /* ≈ #fec200 */
+  --accent-foreground: 224 44% 8%;
+
+  /* ✅ Warm system (replace gray with warm brown across site) */
+  --warm-brown-hex: #5a3a2a;
+  --muted: 36 100% 92%;
+  --muted-foreground: 22 35% 28%;   /* warm brown instead of gray */
+
+  --border: 30 40% 84%;
+  --input: 30 40% 84%;
+  --ring: 28 100% 49%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Helpers */
+  --headline-yellow: 46 100% 52%;
+  --hero-scrim: 24 90% 8%;
+}
+
+/* ---------- Base ---------- */
+* { border-color: hsl(var(--border)); }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  line-height: 1.7;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+}
+
+/* Links inherit color unless components override */
+a { color: inherit; }
+
+/* Utility to use warm brown directly when needed */
+.text-warm-brown { color: var(--warm-brown-hex); }
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: hsl(var(--background)); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--accent)));
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, hsl(var(--accent)), hsl(var(--primary)));
+}
+
+/* ---------- Gradient Text ---------- */
+.gradient-text {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-alt {
+  background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--accent)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ---------- Glass Surface ---------- */
+.glass {
+  background: hsl(var(--card) / 0.6);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+
+/* Small glow helper for headings/buttons in bold sections */
+.glow-yellow { filter: drop-shadow(0 8px 18px rgba(250,138,0,.35)); }
+
+/* ---------- Marquee ---------- */
+@keyframes infinite-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+.animate-infinite-scroll { animation: infinite-scroll 25s linear infinite; }
+
+/* Edge mask utility for marquee rows */
+.mask-edge-x {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 80px,
+    black calc(100% - 80px),
+    transparent 100%
+  );
+}
+
+/* ---------- Buttons ---------- */
+.btn-primary {
+  background-image: linear-gradient(135deg, var(--btn-red), var(--btn-yellow));
+  color: #fff;
+  border-radius: 0.75rem;
+  transition: transform 200ms ease, box-shadow 200ms ease, ring 200ms ease, filter 200ms ease;
+  box-shadow: 0 10px 22px rgba(0,0,0,.12);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  filter: saturate(1.05);
+  box-shadow: 0 14px 28px rgba(0,0,0,.18);
+}
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--ring) / .9);
+}
+
+/* button helpers for contrasty CTAs on photos */
+.btn-glow { box-shadow: 0 0 0 2px rgba(255,255,255,.25), 0 12px 24px rgba(0,0,0,.18); }
+.btn-contrast {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.35);
+  backdrop-filter: blur(4px);
+}
+.btn-contrast:hover { background: rgba(255,255,255,.18); }
+
+/* ---------- Header & Footer Bars ---------- */
+.site-header,
+.site-footer {
+  background-color: var(--orange-800);
+  color: #fff;
+  font-family: 'Playfair Display', serif;
+}
+.site-header a,
+.site-footer a { color: #fff; }
+.site-footer { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+
+/* ---------- HERO ---------- */
+.hero {
+  position: relative;
+  min-height: 86vh;
+  display: grid;
+  place-items: center;
+  overflow: clip;
+}
+.hero-video,
+.hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.03) contrast(1.03) brightness(.95);
+}
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    hsl(var(--hero-scrim) / .35) 0%,
+    hsl(var(--hero-scrim) / .55) 60%,
+    hsl(var(--hero-scrim) / .68) 100%
+  );
+}
+.hero-content { position: relative; z-index: 1; padding: clamp(16px, 3vw, 32px); }
+
+/* Bubble headline — MODAK */
+.hero-title {
+  font-family: "Modak", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", cursive;
+  font-weight: 400;
+  font-size: clamp(3.4rem, 8vw, 6.2rem);
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  color: hsl(var(--headline-yellow));
+  text-shadow: 0 2px 18px hsl(var(--headline-yellow) / .18);
+}
+.hero-title span { display: block; }
+.hero-title em { color: #fff; font-style: normal; }
+
+/* Subheader: header yellow + subtle shadow so it never fades */
+.hero-subtext {
+  margin-top: 1.15rem;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  color: var(--orange-200);
+  text-shadow: 0 2px 12px rgba(0,0,0,.25);
+  max-width: 62ch;
+}
+.hero-ctas { margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+
+/* ---------- Chips / Pills visibility ---------- */
+.pill-contrast { text-shadow: 0 1px 6px rgba(0,0,0,.35); }
+
+/* ---------- Stats Cards (readable everywhere) ---------- */
+.stats-card {
+  background: rgba(255,255,255,.96);
+  border: 1px solid hsl(var(--border) / .8);
+  box-shadow: 0 16px 36px rgba(0,0,0,.12);
+  color: #0B0F1A;
+  border-radius: 1rem;
+  backdrop-filter: blur(2px);
+}
+
+/* ---------- Overlay helpers for photo sections ---------- */
+.overlay-soft    { background: rgba(255,255,255,.82); }
+.overlay-strong  { background: rgba(255,255,255,.9);  }
+.overlay-topfade {
+  background: linear-gradient(to bottom, rgba(255,255,255,.85) 0%, rgba(255,255,255,.75) 30%, rgba(255,255,255,.6) 100%);
+}
+
+/* ---------- Project Cards ---------- */
+.project-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 18px;
+  overflow: hidden;
+  transition: transform .18s ease, box-shadow .25s ease, border-color .2s ease;
+}
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px hsl(var(--foreground) / 0.08);
+  border-color: hsl(var(--border) / .7);
+}
+.project-card .thumb { aspect-ratio: 4 / 3; width: 100%; object-fit: cover; display: block; }
+.project-card .title { color: hsl(var(--foreground)); }
+.project-card .meta { color: hsl(var(--muted-foreground)); }
+
+.project-card .thumb-wrap { position: relative; }
+.project-card .thumb-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, hsl(var(--background) / .55) 100%);
+  pointer-events: none;
+}
+
+/* ---------- Bubble-ish Headline Helper (kept if used elsewhere) ---------- */
+.bubble {
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: .95;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.12),
+    0 6px 18px rgba(0,0,0,.35);
+}
+
 /* --- Accessibility & Links --- */
 a:focus-visible {
   outline: 2px solid hsl(var(--accent));
