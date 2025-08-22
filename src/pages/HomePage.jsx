@@ -4,11 +4,11 @@ import { Helmet } from 'react-helmet';
 import {
   ArrowRight,
   LayoutGrid,
-  Beaker,
   PenTool,
   Lightbulb,
-  UsersRound,
-  BarChart4,
+  Users,
+  BarChart3,
+  Briefcase,
   Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,11 +28,11 @@ const HomePage = () => {
 
   const expertise = [
     { icon: LayoutGrid, title: 'UX/UI Design', description: 'Intuitive, accessible, visually engaging interfaces.' },
-    { icon: Lightbulb, title: 'Prototyping', description: 'Interactive mockups for rapid iteration and clarity.' },
-    { icon: UsersRound, title: 'User Research', description: 'Testing, surveys, and observation for real insights.' },
-    { icon: PenTool, title: 'Branding', description: 'Cohesive, memorable systems that scale.' },
-    { icon: BarChart4, title: 'UX Strategy', description: 'Business goals aligned to user expectations.' },
-    { icon: Beaker, title: 'Career & Biz Support', description: 'Roadmaps, positioning, and GTM ops that work.' },
+    { icon: Lightbulb,   title: 'Prototyping', description: 'Interactive mockups for rapid iteration and clarity.' },
+    { icon: Users,       title: 'User Research', description: 'Testing, surveys, and observation for real insights.' },
+    { icon: PenTool,     title: 'Branding', description: 'Cohesive, memorable systems that scale.' },
+    { icon: BarChart3,   title: 'UX Strategy', description: 'Business goals aligned to user expectations.' },
+    { icon: Briefcase,   title: 'Career & Biz Support', description: 'Roadmaps, positioning, and GTM ops that work.' },
   ];
 
   const reviews = [
