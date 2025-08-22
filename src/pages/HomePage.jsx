@@ -56,7 +56,7 @@ const HomePage = () => {
       </Helmet>
 
       {/* HERO */}
-      <section className="hero relative min-h-[86vh] grid place-items-center overflow-clip">
+      <section className="hero relative min-h-[72vh] sm:min-h-[82vh] md:min-h-[86vh] grid place-items-center overflow-clip">
         <img src={heroBg} alt="" className="hero-image" loading="eager" decoding="async" />
         <div className="hero-overlay" />
 
@@ -67,8 +67,14 @@ const HomePage = () => {
             transition={{ duration: 0.5 }}
             className="max-w-4xl"
           >
-            {/* Modak heading */}
-            <h1 className="font-['Modak'] leading-[0.9] text-[clamp(3.75rem,9vw,7.5rem)] text-[hsl(var(--headline-yellow))] drop-shadow-[0_2px_20px_hsl(var(--headline-yellow)/.25)]">
+            {/* Modak heading (bigger but tighter on mobile) */}
+            <h1
+              className="font-['Modak'] leading-[0.88] sm:leading-[0.9] text-[clamp(3rem,10vw,9rem)] text-[hsl(var(--headline-yellow))]"
+              style={{
+                textShadow: '0 4px 24px rgba(0,0,0,.35)',
+                WebkitTextStroke: '1.5px rgba(0,0,0,.45)',
+              }}
+            >
               <span className="block">
                 I map <em className="not-italic text-white">Ideas</em>
               </span>
@@ -77,9 +83,9 @@ const HomePage = () => {
               </span>
             </h1>
 
-            {/* Playfair subheader — higher contrast & subtle glow */}
+            {/* Playfair subheader — larger & tighter margin on mobile */}
             <p
-              className="mt-6 font-['Playfair_Display'] text-[clamp(1.25rem,2.2vw,1.7rem)] max-w-3xl"
+              className="mt-4 sm:mt-6 font-['Playfair_Display'] text-[clamp(1.25rem,2.8vw,2rem)] max-w-3xl"
               style={{
                 color: 'var(--orange-200)',
                 textShadow: '0 2px 12px rgba(0,0,0,.28)',
@@ -88,11 +94,11 @@ const HomePage = () => {
               Crafting experiences with UX/UI, branding, and prototypes people actually enjoy using.
             </p>
 
-            {/* Bigger CTAs — primary vs secondary hierarchy */}
-            <div className="hero-ctas mt-9 flex items-center gap-4">
+            {/* CTAs — stack on mobile, comfy spacing */}
+            <div className="hero-ctas mt-6 sm:mt-9 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
               <Button
                 asChild
-                className="btn-primary rounded-full px-7 py-3.5 text-lg"
+                className="btn-primary w-full sm:w-auto rounded-full px-7 py-3.5 text-base sm:text-lg"
                 onClick={handleConsultationClick}
               >
                 <Link to="/contact" aria-label="Start a project">
@@ -104,7 +110,7 @@ const HomePage = () => {
               <Button
                 asChild
                 variant="outline"
-                className="rounded-full px-7 py-3.5 text-lg border-white/30 text-white bg-white/10 backdrop-blur hover:bg-white/20"
+                className="w-full sm:w-auto rounded-full px-7 py-3.5 text-base sm:text-lg border-white/30 text-white bg-white/10 backdrop-blur hover:bg-white/20"
               >
                 <Link to="/portfolio" aria-label="See my work">
                   See my work
@@ -116,16 +122,16 @@ const HomePage = () => {
       </section>
 
       {/* WHAT I BRING */}
-      <section className="relative z-10 -mt-6 md:-mt-8 py-16 md:py-20 bg-[hsl(var(--background))] rounded-t-[28px] shadow-2xl">
+      <section className="relative z-10 -mt-4 md:-mt-8 py-14 md:py-20 bg-[hsl(var(--background))] rounded-t-[28px] shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-left space-y-4 mb-10">
-            <h2 className="text-4xl md:text-5xl font-bold gradient-text">What I Bring to Every Project</h2>
-            <p className="text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-3xl">
+          <div className="text-left space-y-3 sm:space-y-4 mb-8 sm:mb-10">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold gradient-text">What I Bring to Every Project</h2>
+            <p className="text-base sm:text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-3xl">
               Strategy, taste, and rigorous usability—delivered through clear process.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7">
             {expertise.map((s, index) => {
               const Icon = s.icon;
               const accent = ACCENTS[index % ACCENTS.length];
@@ -140,12 +146,12 @@ const HomePage = () => {
                   className={`relative rounded-2xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] shadow-sm hover:shadow-md transition-all ring-1 ring-transparent hover:${accent.ring}`}
                 >
                   <div className={`absolute inset-x-0 top-0 h-1 ${accent.chip}`} />
-                  <div className="p-8">
+                  <div className="p-6 sm:p-8">
                     <div className={`w-12 h-12 rounded-xl ${accent.bg} flex items-center justify-center mb-5`}>
                       <Icon className={`${accent.chip.replace('bg-', 'text-')}`} size={24} />
                     </div>
-                    <h3 className="text-2xl font-bold text-foreground mb-2">{s.title}</h3>
-                    <p className="text-[hsl(var(--muted-foreground))]">{s.description}</p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2">{s.title}</h3>
+                    <p className="text-[hsl(var(--muted-foreground))] text-sm sm:text-base">{s.description}</p>
                   </div>
                 </motion.div>
               );
@@ -154,28 +160,29 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* TESTIMONIALS — single marquee row */}
-      <section className="py-16 md:py-24 overflow-hidden">
+      {/* TESTIMONIALS — card marquee */}
+      <section className="py-14 md:py-24 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h2
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-center text-foreground mb-10"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-foreground mb-8 sm:mb-10"
           >
             Kind words from collaborators
           </motion.h2>
 
           <div className="w-full overflow-hidden mask-edge-x">
-            <ul className="flex gap-6 animate-infinite-scroll" style={{ animationDuration: '36s' }}>
+            <ul className="flex gap-4 sm:gap-6 animate-infinite-scroll" style={{ animationDuration: '40s' }}>
               {[...reviews, ...reviews].map((r, i) => (
-                <li key={i} className="min-w-max px-4 py-2">
-                  <div className="flex items-center gap-2 text-warm-brown">
-                    <Star className="w-4 h-4 text-[hsl(var(--accent))]" />
-                    <p className="whitespace-nowrap">
-                      <span className="font-semibold text-foreground">{r.name}:</span> “{r.quote}”
-                    </p>
+                <li key={i} className="min-w-[260px] sm:min-w-[320px]">
+                  <div className="rounded-2xl bg-white/90 backdrop-blur shadow-lg border border-[hsl(var(--border))] p-4 sm:p-5 h-full flex flex-col justify-between">
+                    <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                      <Star className="w-4 h-4 text-[hsl(var(--accent))]" />
+                      <span className="font-semibold text-foreground text-sm sm:text-base">{r.name}</span>
+                    </div>
+                    <p className="text-[hsl(var(--muted-foreground))] text-sm sm:text-base">“{r.quote}”</p>
                   </div>
                 </li>
               ))}
@@ -185,24 +192,24 @@ const HomePage = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-20 md:py-28">
+      <section className="py-16 md:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55 }}
             viewport={{ once: true }}
-            className="glass rounded-3xl p-10 md:p-12"
+            className="glass rounded-3xl p-6 sm:p-10 md:p-12"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground">Ready to start your project?</h2>
-            <p className="text-xl text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto mt-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">Ready to start your project?</h2>
+            <p className="text-base sm:text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto mt-3 sm:mt-4">
               Let’s collaborate and bring your vision to life with exceptional design, strategy, and user experience.
             </p>
 
-            <div className="mt-8 flex items-center justify-center gap-4">
+            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
               <Button
                 asChild
-                className="btn-primary rounded-full px-7 py-3.5 text-lg"
+                className="btn-primary w-full sm:w-auto rounded-full px-6 sm:px-7 py-3 text-base sm:text-lg"
                 onClick={handleConsultationClick}
               >
                 <Link to="/contact">
@@ -210,7 +217,11 @@ const HomePage = () => {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="border-border rounded-full px-7 py-3.5 text-lg">
+              <Button
+                asChild
+                variant="outline"
+                className="w-full sm:w-auto border-border rounded-full px-6 sm:px-7 py-3 text-base sm:text-lg"
+              >
                 <Link to="/portfolio">See recent work</Link>
               </Button>
             </div>
@@ -222,9 +233,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-
-
-
-
  

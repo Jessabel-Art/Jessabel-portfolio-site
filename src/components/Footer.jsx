@@ -43,7 +43,7 @@ const Footer = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 py-10 md:py-12 text-center md:text-left">
-          {/* Brand (logotype, bold, no italics) */}
+          {/* Brand */}
           <div className="flex flex-col items-center md:items-start">
             <Link
               to="/"
@@ -126,11 +126,12 @@ const Footer = () => {
                 {label}
               </Link>
             ))}
+            {/* Back to Top button */}
             <button
               onClick={backToTop}
-              className="inline-flex items-center gap-2 text-sm rounded-full px-3 py-1.5 font-semibold shadow-sm"
+              className="inline-flex items-center gap-2 text-sm rounded-full px-3 py-1.5 font-semibold shadow-sm transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 hover:brightness-110"
               style={{
-                background: 'linear-gradient(135deg, #ff3ea5, #00c2b2)',
+                background: 'linear-gradient(135deg, var(--btn-red,#ba0d0d), var(--btn-yellow,#ecdf26))',
                 color: '#ffffff',
               }}
               aria-label="Back to top"
@@ -147,3 +148,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

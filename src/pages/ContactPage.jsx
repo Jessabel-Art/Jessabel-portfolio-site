@@ -78,11 +78,11 @@ const ContactPage = () => {
   const socialLinks = [
     { icon: Linkedin, label: 'LinkedIn', url: 'https://www.linkedin.com/in/jessysantos31' },
     { icon: Instagram, label: 'Instagram', url: 'https://www.instagram.com/jessieleonne/' },
-    { icon: Dribbble, label: 'Dribbble', url: '#' },
+    { icon: Dribbble, label: 'Dribbble', url: '' }, // hidden if empty
   ];
 
   const handleSocialClick = (url) => {
-    if (!url || url === '#') return;
+    if (!url) return;
     toast({ title: 'Redirecting…', description: 'Opening in a new tab.' });
     window.open(url, '_blank', 'noopener,noreferrer');
   };
@@ -100,10 +100,16 @@ const ContactPage = () => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'enter') handleSubmit(e);
   };
 
-  // gradient helper
+  // theme gradient (brand red → yellow)
   const gradBtn =
-    'text-white font-semibold shadow-lg border-0 ' +
-    'bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]';
+    'text-white font-semibold shadow-lg border-0 transition-transform duration-200 ' +
+    'hover:scale-[1.01] active:scale-[.99] ' +
+    'bg-[linear-gradient(135deg,var(--btn-red,#ba0d0d),var(--btn-yellow,#ecdf26))]';
+
+  const headingShadow = { textShadow: '0 3px 14px rgba(0,0,0,.18)' };
+
+  const charCount = formData.message.length;
+  const maxChars = 1200;
 
   return (
     <div className="py-20">
@@ -115,59 +121,15 @@ const ContactPage = () => {
         />
       </Helmet>
 
-      {/* Orange-alt background to match new palette */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-3xl py-12 md:py-16 bg-[var(--orange-50,#fee9a6)]">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-          {/* Left: intro + socials */}
+      {/* Warm background that matches your palette */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-3xl py-12 md:py-16 bg-[var(--orange-100,#fee9a6)]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          {/* FORM FIRST (better mobile & a11y) */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="space-y-8"
-          >
-            <h1 className="text-5xl md:text-6xl font-bold text-[var(--orange-800,#d74708)]">
-              Let’s Work <br /> <span className="italic font-['Playfair_Display']">Together</span>
-            </h1>
-
-            <p className="text-lg text-[hsl(var(--muted-foreground))] leading-relaxed max-w-prose">
-              I’d love to hear about your project and explore how we can bring your ideas to life.
-              Fill out the quick form and I’ll respond within 24 hours.
-            </p>
-
-            <div className="space-y-4">
-              <h3 className="text-xl font-bold text-[hsl(var(--foreground))]">Follow Me</h3>
-              <div className="flex gap-3">
-                {socialLinks
-                  .filter((s) => s.url && s.url !== '#') // hide dead links
-                  .map(({ icon: Icon, label, url }) => (
-                    <motion.button
-                      key={label}
-                      whileHover={{ scale: 1.1, y: -2 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => handleSocialClick(url)}
-                      aria-label={label}
-                      className="w-12 h-12 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm
-                                 hover:shadow-md hover:ring-2 hover:ring-[hsl(var(--accent))]/60 flex items-center justify-center"
-                    >
-                      <Icon className="text-[hsl(var(--foreground))]" size={20} />
-                    </motion.button>
-                  ))}
-              </div>
-
-              <div className="pt-2">
-                <Button variant="outline" className="rounded-full" onClick={copyEmail} aria-label="Copy my email address">
-                  <Copy className="mr-2 h-4 w-4" /> {EMAIL_ADDR}
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Right: form / success */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
-            className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-xl p-6 sm:p-8"
+            className="order-1 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-xl p-6 sm:p-8"
           >
             {isSubmitted ? (
               <motion.div
@@ -182,10 +144,10 @@ const ContactPage = () => {
                   Your message has been sent. I’ll be in touch soon.
                 </p>
                 <div className="mt-6 flex gap-3 justify-center">
-                  <Button asChild variant="outline">
+                  <Button asChild variant="outline" className="rounded-full transition-transform hover:scale-[1.01]">
                     <a href="/portfolio">See recent work</a>
                   </Button>
-                  <Button asChild className={`${gradBtn}`}>
+                  <Button asChild className={`rounded-full ${gradBtn}`}>
                     <a href="/contact">Start another message</a>
                   </Button>
                 </div>
@@ -211,6 +173,8 @@ const ContactPage = () => {
                     id="name"
                     name="name"
                     type="text"
+                    autoComplete="name"
+                    inputMode="text"
                     value={formData.name}
                     onChange={handleInputChange}
                     onBlur={handleBlur}
@@ -220,7 +184,7 @@ const ContactPage = () => {
                     className="w-full rounded-lg px-4 py-3 bg-[hsl(var(--popover))] text-[hsl(var(--foreground))]
                                border border-[hsl(var(--border))] placeholder-[hsl(var(--muted-foreground))]
                                focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] focus:border-[var(--orange-600,#fa8a00)] transition"
-                    placeholder="Your Name"
+                    placeholder="Jane Doe"
                   />
                   {touched.name && errors.name && (
                     <p id="name-err" className="text-sm text-destructive">{errors.name}</p>
@@ -235,6 +199,8 @@ const ContactPage = () => {
                     id="email"
                     name="email"
                     type="email"
+                    autoComplete="email"
+                    inputMode="email"
                     value={formData.email}
                     onChange={handleInputChange}
                     onBlur={handleBlur}
@@ -244,7 +210,7 @@ const ContactPage = () => {
                     className="w-full rounded-lg px-4 py-3 bg-[hsl(var(--popover))] text-[hsl(var(--foreground))]
                                border border-[hsl(var(--border))] placeholder-[hsl(var(--muted-foreground))]
                                focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] focus:border-[var(--orange-600,#fa8a00)] transition"
-                    placeholder="your.email@example.com"
+                    placeholder="you@example.com"
                   />
                   {touched.email && errors.email && (
                     <p id="email-err" className="text-sm text-destructive">{errors.email}</p>
@@ -259,27 +225,36 @@ const ContactPage = () => {
                     id="message"
                     name="message"
                     rows={6}
+                    maxLength={maxChars}
                     value={formData.message}
                     onChange={handleInputChange}
                     onBlur={handleBlur}
                     required
                     aria-invalid={touched.message && !!errors.message}
-                    aria-describedby={touched.message && errors.message ? 'message-err' : undefined}
+                    aria-describedby={touched.message && errors.message ? 'message-err' : 'message-help'}
                     className="w-full rounded-lg px-4 py-3 bg-[hsl(var(--popover))] text-[hsl(var(--foreground))]
                                border border-[hsl(var(--border))] placeholder-[hsl(var(--muted-foreground))]
                                focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] focus:border-[var(--orange-600,#fa8a00)] transition resize-none"
-                    placeholder="Tell me about your project…"
+                    placeholder="A quick overview, goals, timeline, and budget (rough is fine!)."
                   />
-                  {touched.message && errors.message && (
-                    <p id="message-err" className="text-sm text-destructive">{errors.message}</p>
-                  )}
-                  <p className="text-xs text-[hsl(var(--muted-foreground))]">All fields are required.</p>
+                  <div className="flex items-center justify-between">
+                    {touched.message && errors.message ? (
+                      <p id="message-err" className="text-sm text-destructive">{errors.message}</p>
+                    ) : (
+                      <p id="message-help" className="text-xs text-[hsl(var(--muted-foreground))]">
+                        All fields are required.
+                      </p>
+                    )}
+                    <span className="text-xs text-[hsl(var(--muted-foreground))]">
+                      {charCount}/{maxChars}
+                    </span>
+                  </div>
                 </div>
 
                 <Button
                   type="submit"
                   size="lg"
-                  className={`w-full text-base md:text-lg py-3.5 ${gradBtn}`}
+                  className={`w-full text-base md:text-lg py-3.5 rounded-full ${gradBtn}`}
                   disabled={!isValid || isSubmitting}
                 >
                   {isSubmitting ? 'Sending…' : 'Send Message'}
@@ -288,23 +263,87 @@ const ContactPage = () => {
               </form>
             )}
           </motion.div>
+
+          {/* INTRO + SOCIALS */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.05 }}
+            className="order-2 space-y-8"
+          >
+            <h1
+              className="text-[2.5rem] sm:text-6xl lg:text-7xl font-bold leading-[0.95] text-[var(--orange-800,#d74708)]"
+              style={headingShadow}
+            >
+              Let’s Work
+              <br />
+              <span className="italic font-['Playfair_Display']">Together</span>
+            </h1>
+
+            <p className="text-lg text-[hsl(var(--muted-foreground))] leading-relaxed max-w-prose">
+              I’d love to hear about your project and explore how we can bring your ideas to life.
+              Fill out the quick form and I’ll respond within 24 hours.
+            </p>
+
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-[hsl(var(--foreground))]">Follow Me</h3>
+              <div className="flex gap-3">
+                {socialLinks
+                  .filter((s) => !!s.url)
+                  .map(({ icon: Icon, label, url }) => (
+                    <motion.button
+                      key={label}
+                      whileHover={{ scale: 1.08, y: -2 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => handleSocialClick(url)}
+                      aria-label={label}
+                      className="w-12 h-12 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm
+                                 hover:shadow-md hover:ring-2 hover:ring-[hsl(var(--accent))]/60 flex items-center justify-center"
+                    >
+                      <Icon className="text-[hsl(var(--foreground))]" size={20} />
+                    </motion.button>
+                  ))}
+              </div>
+
+              <div className="pt-2">
+                <Button
+                  variant="outline"
+                  className="rounded-full transition-transform hover:scale-[1.01] active:scale-[.99]"
+                  onClick={copyEmail}
+                  aria-label="Copy my email address"
+                >
+                  <Copy className="mr-2 h-4 w-4" /> {EMAIL_ADDR}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Booking badge */}
+        {/* Booking badge — brand gradient */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4, ease: 'easeOut' }}
-          className="mt-16 text-center"
+          transition={{ duration: 0.7, delay: 0.35, ease: 'easeOut' }}
+          className="mt-12 sm:mt-16 text-center"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--border))]
-                          bg-[hsl(var(--card))] shadow-sm px-6 py-3">
-            <span className="font-bold"
-                  style={{ background: 'linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))',
-                           WebkitBackgroundClip: 'text', color: 'transparent' }}>
+          <div
+            className="inline-flex max-w-full flex-wrap items-center justify-center gap-2 rounded-full px-5 sm:px-6 py-2.5 sm:py-3
+                       border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm"
+          >
+            <span
+              className="font-bold"
+              style={{
+                background:
+                  'linear-gradient(135deg,var(--btn-red,#ba0d0d),var(--btn-yellow,#ecdf26))',
+                WebkitBackgroundClip: 'text',
+                color: 'transparent',
+              }}
+            >
               Now booking for September 2025
             </span>
-            <span className="text-[hsl(var(--muted-foreground))]">Let’s create something amazing together.</span>
+            <span className="text-[hsl(var(--muted-foreground))]">
+              Let’s create something amazing together.
+            </span>
           </div>
         </motion.div>
       </section>

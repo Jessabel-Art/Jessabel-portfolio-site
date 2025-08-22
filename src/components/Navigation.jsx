@@ -31,6 +31,8 @@ const Navigation = () => {
     return location.pathname === itemPath || location.pathname.startsWith(itemPath + '/');
   };
 
+  const isClientsActive = location.pathname === '/clients' || location.pathname.startsWith('/clients/');
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -103,14 +105,19 @@ const Navigation = () => {
 
           {/* Desktop CTA group */}
           <div className="hidden md:flex items-center">
-            {/* “Clients” remains high-contrast on the orange bar */}
-            <Button
-              asChild
-              variant="outline"
-              className="mr-3 rounded-full border-white/25 text-white hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-white/60"
+            {/* Clients — keep high contrast and clear active state */}
+            <Link
+              to="/clients"
+              aria-current={isClientsActive ? 'page' : undefined}
+              className={`mr-3 rounded-full px-5 py-2.5 font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition-all
+                ${isClientsActive
+                  ? 'bg-[#ffe574] text-black shadow-[0_6px_16px_rgba(0,0,0,.18)]'
+                  : 'text-white bg-white/12 hover:bg-white/20 border border-white/30 shadow-sm'
+                }`}
+              style={{ textShadow: isClientsActive ? 'none' : '0 1px 0 rgba(0,0,0,.22)' }}
             >
-              <Link to="/clients">Clients</Link>
-            </Button>
+              Clients
+            </Link>
 
             <Button asChild className="btn-primary rounded-full focus-visible:ring-2 focus-visible:ring-white/60">
               <Link to="/contact">
@@ -162,15 +169,18 @@ const Navigation = () => {
 
             {/* Mobile CTAs */}
             <div className="pt-3 flex flex-col gap-2">
-              <Button
-                asChild
-                variant="outline"
-                className="w-full rounded-full border-white/25 text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/60"
+              <Link
+                to="/clients"
+                onClick={() => setIsOpen(false)}
+                aria-current={isClientsActive ? 'page' : undefined}
+                className={`w-full text-center rounded-full px-4 py-3 font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60
+                  ${isClientsActive
+                    ? 'bg-[#ffe574] text-black'
+                    : 'text-white bg-white/12 hover:bg-white/20 border border-white/30'}`
+                }
               >
-                <Link to="/clients" onClick={() => setIsOpen(false)}>
-                  Clients
-                </Link>
-              </Button>
+                Clients
+              </Link>
 
               <Button asChild className="w-full btn-primary rounded-full focus-visible:ring-2 focus-visible:ring-white/60">
                 <Link to="/contact" onClick={() => setIsOpen(false)}>
@@ -187,3 +197,4 @@ const Navigation = () => {
 };
 
 export default Navigation;
+

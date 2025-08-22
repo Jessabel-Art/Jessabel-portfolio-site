@@ -197,11 +197,11 @@ const AboutPage = () => {
         <div className="pointer-events-none absolute inset-0 [background:radial-gradient(1200px_500px_at_20%_20%,rgba(0,0,0,.18),transparent_60%),radial-gradient(900px_400px_at_90%_50%,rgba(0,0,0,.14),transparent_55%)]" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Heading */}
+          {/* Heading — now white + bolder for contrast */}
           <motion.h2
             {...fadeIn}
-            className="text-3xl md:text-4xl font-bold text-center mb-8 glow-yellow"
-            style={{ color: 'hsl(var(--headline-yellow))', textShadow: '0 3px 18px rgba(0,0,0,.22)' }}
+            className="text-3xl md:text-4xl font-extrabold text-center mb-8"
+            style={{ color: '#ffffff', textShadow: '0 3px 18px rgba(0,0,0,.35)' }}
           >
             What I Work With
           </motion.h2>
@@ -268,7 +268,8 @@ const AboutPage = () => {
             >
               Curious about my process?
             </h2>
-            <p className="text-xl mb-8" style={{ color: '#ffffff', textShadow: '0 2px 14px rgba(0,0,0,.35)' }}>
+            {/* Subheader bumped in size per request */}
+            <p className="text-2xl md:text-3xl mb-8" style={{ color: '#ffffff', textShadow: '0 2px 14px rgba(0,0,0,.35)' }}>
               See how I approach projects from discovery to launch.
             </p>
             <Button asChild size="lg" className="btn-primary rounded-full px-6 glow-yellow">
