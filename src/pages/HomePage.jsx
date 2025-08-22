@@ -79,22 +79,23 @@ const HomePage = () => {
             {/* New gradient headline */}
             <h1
               className="
-                font-['Playfair_Display'] font-extrabold tracking-[-0.01em]
-                text-[clamp(2.6rem,6vw,4.5rem)] leading-[1.05]
-                bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff),var(--btn-teal,#00c2b2))]
-                bg-clip-text text-transparent
-                drop-shadow-[0_6px_24px_rgba(0,0,0,.35)]
+                font-['Modak',cursive] font-bold tracking-tight
+                text-[clamp(2.8rem,6.5vw,4.8rem)] leading-[1.05]
+                text-white drop-shadow-[0_6px_28px_rgba(0,0,0,.65)]
               "
             >
-              I design seamless, human‑centered digital experiences.
+              I design seamless, human-centered digital experiences.
             </h1>
 
             <p
-              className="mt-4 sm:mt-6 text-[clamp(1.05rem,2.1vw,1.35rem)] max-w-3xl"
-              style={{ color: 'var(--orange-200)', textShadow: '0 2px 12px rgba(0,0,0,.28)' }}
+              className="
+                mt-6 max-w-2xl text-lg sm:text-xl
+                text-[#fff8e7] font-medium
+                drop-shadow-[0_3px_12px_rgba(0,0,0,.55)]
+              "
             >
-              Research‑driven UX, thoughtful UI, and design systems that scale—so your product feels intuitive,
-              inclusive, and measurable from day one.
+              Research-driven UX, thoughtful UI, and design systems that scale —
+              so your product feels intuitive, inclusive, and measurable from day one.
             </p>
 
             <div className="mt-7 sm:mt-9 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
