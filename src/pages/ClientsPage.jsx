@@ -12,8 +12,8 @@ const CLIENTS = [
   { name: 'Sanchez Services', pin: '1122', folder: 'sanchez' },
 ];
 
-const NOTION_EMBED_URL =
-  'https://apple-month-55e.notion.site/ebd/246ec2233e6f802a93aae01cf20205f3';
+// Notion: open as a new tab via CTA (no iframe)
+const NOTION_URL = 'https://apple-month-55e.notion.site/246ec2233e6f802a93aae01cf20205f3?pvs=105';
 
 const shakeVariants = {
   still: { x: 0 },
@@ -23,89 +23,60 @@ const shakeVariants = {
   },
 };
 
-const gradBtn =
-  'text-white font-semibold shadow-lg border-0 ' +
-  'bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]';
+// Updated button styles (tailwind-friendly)
+const btnPrimary =
+  'text-white font-semibold shadow-lg border-0 bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff))] hover:opacity-95';
+const btnGhost =
+  'border border-[hsl(var(--border))] bg-transparent hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]';
+
+const STEPS = ['Intake', 'Discovery', 'Design', 'Build', 'Review', 'Handoff'] as const;
+type StepName = typeof STEPS[number];
 
 const ClientsPage = () => {
-  const [pinDigits, setPinDigits] = useState(['', '', '', '']);
+  // PIN (single box)
+  const [pinValue, setPinValue] = useState('');
   const [error, setError] = useState('');
-  const [client, setClient] = useState(null);
-  const [frameHeight, setFrameHeight] = useState(720);
   const [shake, setShake] = useState(false);
 
-  const inputRefs = useRef(Array.from({ length: 4 }, () => React.createRef()));
-  const iframeWrapRef = useRef(null);
+  const [client, setClient] = useState<{ name: string; pin: string; folder: string } | null>(null);
 
-  const pin = useMemo(() => pinDigits.join(''), [pinDigits]);
+  // Project status tracker state (can be driven from Notion or your DB later)
+  const [currentStage, setCurrentStage] = useState<StepName>('Intake');
 
-  const focusIndex = (i) => {
-    const el = inputRefs.current[i]?.current;
-    if (el) el.focus();
-  };
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const attemptVerify = (candidatePin) => {
+  const sanitizedPin = useMemo(() => pinValue.replace(/\D/g, '').slice(0, 4), [pinValue]);
+
+  const attemptVerify = (candidatePin: string) => {
     if (candidatePin.length !== 4) return;
-    const foundClient = CLIENTS.find((c) => c.pin === candidatePin);
-    if (foundClient) {
+    const found = CLIENTS.find((c) => c.pin === candidatePin);
+    if (found) {
       setError('');
       setShake(false);
-      setClient(foundClient);
+      setClient(found);
+      // (Optional) set initial stage per client if you have it
+      setCurrentStage('Intake');
     } else {
       setError('Invalid PIN. Please try again or contact Jessabel.');
       setShake(true);
-      setPinDigits(['', '', '', '']);
+      setPinValue('');
       setTimeout(() => {
         setShake(false);
-        focusIndex(0);
+        inputRef.current?.focus();
       }, 450);
     }
   };
 
-  const handleDigitChange = (value, index) => {
+  const handlePinChange = (v: string) => {
     setError('');
-    const v = value.replace(/\D/g, '').slice(0, 1);
-    setPinDigits((prev) => {
-      const next = [...prev];
-      next[index] = v;
-      if (v && index < 3) focusIndex(index + 1);
-      const joined = next.join('');
-      if (joined.length === 4) attemptVerify(joined);
-      return next;
-    });
+    const next = v.replace(/\D/g, '').slice(0, 4);
+    setPinValue(next);
+    if (next.length === 4) attemptVerify(next);
   };
 
-  const handleKeyDown = (e, index) => {
-    setError('');
-    if (e.key === 'Backspace') {
-      if (!pinDigits[index] && index > 0) {
-        focusIndex(index - 1);
-      } else {
-        setPinDigits((prev) => {
-          const next = [...prev];
-          next[index] = '';
-          return next;
-        });
-      }
-    }
-    if (e.key === 'ArrowLeft' && index > 0) focusIndex(index - 1);
-    if (e.key === 'ArrowRight' && index < 3) focusIndex(index + 1);
-  };
-
-  const handlePaste = (e) => {
-    setError('');
-    const text = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4);
-    if (!text) return;
-    const next = text.split('');
-    while (next.length < 4) next.push('');
-    setPinDigits(next);
-    attemptVerify(text);
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    attemptVerify(pin);
+    attemptVerify(sanitizedPin);
   };
 
   const openUploadWidget = () => {
@@ -131,35 +102,68 @@ const ClientsPage = () => {
         }
       }
     );
-
     widget.open();
   };
 
   useEffect(() => {
-    if (!client) return;
-    const measure = () => {
-      if (!iframeWrapRef.current) return;
-      const rect = iframeWrapRef.current.getBoundingClientRect();
-      const available = window.innerHeight - rect.top - 24;
-      setFrameHeight(Math.max(available, 600));
-    };
-    measure();
-    window.addEventListener('resize', measure, { passive: true });
-    return () => window.removeEventListener('resize', measure);
-  }, [client]);
-
-  useEffect(() => {
-    inputRefs.current[0]?.current?.focus();
+    inputRef.current?.focus();
   }, []);
 
-  // 🔑 Force keyboard helper
-  const showKeypad = () => {
-    focusIndex(0);
-    const el = inputRefs.current[0]?.current;
-    if (el) {
-      el.blur();
-      setTimeout(() => el.focus(), 100);
-    }
+  const resetPortal = () => {
+    setClient(null);
+    setPinValue('');
+    setError('');
+    setCurrentStage('Intake');
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  // ---- UI bits ----
+
+  const Stepper = ({ current }: { current: StepName }) => {
+    const idx = STEPS.indexOf(current);
+    const pct = Math.max(0, (idx / (STEPS.length - 1)) * 100);
+
+    return (
+      <div className="w-full">
+        <div className="flex items-center justify-between mb-3">
+          {STEPS.map((label, i) => {
+            const active = i <= idx;
+            return (
+              <div key={label} className="flex-1 flex items-center">
+                <div
+                  className={[
+                    'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold',
+                    active ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]' : 'bg-muted text-muted-foreground',
+                    'shadow-sm',
+                  ].join(' ')}
+                  aria-current={i === idx ? 'step' : undefined}
+                  title={label}
+                >
+                  {i + 1}
+                </div>
+                {i < STEPS.length - 1 && <div className="flex-1 h-1 bg-muted mx-2 rounded" />}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="relative h-2 bg-muted/70 rounded overflow-hidden">
+          <motion.div
+            className="absolute left-0 top-0 h-full bg-[hsl(var(--primary))]"
+            initial={{ width: 0 }}
+            animate={{ width: `${pct}%` }}
+            transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+          />
+        </div>
+
+        <div className="mt-2 text-sm text-muted-foreground flex justify-between">
+          <span>{STEPS[idx]}</span>
+          <span>
+            {idx + 1} / {STEPS.length}
+          </span>
+        </div>
+      </div>
+    );
   };
 
   const PinForm = () => (
@@ -175,7 +179,7 @@ const ClientsPage = () => {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-foreground">Client Postal</h1>
           <p id="pin-help" className="text-muted-foreground mt-2">
-            Enter the 4-digit code we shared with you.{" "}
+            Enter the 4-digit code we shared with you.{' '}
             <Link to="/contact" className="underline underline-offset-4">
               Don’t have a code?
             </Link>
@@ -183,49 +187,32 @@ const ClientsPage = () => {
         </div>
 
         <div className="space-y-3">
-          <Label className="text-muted-foreground" htmlFor="pin-digit-1">
+          <Label className="text-muted-foreground" htmlFor="pin-box">
             Enter your 4-digit PIN
           </Label>
 
           <motion.div
             variants={shakeVariants}
             animate={shake ? 'shake' : 'still'}
-            className="flex items-center justify-between gap-3"
+            className="w-full"
             aria-describedby="pin-help"
           >
-            {pinDigits.map((d, i) => (
-              <Input
-                key={i}
-                id={`pin-digit-${i + 1}`}
-                ref={inputRefs.current[i]}
-                type="tel"
-                inputMode="numeric"
-                enterKeyHint="go"
-                pattern="\d*"
-                maxLength={1}
-                value={d}
-                onChange={(e) => handleDigitChange(e.target.value, i)}
-                onKeyDown={(e) => handleKeyDown(e, i)}
-                onPaste={i === 0 ? handlePaste : undefined}
-                onFocus={(e) => e.currentTarget.select()}
-                className="w-16 h-14 text-center text-2xl tracking-widest"
-                autoComplete="one-time-code"
-                aria-label={`Digit ${i + 1}`}
-              />
-            ))}
+            <Input
+              id="pin-box"
+              ref={inputRef}
+              type="password"
+              inputMode="numeric"
+              pattern="\d{4}"
+              maxLength={4}
+              value={sanitizedPin}
+              onChange={(e) => handlePinChange(e.target.value)}
+              onFocus={(e) => e.currentTarget.select()}
+              placeholder="••••"
+              autoComplete="one-time-code"
+              className="h-14 text-2xl tracking-[0.6em] text-center"
+              aria-label="PIN code"
+            />
           </motion.div>
-
-          {/* Show Keypad button */}
-          <div className="flex justify-center">
-            <Button
-              type="button"
-              size="sm"
-              onClick={showKeypad}
-              className={`${gradBtn} mt-3`}
-            >
-              Show Keypad
-            </Button>
-          </div>
         </div>
 
         {error && (
@@ -234,9 +221,23 @@ const ClientsPage = () => {
           </p>
         )}
 
-        <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true">
-          Submit
-        </button>
+        <div className="flex gap-3 justify-center pt-2">
+          <Button type="submit" size="lg" className={btnPrimary}>
+            Unlock Portal
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className={btnGhost}
+            onClick={() => {
+              setPinValue('');
+              setError('');
+              inputRef.current?.focus();
+            }}
+          >
+            Clear
+          </Button>
+        </div>
       </form>
     </motion.div>
   );
@@ -250,49 +251,52 @@ const ClientsPage = () => {
       transition={{ duration: 0.5 }}
       className="w-full max-w-4xl"
     >
-      <div className="glass p-8 rounded-2xl shadow-lg space-y-6">
+      <div className="glass p-8 rounded-2xl shadow-lg space-y-8">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">Welcome, {client.name}!</h1>
+          <h1 className="text-3xl font-bold text-foreground">Welcome, {client?.name}!</h1>
           <p className="text-muted-foreground">
             Use the actions below to send files and complete your project intake.
           </p>
         </div>
 
+        {/* Project Status Tracker */}
+        <section aria-label="Project status">
+          <Label className="block mb-3 text-foreground font-semibold">Project Status</Label>
+          <Stepper current={currentStage} />
+          <div className="flex flex-wrap gap-2 mt-4">
+            {STEPS.map((s) => (
+              <Button
+                key={s}
+                size="sm"
+                className={s === currentStage ? btnPrimary : btnGhost}
+                onClick={() => setCurrentStage(s)}
+                aria-pressed={s === currentStage}
+              >
+                {s}
+              </Button>
+            ))}
+          </div>
+        </section>
+
+        {/* Actions */}
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <Button size="lg" onClick={openUploadWidget} className={gradBtn}>
+          <Button size="lg" onClick={openUploadWidget} className={btnPrimary}>
             Upload files securely
           </Button>
 
+          <a href={NOTION_URL} target="_blank" rel="noreferrer">
+            <Button size="lg" variant="outline" className="font-semibold">
+              UX/UI Project Intake
+            </Button>
+          </a>
+
           <Button
-            variant="link"
-            className="text-muted-foreground"
-            onClick={() => {
-              setClient(null);
-              setPinDigits(['', '', '', '']);
-              setError('');
-              setTimeout(() => focusIndex(0), 0);
-            }}
+            variant="ghost"
+            className={btnGhost}
+            onClick={resetPortal}
           >
             Access another portal
           </Button>
-        </div>
-
-        <div id="notion-intake" className="pt-4" ref={iframeWrapRef}>
-          <Label className="block mb-2 text-foreground font-semibold">
-            Project Intake Form
-          </Label>
-          <div className="rounded-xl overflow-hidden border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
-            <iframe
-              src={NOTION_EMBED_URL}
-              title="Client Intake Form"
-              width="100%"
-              height={frameHeight}
-              style={{ display: 'block' }}
-              frameBorder="0"
-              allowFullScreen
-              scrolling="auto"
-            />
-          </div>
         </div>
       </div>
     </motion.div>
@@ -313,7 +317,3 @@ const ClientsPage = () => {
 };
 
 export default ClientsPage;
-
-
-
-
