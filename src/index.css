@@ -13,9 +13,12 @@
   --orange-600: #fa8a00;
   --orange-800: #d74708; /* header/footer bar */
 
-  /* CTA gradient (red → yellow) */
-  --btn-red: #ba0d0d;
-  --btn-yellow: #ecdf26;
+  /* CTA gradients */
+  --btn-red: #ba0d0d;     /* legacy warm CTA start (kept for fallback use) */
+  --btn-yellow: #ecdf26;  /* legacy warm CTA end   (kept for fallback use) */
+  --btn-pink: #ff3ea5;    /* NEW brand CTA start */
+  --btn-teal: #00c2b2;    /* NEW brand CTA end */
+  --btn-violet: #6a5cff;  /* used in client stepper gradients */
 
   /* Site theme */
   --background: 47 97% 82%;         /* warm, bright base */
@@ -135,8 +138,9 @@ a { color: inherit; }
 }
 
 /* ---------- Buttons ---------- */
+/* Primary now uses NEW brand gradient (pink → teal) */
 .btn-primary {
-  background-image: linear-gradient(135deg, var(--btn-red), var(--btn-yellow));
+  background-image: linear-gradient(135deg, var(--btn-pink), var(--btn-teal));
   color: #fff;
   border-radius: 0.75rem;
   transition: transform 200ms ease, box-shadow 200ms ease, ring 200ms ease, filter 200ms ease;
@@ -202,7 +206,7 @@ a { color: inherit; }
 }
 .hero-content { position: relative; z-index: 1; padding: clamp(16px, 3vw, 32px); }
 
-/* Bubble headline — MODAK */
+/* Bubble headline — MODAK (kept for sections that use it) */
 .hero-title {
   font-family: "Modak", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", cursive;
   font-weight: 400;

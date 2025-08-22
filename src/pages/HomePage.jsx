@@ -32,6 +32,8 @@ const toInitials = (full = '') =>
     .slice(0, 2)
     .join('');
 
+const hueFor = (i) => (i * 47) % 360;
+
 const grainDataUrl =
   // tiny repeating noise texture (base64)
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAFo9M/3AAAAL0lEQVQ4T2NkoBAwUqifgXHfP2H4P0YgGQwxgGkY4r9GQqCkQzGg0E0GgYw4Gq4QpGgAAP0v3yZc8w2wAAAAASUVORK5CYII=';
@@ -153,7 +155,12 @@ const HomePage = () => {
         />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-5xl">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-5xl"
+          >
             {/* Headline: Poppins ExtraBold + outline + shadow */}
             <h1
               className="tracking-tight text-[clamp(2.6rem,6.8vw,5.2rem)] leading-[1.04] text-white"
@@ -226,9 +233,10 @@ const HomePage = () => {
                   key={chip}
                   onClick={() => setActiveChip(chip)}
                   className={`rounded-full px-4 py-2 text-sm font-semibold transition
-                    ${active
-                      ? 'text-white shadow-md bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]'
-                      : 'border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-foreground hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]'
+                    ${
+                      active
+                        ? 'text-white shadow-md bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]'
+                        : 'border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-foreground hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]'
                     }`}
                 >
                   {chip}
@@ -279,52 +287,91 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* ============ TESTIMONIALS (pause/play + avatars) ============ */}
-      <section className="py-14 md:py-24 overflow-hidden bg-[#FFE0A3]">
+      {/* ============ TESTIMONIALS (pause/play + avatars + edge fade) ============ */}
+      <section className="relative py-16 md:py-24 overflow-hidden bg-[linear-gradient(180deg,#ffe8b3_0%,#ffe0a1_100%)]">
+        {/* Soft top shadow to separate from previous section */}
+        <div className="pointer-events-none absolute -top-10 inset-x-0 h-10 shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]" />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-4 mb-7 sm:mb-10">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">Kind words from collaborators</h2>
+          <div className="flex items-center justify-between gap-4 mb-8 md:mb-10">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
+              Kind words from collaborators
+            </h2>
+
             <button
               onClick={() => setPaused((p) => !p)}
-              className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-2 text-sm font-semibold hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition shadow-sm"
               aria-pressed={paused}
               title={paused ? 'Play carousel' : 'Pause carousel'}
             >
               {paused ? <Play size={16} /> : <Pause size={16} />}
-              {paused ? 'Play' : 'Pause'}
             </button>
           </div>
 
-          <div className="w-full overflow-hidden mask-edge-x">
+          <div
+            className="relative overflow-hidden"
+            style={{
+              WebkitMaskImage:
+                'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,1) 8%, rgba(0,0,0,1) 92%, rgba(0,0,0,0))',
+              maskImage:
+                'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,1) 8%, rgba(0,0,0,1) 92%, rgba(0,0,0,0))',
+            }}
+          >
             <ul
-              className="flex gap-5 animate-infinite-scroll"
-              style={{ animationDuration: '38s', animationPlayState: paused ? 'paused' : 'running' }}
+              className="flex items-stretch gap-6 animate-infinite-scroll px-6"
+              style={{
+                animationDuration: '38s',
+                animationPlayState: paused ? 'paused' : 'running',
+              }}
               aria-live={paused ? 'polite' : 'off'}
             >
+              <li className="min-w-[6px] pointer-events-none" aria-hidden="true" />
               {[...reviews, ...reviews].map((r, i) => {
                 const initials = toInitials(r.name);
-                const hue = (i * 47) % 360; // simple hue shift for avatar backgrounds
+                const hue = hueFor(i);
                 return (
-                  <li key={`${r.name}-${i}`} className="min-w-[280px] sm:min-w-[340px]">
-                    <div className="rounded-2xl bg-white/92 backdrop-blur shadow-lg border border-[hsl(var(--border)/0.8)] p-5 h-full flex flex-col justify-between">
+                  <li key={`${r.name}-${i}`} className="min-w-[280px] sm:min-w-[360px]">
+                    <motion.div
+                      whileHover={{ y: -4 }}
+                      transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+                      className="h-full rounded-2xl border border-[hsl(var(--border))] bg-white/92 backdrop-blur shadow-[0_12px_30px_rgba(0,0,0,0.08)] p-5 md:p-6 flex flex-col justify-between"
+                    >
                       <div className="flex items-center gap-3 mb-3">
+                        {/* Avatar ring */}
                         <div
-                          className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm shadow"
-                          style={{ background: `linear-gradient(135deg, hsl(${hue} 80% 55%), hsl(${(hue + 40) % 360} 80% 55%))` }}
+                          className="relative w-10 h-10 rounded-full p-[2px] shadow"
+                          style={{
+                            background: `conic-gradient(from 0deg, hsl(${hue} 85% 55%), hsl(${(hue + 60) % 360} 85% 55%))`,
+                          }}
                           aria-hidden="true"
                         >
-                          {initials}
+                          <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+                            <span className="text-xs font-extrabold text-[hsl(var(--foreground))]">
+                              {initials}
+                            </span>
+                          </div>
                         </div>
+
                         <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-[hsl(var(--accent))]" />
+                          <motion.span
+                            initial={{ rotate: 0 }}
+                            whileHover={{ rotate: 16 }}
+                            transition={{ type: 'spring', stiffness: 250, damping: 12 }}
+                            className="inline-flex"
+                            aria-hidden="true"
+                          >
+                            <Star className="w-4 h-4 text-[hsl(var(--accent))]" />
+                          </motion.span>
                           <span className="font-semibold text-foreground">{r.name}</span>
                         </div>
                       </div>
-                      <p className="text-[hsl(var(--muted-foreground))]">“{r.quote}”</p>
-                    </div>
+
+                      <p className="text-[hsl(var(--muted-foreground))] leading-relaxed">“{r.quote}”</p>
+                    </motion.div>
                   </li>
                 );
               })}
+              <li className="min-w-[6px] pointer-events-none" aria-hidden="true" />
             </ul>
           </div>
         </div>
@@ -356,10 +403,7 @@ const HomePage = () => {
               {/* sparkle particles */}
               <AnimatePresence>
                 <motion.span
-                  variants={{
-                    idle: { opacity: 0 },
-                    hovered: { opacity: 1 },
-                  }}
+                  variants={{ idle: { opacity: 0 }, hovered: { opacity: 1 } }}
                   className="pointer-events-none absolute inset-0"
                 >
                   {[...Array(8)].map((_, i) => {

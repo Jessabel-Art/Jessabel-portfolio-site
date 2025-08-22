@@ -6,10 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
 
+/**
+ * Add clients here.
+ * Optional: stage (defaults to 'Intake'), canChange (defaults to false)
+ */
 const CLIENTS = [
   { name: 'ACME Corp', pin: '7431', folder: 'acme' },
   { name: 'Neoterra Inc.', pin: '8190', folder: 'neoterra' },
-  // Default Sanchez to BUILD
+  // Sanchez starts at BUILD
   { name: 'Sanchez Services', pin: '1122', folder: 'sanchez', stage: 'Build' },
 ];
 
@@ -27,15 +31,19 @@ const btnPrimary =
 const btnGhost =
   'border border-[hsl(var(--border))] bg-transparent hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]';
 
-// Steps
+/** New: a clearly visible “inactive/muted” pill that isn’t washed out */
+const btnMuted =
+  'cursor-not-allowed border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.25] text-[hsl(var(--foreground))] shadow-sm opacity-100';
+
+/** Steps */
 const STEPS = ['Intake', 'Discovery', 'Design', 'Build', 'Review', 'Handoff'];
 
-// High-contrast timeline styles
+/** High-contrast timeline styles */
 const trackBase = 'bg-[hsl(var(--foreground)/0.14)]';
 const trackFill =
   'bg-[linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff),var(--btn-teal,#00c2b2))] shadow-[inset_0_0_0_2px_rgba(255,255,255,.35),0_6px_18px_rgba(0,0,0,.18)]';
 const nodeInactive =
-  'bg-white text-[hsl(var(--foreground)/0.7)] border border-[hsl(var(--foreground)/0.15)] shadow-[0_2px_10px_rgba(0,0,0,.08)]';
+  'bg-white text-[hsl(var(--foreground)/0.8)] border border-[hsl(var(--foreground)/0.18)] shadow-[0_2px_10px_rgba(0,0,0,.08)]';
 const nodeActive =
   'text-white bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] shadow-[0_8px_20px_rgba(0,0,0,.22)] ring-2 ring-white/60';
 const nodeCompleted =
@@ -140,6 +148,9 @@ const ClientsPage = () => {
     setTimeout(() => inputRef.current && inputRef.current.focus(), 0);
   };
 
+  /** Whether this client is allowed to change status (off by default). */
+  const canChangeStatus = Boolean(client?.canChange);
+
   // ---- Stepper ----
   const Stepper = ({ current }) => {
     const idx = STEPS.indexOf(current);
@@ -234,7 +245,6 @@ const ClientsPage = () => {
             <Input
               id="pin-box"
               ref={inputRef}
-              // TIP: type="tel" + inputMode="numeric" gives best mobile keypad
               type="tel"
               inputMode="numeric"
               enterKeyHint="go"
@@ -305,17 +315,32 @@ const ClientsPage = () => {
           <Label className="block mb-3 text-foreground font-semibold">Project Status</Label>
           <Stepper current={currentStage} />
           <div className="flex flex-wrap gap-2 mt-4">
-            {STEPS.map((s) => (
-              <Button
-                key={s}
-                size="sm"
-                className={s === currentStage ? btnPrimary : btnGhost}
-                onClick={() => setCurrentStage(s)}
-                aria-pressed={s === currentStage}
-              >
-                {s}
-              </Button>
-            ))}
+            {STEPS.map((s) => {
+              const isCurrent = s === currentStage;
+              // Clients cannot change status; admin can enable per-client later with canChange:true
+              return canChangeStatus ? (
+                <Button
+                  key={s}
+                  size="sm"
+                  className={isCurrent ? btnPrimary : btnGhost}
+                  onClick={() => setCurrentStage(s)}
+                  aria-pressed={isCurrent}
+                >
+                  {s}
+                </Button>
+              ) : (
+                <Button
+                  key={s}
+                  size="sm"
+                  disabled
+                  aria-disabled="true"
+                  className={isCurrent ? btnPrimary : btnMuted}
+                  title="Status is managed by Jessabel"
+                >
+                  {s}
+                </Button>
+              );
+            })}
           </div>
         </section>
 
@@ -354,3 +379,4 @@ const ClientsPage = () => {
 };
 
 export default ClientsPage;
+

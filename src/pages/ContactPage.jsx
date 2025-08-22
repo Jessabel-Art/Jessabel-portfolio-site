@@ -100,16 +100,22 @@ const ContactPage = () => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'enter') handleSubmit(e);
   };
 
-  // theme gradient (brand red → yellow)
+  // Buttons: match homepage (pink → teal)
   const gradBtn =
     'text-white font-semibold shadow-lg border-0 transition-transform duration-200 ' +
     'hover:scale-[1.01] active:scale-[.99] ' +
-    'bg-[linear-gradient(135deg,var(--btn-red,#ba0d0d),var(--btn-yellow,#ecdf26))]';
+    'bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]';
 
   const headingShadow = { textShadow: '0 3px 14px rgba(0,0,0,.18)' };
 
   const charCount = formData.message.length;
   const maxChars = 1200;
+
+  // shared input class (primary focus ring to match theme)
+  const inputCls =
+    'w-full rounded-lg px-4 py-3 bg-[hsl(var(--popover))] text-[hsl(var(--foreground))] ' +
+    'border border-[hsl(var(--border))] placeholder-[hsl(var(--muted-foreground))] ' +
+    'focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-[hsl(var(--primary))] transition';
 
   return (
     <div className="py-20">
@@ -121,10 +127,10 @@ const ContactPage = () => {
         />
       </Helmet>
 
-      {/* Warm background that matches your palette */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-3xl py-12 md:py-16 bg-[var(--orange-100,#fee9a6)]">
+      {/* Warm background (cream) to match site palette */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-3xl py-12 md:py-16 bg-[#FFEFD2]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-          {/* FORM FIRST (better mobile & a11y) */}
+          {/* FORM */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
@@ -181,9 +187,7 @@ const ContactPage = () => {
                     required
                     aria-invalid={touched.name && !!errors.name}
                     aria-describedby={touched.name && errors.name ? 'name-err' : undefined}
-                    className="w-full rounded-lg px-4 py-3 bg-[hsl(var(--popover))] text-[hsl(var(--foreground))]
-                               border border-[hsl(var(--border))] placeholder-[hsl(var(--muted-foreground))]
-                               focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] focus:border-[var(--orange-600,#fa8a00)] transition"
+                    className={inputCls}
                     placeholder="Jane Doe"
                   />
                   {touched.name && errors.name && (
@@ -207,9 +211,7 @@ const ContactPage = () => {
                     required
                     aria-invalid={touched.email && !!errors.email}
                     aria-describedby={touched.email && errors.email ? 'email-err' : undefined}
-                    className="w-full rounded-lg px-4 py-3 bg-[hsl(var(--popover))] text-[hsl(var(--foreground))]
-                               border border-[hsl(var(--border))] placeholder-[hsl(var(--muted-foreground))]
-                               focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] focus:border-[var(--orange-600,#fa8a00)] transition"
+                    className={inputCls}
                     placeholder="you@example.com"
                   />
                   {touched.email && errors.email && (
@@ -232,9 +234,7 @@ const ContactPage = () => {
                     required
                     aria-invalid={touched.message && !!errors.message}
                     aria-describedby={touched.message && errors.message ? 'message-err' : 'message-help'}
-                    className="w-full rounded-lg px-4 py-3 bg-[hsl(var(--popover))] text-[hsl(var(--foreground))]
-                               border border-[hsl(var(--border))] placeholder-[hsl(var(--muted-foreground))]
-                               focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] focus:border-[var(--orange-600,#fa8a00)] transition resize-none"
+                    className={`${inputCls} resize-none`}
                     placeholder="A quick overview, goals, timeline, and budget (rough is fine!)."
                   />
                   <div className="flex items-center justify-between">
@@ -319,7 +319,7 @@ const ContactPage = () => {
           </motion.div>
         </div>
 
-        {/* Booking badge — brand gradient */}
+        {/* Booking badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -334,7 +334,7 @@ const ContactPage = () => {
               className="font-bold"
               style={{
                 background:
-                  'linear-gradient(135deg,var(--btn-red,#ba0d0d),var(--btn-yellow,#ecdf26))',
+                  'linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))',
                 WebkitBackgroundClip: 'text',
                 color: 'transparent',
               }}
@@ -352,4 +352,3 @@ const ContactPage = () => {
 };
 
 export default ContactPage;
-

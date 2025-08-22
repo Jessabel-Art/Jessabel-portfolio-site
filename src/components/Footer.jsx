@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Linkedin, Instagram, ArrowUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 
 const Footer = () => {
@@ -32,13 +33,18 @@ const Footer = () => {
   return (
     <footer
       role="contentinfo"
-      className="relative overflow-hidden border-t"
-      style={{ backgroundColor: '#d74708', borderColor: 'rgba(255,255,255,0.18)' }}
+      className="site-footer relative overflow-hidden border-t"
+      style={{
+        // site-footer bg is set in index.css to var(--orange-800); keep here for clarity
+        backgroundColor: 'var(--orange-800)',
+        borderColor: 'rgba(255,255,255,0.18)',
+      }}
     >
       {/* subtle top fade */}
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-8"
         style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.10), transparent)' }}
+        aria-hidden="true"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -48,14 +54,17 @@ const Footer = () => {
             <Link
               to="/"
               aria-label="Jessabel.Art — Home"
-              className="inline-flex items-baseline leading-none"
+              className="inline-flex items-baseline leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-md"
             >
-              <span
-                className="text-white text-3xl md:text-4xl font-bold tracking-tight"
-                style={{ fontFamily: "'Playfair Display', serif" }}
+              <motion.span
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25 }}
+                className="text-white text-3xl md:text-4xl font-bold tracking-tight select-none"
+                style={{ fontFamily: "'Playfair Display', serif", textShadow: '0 2px 0 rgba(0,0,0,.18), 0 8px 22px rgba(0,0,0,.25)' }}
               >
                 Jessabel<span>.Art</span>
-              </span>
+              </motion.span>
             </Link>
             <p className="mt-3 text-base text-white/90 max-w-xs font-medium">
               Designing usable, beautiful interfaces and purposeful brands.
@@ -72,7 +81,7 @@ const Footer = () => {
                 <li key={label}>
                   <Link
                     to={path}
-                    className="text-white/85 hover:text-white hover:underline underline-offset-4 transition-colors"
+                    className="text-white/85 hover:text-white hover:underline underline-offset-4 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-sm"
                   >
                     {label}
                   </Link>
@@ -91,7 +100,7 @@ const Footer = () => {
                   whileHover={{ scale: 1.07, y: -2 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={() => handleSocialClick(url, label)}
-                  className="w-10 h-10 rounded-full border border-white/25 bg-white/10 hover:bg-white/20 backdrop-blur flex items-center justify-center transition"
+                  className="w-10 h-10 rounded-full border border-white/25 bg-white/10 hover:bg-white/20 backdrop-blur flex items-center justify-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                   aria-label={label}
                   title={label}
                 >
@@ -102,7 +111,7 @@ const Footer = () => {
 
             <a
               href="mailto:hello@jessabel.art"
-              className="mt-3 text-sm text-white/85 hover:text-white transition-colors"
+              className="mt-3 text-sm text-white/85 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-sm"
             >
               hello@jessabel.art
             </a>
@@ -121,25 +130,22 @@ const Footer = () => {
               <Link
                 key={label}
                 to={path}
-                className="text-sm text-white/85 hover:text-white hover:underline underline-offset-4 transition-colors"
+                className="text-sm text-white/85 hover:text-white hover:underline underline-offset-4 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-sm"
               >
                 {label}
               </Link>
             ))}
-            {/* Back to Top button */}
-            <button
+
+            {/* Back to Top button — uses theme gradient via .btn-primary */}
+            <Button
               onClick={backToTop}
-              className="inline-flex items-center gap-2 text-sm rounded-full px-3 py-1.5 font-semibold shadow-sm transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 hover:brightness-110"
-              style={{
-                background: 'linear-gradient(135deg, var(--btn-red,#ba0d0d), var(--btn-yellow,#ecdf26))',
-                color: '#ffffff',
-              }}
+              className="inline-flex items-center gap-2 text-sm rounded-full px-3 py-1.5 font-semibold btn-primary focus-visible:ring-2 focus-visible:ring-white/70"
               aria-label="Back to top"
               title="Back to top"
             >
               <ArrowUp size={16} />
               Top
-            </button>
+            </Button>
           </div>
         </div>
       </div>
