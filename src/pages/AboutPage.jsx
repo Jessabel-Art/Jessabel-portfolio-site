@@ -5,9 +5,9 @@ import { Layers, Award, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
-// 🖼️ Local assets (placed in: /src/assets/about/)
-import artistPortrait from '@/assets/about/artist-portrait.png'; // update ext if needed
-import toolsStatsBg from '@/assets/about/tools-stats-bg-strip.jpg'; // update ext if needed
+// Local assets (place in /src/assets/about/)
+import artistPortrait from '@/assets/about/artist-portrait.png';
+import toolsStatsBg from '@/assets/about/tools-stats-bg-strip.jpg';
 
 const AboutPage = () => {
   const journey = [
@@ -31,11 +31,9 @@ const AboutPage = () => {
     { school:'Full Sail University', degree:'Certificate in User Experience', year:'2024' },
   ];
 
-  // ✨ Tools list
   const skills = [
     'UX','UI','User Research','Prototyping','Figma','Design Systems',
-    'Branding','Identity','SEO','React','Tailwind',
-    'GitHub','WordPress','Framer'
+    'Branding','Identity','SEO','React','Tailwind','GitHub','WordPress','Framer'
   ];
 
   const pillClass = (label = '') => {
@@ -57,11 +55,7 @@ const AboutPage = () => {
     viewport: { once: true, amount: 0.3 },
   };
 
-  /**
-   * 🔎 Collage (Design Footprints) → marquee
-   * Auto-imports files named: collage-about-me-*.{jpg,jpeg,png,webp}
-   * Path: /src/assets/projects
-   */
+  // Collage (Design Footprints) → single marquee row
   const collageModules = import.meta.glob(
     '@/assets/projects/collage-about-me-*.{jpg,jpeg,png,webp}',
     { eager: true, as: 'url' }
@@ -80,7 +74,7 @@ const AboutPage = () => {
         />
       </Helmet>
 
-      {/* Intro + Education (education moved under summary as bullets) */}
+      {/* Intro + Education */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
           <motion.div {...fadeIn} className="lg:col-span-3 space-y-8">
@@ -99,7 +93,7 @@ const AboutPage = () => {
               </p>
             </div>
 
-            {/* Education — simple and scannable */}
+            {/* Education — concise bullets */}
             <div className="mt-4">
               <h3 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2">Education</h3>
               <ul className="list-disc pl-5 space-y-1 text-[hsl(var(--muted-foreground))]">
@@ -110,14 +104,11 @@ const AboutPage = () => {
                 ))}
               </ul>
 
-              {/* Round Case Study button */}
               <div className="flex flex-wrap gap-3 mt-6">
                 <Link
                   to="/case-study/full-sail"
                   className="inline-flex items-center justify-center rounded-full px-5 py-3 text-center font-semibold text-white shadow-lg"
                   style={{ background: 'linear-gradient(135deg, var(--btn-red,#ba0d0d), var(--btn-teal,#ecdf26))' }}
-                  aria-label="View Full Sail Certificate Case Study"
-                  title="View Full Sail Certificate Case Study"
                 >
                   View Full Sail Cert Case Study
                 </Link>
@@ -139,7 +130,7 @@ const AboutPage = () => {
 
       {/* Journey */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div {...fadeIn} className="lg:col-span-2">
+        <motion.div {...fadeIn}>
           <h2 className="text-4xl md:text-5xl font-bold text-[hsl(var(--foreground))] mb-12 text-center lg:text-left">
             My Professional Journey
           </h2>
@@ -170,13 +161,13 @@ const AboutPage = () => {
         </motion.div>
       </section>
 
-      {/* Skills marquee + Stats with abstract background strip */}
+      {/* Skills + Stats (light, high-contrast) */}
       <section
         className="py-16 bg-cover bg-center relative"
         style={{ backgroundImage: `url(${toolsStatsBg})` }}
       >
-        {/* light scrim to improve readability, but keep the image visible */}
-        <div className="absolute inset-0 bg-white/65 dark:bg-black/25" />
+        {/* LIGHT overlay for contrast; no dark‑theme variants */}
+        <div className="absolute inset-0 bg-white/82" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-center">
@@ -184,53 +175,30 @@ const AboutPage = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))] mb-6 text-center lg:text-left">
                 What I Work With
               </h2>
-              <div className="hidden motion-reduce:flex flex-wrap justify-center gap-3">
-                {skills.map((s) => (
-                  <span key={s} className={`text-sm px-3 py-1.5 rounded-full font-semibold ${pillClass(s)}`}>{s}</span>
-                ))}
-              </div>
-              <div className="motion-safe:block hidden">
-                <div className="w-full overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_96px,_black_calc(100%-96px),transparent_100%)]">
-                  <ul className="flex items-center gap-3 animate-infinite-scroll">
-                    {[...skills, ...skills].map((s, i) => (
-                      <li key={`${s}-${i}`} className="shrink-0">
-                        <span className={`text-sm px-3 py-1.5 rounded-full font-semibold ${pillClass(s)}`}>{s}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+
+              {/* One smooth marquee row */}
+              {skills.length > 0 && (
+                <MarqueeRow
+                  items={skills}
+                  render={(s) => (
+                    <span className={`text-sm px-3 py-1.5 rounded-full font-semibold ${pillClass(s)}`}>{s}</span>
+                  )}
+                  duration={32}
+                />
+              )}
             </motion.div>
 
-            {/* Stats — darker text */}
+            {/* Stats — readable on light overlay */}
             <motion.ul {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.1 }} className="grid grid-cols-1 gap-4">
-              <li className="rounded-2xl p-5 bg-white/90 text-[hsl(var(--foreground))] border border-[hsl(var(--border))] shadow-sm flex items-start gap-3 backdrop-blur">
-                <Layers className="mt-1" />
-                <div>
-                  <p className="text-3xl font-extrabold leading-none">15 yrs</p>
-                  <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">Design & ops experience</p>
-                </div>
-              </li>
-              <li className="rounded-2xl p-5 bg-white/90 text-[hsl(var(--foreground))] border border-[hsl(var(--border))] shadow-sm flex items-start gap-3 backdrop-blur">
-                <Users className="mt-1" />
-                <div>
-                  <p className="text-3xl font-extrabold leading-none">5+</p>
-                  <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">Industries served</p>
-                </div>
-              </li>
-              <li className="rounded-2xl p-5 bg-white/90 text-[hsl(var(--foreground))] border border-[hsl(var(--border))] shadow-sm flex items-start gap-3 backdrop-blur">
-                <Award className="mt-1" />
-                <div>
-                  <p className="text-3xl font-extrabold leading-none">100%</p>
-                  <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">Client-first approach</p>
-                </div>
-              </li>
+              <StatCard icon={<Layers className="mt-1" />} value="15 yrs" label="Design & ops experience" />
+              <StatCard icon={<Users className="mt-1" />} value="5+" label="Industries served" />
+              <StatCard icon={<Award className="mt-1" />} value="100%" label="Client-first approach" />
             </motion.ul>
           </div>
         </div>
       </section>
 
-      {/* Design Footprints — Marquee */}
+      {/* Design Footprints — single marquee row with larger tiles (object-contain to avoid cropping) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div {...fadeIn}>
           <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))] mb-6 text-center">Design Footprints</h2>
@@ -238,7 +206,7 @@ const AboutPage = () => {
           {collage.length === 0 ? (
             <p className="text-center text-[hsl(var(--muted-foreground))]">Adding samples soon.</p>
           ) : (
-            <CollageMarquee images={collage} />
+            <ImageMarquee images={collage} duration={38} />
           )}
         </motion.div>
       </section>
@@ -259,32 +227,29 @@ const AboutPage = () => {
   );
 };
 
-/* ---------- Collage Components ---------- */
+/* ---------- Small pieces ---------- */
 
-const CollageMarquee = ({ images = [] }) => {
-  // Build two rows with different speeds to add depth (both capped height)
-  const rowA = images.slice(0, Math.ceil(images.length / 2));
-  const rowB = images.slice(Math.ceil(images.length / 2));
-
-  return (
-    <div className="space-y-4">
-      <MarqueeRow images={rowA} duration={30} />
-      <MarqueeRow images={rowB} duration={36} reverse />
+const StatCard = ({ icon, value, label }) => (
+  <li className="rounded-2xl p-5 bg-white/95 text-[hsl(var(--foreground))] border border-[hsl(var(--border))] shadow-sm flex items-start gap-3">
+    {icon}
+    <div>
+      <p className="text-3xl font-extrabold leading-none">{value}</p>
+      <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">{label}</p>
     </div>
-  );
-};
+  </li>
+);
 
-const MarqueeRow = ({ images = [], duration = 30, reverse = false }) => {
-  const items = [...images, ...images]; // seamless loop
+const MarqueeRow = ({ items = [], render, duration = 30 }) => {
+  const doubled = [...items, ...items];
   return (
     <div className="w-full overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_72px,_black_calc(100%-72px),transparent_100%)]">
       <ul
-        className={`flex items-center gap-4 animate-infinite-scroll ${reverse ? '[animation-direction:reverse]' : ''}`}
+        className="flex items-center gap-4 animate-infinite-scroll"
         style={{ animationDuration: `${duration}s` }}
       >
-        {items.map((src, i) => (
-          <li key={`${src}-${i}`} className="shrink-0">
-            <CollageImg src={src} className="w-[280px] h-[180px] md:w-[360px] md:h-[220px]" />
+        {doubled.map((it, i) => (
+          <li key={`${String(it)}-${i}`} className="shrink-0">
+            {render(it)}
           </li>
         ))}
       </ul>
@@ -292,22 +257,39 @@ const MarqueeRow = ({ images = [], duration = 30, reverse = false }) => {
   );
 };
 
-const CollageImg = ({ src, className = '' }) => (
-  <div className={`overflow-hidden rounded-xl border border-[hsl(var(--border))] shadow-sm bg-[hsl(var(--muted))/0.2] ${className}`}>
+const ImageMarquee = ({ images = [], duration = 40 }) => {
+  const doubled = [...images, ...images];
+  return (
+    <div className="w-full overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_72px,_black_calc(100%-72px),transparent_100%)]">
+      <ul
+        className="flex items-center gap-5 animate-infinite-scroll"
+        style={{ animationDuration: `${duration}s` }}
+      >
+        {doubled.map((src, i) => (
+          <li key={`${src}-${i}`} className="shrink-0">
+            <Tile src={src} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+const Tile = ({ src }) => (
+  <div className="w-[360px] h-[230px] md:w-[440px] md:h-[270px] rounded-xl border border-[hsl(var(--border))] shadow-sm bg-white flex items-center justify-center p-2">
     <img
       src={src}
       alt=""
-      className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.03]"
+      className="max-w-full max-h-full object-contain"
       loading="lazy"
       decoding="async"
-      onError={(e) => {
-        e.currentTarget.src = 'https://picsum.photos/seed/fallbackja/1600/1200';
-      }}
+      onError={(e) => { e.currentTarget.src = 'https://picsum.photos/seed/fallbackja/1200/800'; }}
     />
   </div>
 );
 
 export default AboutPage;
+
 
 
 

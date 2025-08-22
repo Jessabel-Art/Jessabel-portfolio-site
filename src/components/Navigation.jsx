@@ -16,17 +16,15 @@ const Navigation = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // NOTE: Portfolio link removed while the page is hidden
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/about', label: 'About', icon: User },
     { path: '/blog', label: 'Blog', icon: BookOpen },
   ];
 
-  // Orange brand tokens
   const ORANGE_BAR = '#d74708';
   const ORANGE_BAR_TRANS = 'rgba(215,71,8,0.92)';
-  const ACTIVE_PILL = '#ffe574'; // light orange chip
+  const ACTIVE_PILL = '#ffe574';
 
   const isRouteActive = (itemPath) => {
     if (itemPath === '/') return location.pathname === '/';
@@ -52,21 +50,26 @@ const Navigation = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Brand (typographic wordmark) */}
-          <Link to="/" className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-md" aria-label="Jessabel.Art — Home">
+          {/* Brand logotype — white, bold, no italics (matches footer) */}
+          <Link
+            to="/"
+            className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-md"
+            aria-label="Jessabel.Art — Home"
+          >
             <motion.span
               key="wordmark"
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25 }}
-              className="text-2xl md:text-3xl font-['Playfair_Display'] italic font-bold tracking-tight select-none"
+              className="text-3xl md:text-4xl font-bold tracking-tight select-none"
               style={{
-                color: '#FFE574',
+                color: '#ffffff',
                 textShadow: '0 2px 0 rgba(0,0,0,.18), 0 8px 22px rgba(0,0,0,.25)',
                 letterSpacing: '-0.02em',
+                fontFamily: "'Playfair Display', serif",
               }}
             >
-              Jessabel.Art
+              Jessabel<span>.Art</span>
             </motion.span>
           </Link>
 
@@ -149,9 +152,7 @@ const Navigation = () => {
                     active ? 'bg-[#ffe574] text-black' : 'text-white/90 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <span className="flex items-center gap-3">
-                    {/* <item.icon size={18} /> */} {item.label}
-                  </span>
+                  <span className="flex items-center gap-3">{item.label}</span>
                 </Link>
               );
             })}

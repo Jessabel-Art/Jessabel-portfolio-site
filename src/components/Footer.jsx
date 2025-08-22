@@ -15,7 +15,6 @@ const Footer = () => {
     { icon: Instagram, label: 'Instagram', url: 'https://www.instagram.com/jessieleonne/' },
   ];
 
-  // NOTE: Portfolio is intentionally hidden for now
   const navLinks = [
     { label: 'Home', path: '/' },
     { label: 'About', path: '/about' },
@@ -35,7 +34,6 @@ const Footer = () => {
     <footer
       role="contentinfo"
       className="relative overflow-hidden border-t"
-      // Footer uses your darkest orange for unified header/footer look
       style={{ backgroundColor: '#d74708', borderColor: 'rgba(255,255,255,0.18)' }}
     >
       {/* subtle top fade */}
@@ -45,14 +43,19 @@ const Footer = () => {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        {/* tightened vertical padding and gaps */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 py-10 md:py-12 text-center md:text-left">
-          {/* Brand (typographic logotype in Playfair) */}
+          {/* Brand (logotype, bold, no italics) */}
           <div className="flex flex-col items-center md:items-start">
-            <Link to="/" aria-label="Jessabel.Art — Home" className="inline-flex items-baseline leading-none">
-              <span className="text-white text-3xl md:text-4xl font-bold tracking-tight">
-                Jessabel
-                <span className="italic">.Art</span>
+            <Link
+              to="/"
+              aria-label="Jessabel.Art — Home"
+              className="inline-flex items-baseline leading-none"
+            >
+              <span
+                className="text-white text-3xl md:text-4xl font-bold tracking-tight"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                Jessabel<span>.Art</span>
               </span>
             </Link>
             <p className="mt-3 text-sm text-white/85 max-w-xs">
@@ -87,7 +90,7 @@ const Footer = () => {
                   whileHover={{ scale: 1.07, y: -2 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={() => handleSocialClick(url, label)}
-                  className="w-10 h-10 rounded-full border border-white/25 bg-white/10 hover:bg.white/20 backdrop-blur flex items-center justify-center transition"
+                  className="w-10 h-10 rounded-full border border-white/25 bg-white/10 hover:bg-white/20 backdrop-blur flex items-center justify-center transition"
                   aria-label={label}
                   title={label}
                 >
@@ -105,20 +108,19 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom bar — tightened spacing */}
+        {/* Bottom bar */}
         <div className="mt-6 pt-5 border-t border-white/15 flex flex-col-reverse md:flex-row items-center justify-between gap-3 pb-8">
           <p className="text-sm text-white/80 text-center md:text-left">
             © {new Date().getFullYear()} Jessabel.Art. All rights reserved.
             <span className="block md:inline opacity-80"> Fueled by caffeine and curiosity.</span>
           </p>
 
-          {/* Legal + Top */}
           <div className="flex items-center gap-3">
             {legalLinks.map(({ label, path }) => (
               <Link
                 key={label}
                 to={path}
-                className="text-sm text.white/85 hover:text-white transition-colors"
+                className="text-sm text-white/85 hover:text-white transition-colors"
               >
                 {label}
               </Link>
@@ -128,7 +130,7 @@ const Footer = () => {
               className="inline-flex items-center gap-2 text-sm rounded-full px-3 py-1.5 font-semibold shadow-sm"
               style={{
                 background: 'linear-gradient(135deg, #ff3ea5, #00c2b2)',
-                color: '#ffffff'
+                color: '#ffffff',
               }}
               aria-label="Back to top"
               title="Back to top"
@@ -144,5 +146,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
-

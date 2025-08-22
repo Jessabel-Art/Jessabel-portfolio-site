@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 
-// 🔸 Local HERO image (replace the extension if yours differs)
-import heroBg from '@/assets/images/hero-bg.jpg'; // or .png/.webp
+// Local HERO image
+import heroBg from '@/assets/images/hero-bg.jpg';
 
 const HomePage = () => {
   const handleConsultationClick = () => {
@@ -26,7 +26,6 @@ const HomePage = () => {
     { icon: Briefcase, title: 'Career & Biz Support', description: 'Roadmaps, positioning, and GTM ops that work.' },
   ];
 
-  // ✅ 6 realistic reviews, one marquee row only, no visible boxes
   const reviews = [
     { name: 'Alicia M., Founder', quote: 'Jess turned our messy idea into a clear, lovable product flow.' },
     { name: 'Derrick P., Product Lead', quote: 'Stakeholders finally understood the vision after her prototype.' },
@@ -36,7 +35,6 @@ const HomePage = () => {
     { name: 'Nora T., Ops Lead', quote: 'Workshops were focused, friendly, and actually productive.' },
   ];
 
-  // Accent chips for “What I Bring”
   const ACCENTS = [
     { bg: 'bg-[#22d3ee]/20', chip: 'bg-[#22d3ee]', ring: 'ring-[#22d3ee]' },
     { bg: 'bg-[#a78bfa]/20', chip: 'bg-[#a78bfa]', ring: 'ring-[#a78bfa]' },
@@ -56,7 +54,7 @@ const HomePage = () => {
         />
       </Helmet>
 
-      {/* HERO (now using local image) */}
+      {/* HERO */}
       <section className="hero relative min-h-[86vh] grid place-items-center overflow-clip">
         <img src={heroBg} alt="" className="hero-image" loading="eager" decoding="async" />
         <div className="hero-overlay" />
@@ -66,24 +64,27 @@ const HomePage = () => {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="max-w-3xl"
+            className="max-w-4xl"
           >
-            <h1 className="hero-title bubble">
-              <span>
-                I map <em>Ideas</em>
+            {/* Modak heading */}
+            <h1 className="font-['Modak'] leading-[0.9] text-[clamp(3.75rem,9vw,7.5rem)] text-[hsl(var(--headline-yellow))] drop-shadow-[0_2px_20px_hsl(var(--headline-yellow)/.25)]">
+              <span className="block">
+                I map <em className="not-italic text-white">Ideas</em>
               </span>
-              <span>
-                onto <em>Screens</em>
+              <span className="block">
+                onto <em className="not-italic text-white">Screens</em>
               </span>
             </h1>
 
-            <p className="hero-subtext">
+            {/* Playfair subheader */}
+            <p className="mt-6 font-['Playfair_Display'] text-[clamp(1.25rem,2.2vw,1.7rem)] text-[hsl(var(--muted-foreground))] max-w-3xl">
               Crafting experiences with UX/UI, branding, and prototypes people actually enjoy using.
             </p>
 
-            <div className="hero-ctas mt-8 flex items-center gap-4">
-              <Button asChild size="lg" className="btn-primary rounded-full px-6">
-                <Link to="/contact" onClick={handleConsultationClick} aria-label="Start a project">
+            {/* Bigger CTAs (glow to be added later) */}
+            <div className="hero-ctas mt-9 flex items-center gap-4">
+              <Button asChild className="btn-primary rounded-full px-7 py-3.5 text-lg" onClick={handleConsultationClick}>
+                <Link to="/contact" aria-label="Start a project">
                   Start a Project
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
@@ -92,7 +93,7 @@ const HomePage = () => {
               <Button
                 asChild
                 variant="outline"
-                className="rounded-full px-6 border-white/30 text-white bg-white/10 backdrop-blur hover:bg-white/20"
+                className="rounded-full px-7 py-3.5 text-lg border-white/30 text-white bg-white/10 backdrop-blur hover:bg-white/20"
               >
                 <Link to="/portfolio" aria-label="See my work">
                   See my work
@@ -142,9 +143,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 🔻 RECENT WORK section removed per request */}
-
-      {/* TESTIMONIALS — single marquee row, subtle/invisible containers */}
+      {/* TESTIMONIALS — single marquee row */}
       <section className="py-16 md:py-24 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h2
@@ -190,13 +189,13 @@ const HomePage = () => {
             </p>
 
             <div className="mt-8 flex items-center justify-center gap-4">
-              <Button asChild size="lg" className="btn-primary rounded-full px-6" onClick={handleConsultationClick}>
+              <Button asChild className="btn-primary rounded-full px-7 py-3.5 text-lg" onClick={handleConsultationClick}>
                 <Link to="/contact">
                   Start a 15-min jam session 🎧
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="border-border rounded-full px-6">
+              <Button asChild variant="outline" className="border-border rounded-full px-7 py-3.5 text-lg">
                 <Link to="/portfolio">See recent work</Link>
               </Button>
             </div>
@@ -208,6 +207,7 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
 
 
 
