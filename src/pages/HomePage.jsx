@@ -33,7 +33,7 @@ const toInitials = (full = '') =>
     .join('');
 
 const grainDataUrl =
-  // tiny repeating noise texture (base64), looks nice over imagery
+  // tiny repeating noise texture (base64)
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAFo9M/3AAAAL0lEQVQ4T2NkoBAwUqifgXHfP2H4P0YgGQwxgGkY4r9GQqCkQzGg0E0GgYw4Gq4QpGgAAP0v3yZc8w2wAAAAASUVORK5CYII=';
 
 /* ------------------------------------------------
@@ -135,7 +135,7 @@ const HomePage = () => {
       </Helmet>
 
       {/* ============ HERO ============ */}
-      <section className="relative min-h-[74vh] sm:min-h-[82vh] md:min-h-[86vh] grid place-items-center overflow-clip">
+      <section className="relative min-h-[74vh] sm:min-h-[82vh] md:min-h-[86vh] grid place-items-center overflow-clip bg-[#FFEFD2]">
         <img src={heroBg} alt="" className="hero-image" loading="eager" decoding="async" />
         {/* Dark wash */}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.25))]" />
@@ -207,7 +207,7 @@ const HomePage = () => {
       </section>
 
       {/* ============ WHAT I BRING (with filter chips) ============ */}
-      <section className="relative z-10 -mt-4 md:-mt-8 py-14 md:py-20 bg-[hsl(var(--background))] rounded-t-[28px] shadow-2xl">
+      <section className="relative z-10 -mt-4 md:-mt-8 py-14 md:py-20 bg-[#FFE7B3] rounded-t-[28px] shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-left space-y-3 sm:space-y-4 mb-6 sm:mb-8">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">What I Bring to Every Project</h2>
@@ -237,8 +237,8 @@ const HomePage = () => {
             })}
           </div>
 
-          {/* Cards with micro-interactions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Cards with micro-interactions (equal height) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-stretch gap-6">
             <AnimatePresence mode="popLayout">
               {filteredExpertise.map((s, index) => {
                 const Icon = s.icon;
@@ -253,10 +253,10 @@ const HomePage = () => {
                     transition={{ duration: 0.35 }}
                     whileHover={{ y: -6, rotate: -0.2 }}
                     whileTap={{ scale: 0.98 }}
-                    className="relative group rounded-2xl overflow-hidden"
+                    className="relative group rounded-2xl overflow-hidden h-full"
                   >
                     <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accent.top}`} />
-                    <div className="relative rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]/95 backdrop-blur-sm shadow-sm hover:shadow-lg transition-all p-6 sm:p-7">
+                    <div className="relative h-full rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]/95 backdrop-blur-sm shadow-sm hover:shadow-lg transition-all p-6 sm:p-7 flex flex-col">
                       {/* icon with parallax */}
                       <motion.div
                         className={`w-12 h-12 rounded-xl ${accent.chip} bg-opacity-20 flex items-center justify-center mb-4`}
@@ -268,14 +268,8 @@ const HomePage = () => {
                       <h3 className="text-xl sm:text-2xl font-bold text-foreground">{s.title}</h3>
                       <p className="mt-2 text-[hsl(var(--muted-foreground))]">{s.description}</p>
 
-                      <div className="mt-4">
-                        <Link
-                          to={`/portfolio?filter=${encodeURIComponent(s.title)}`}
-                          className="text-sm font-semibold underline underline-offset-4 text-[hsl(var(--primary))] hover:opacity-90"
-                        >
-                          See examples
-                        </Link>
-                      </div>
+                      {/* spacer to keep heights aligned even if content differs slightly */}
+                      <div className="mt-auto pt-2" />
                     </div>
                   </motion.div>
                 );
@@ -286,7 +280,7 @@ const HomePage = () => {
       </section>
 
       {/* ============ TESTIMONIALS (pause/play + avatars) ============ */}
-      <section className="py-14 md:py-24 overflow-hidden">
+      <section className="py-14 md:py-24 overflow-hidden bg-[#FFE0A3]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-4 mb-7 sm:mb-10">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">Kind words from collaborators</h2>
@@ -309,8 +303,7 @@ const HomePage = () => {
             >
               {[...reviews, ...reviews].map((r, i) => {
                 const initials = toInitials(r.name);
-                // simple hue shift for avatar backgrounds
-                const hue = (i * 47) % 360;
+                const hue = (i * 47) % 360; // simple hue shift for avatar backgrounds
                 return (
                   <li key={`${r.name}-${i}`} className="min-w-[280px] sm:min-w-[340px]">
                     <div className="rounded-2xl bg-white/92 backdrop-blur shadow-lg border border-[hsl(var(--border)/0.8)] p-5 h-full flex flex-col justify-between">
@@ -338,7 +331,7 @@ const HomePage = () => {
       </section>
 
       {/* ============ CTA (sparkles on hover) ============ */}
-      <section className="py-16 md:py-28">
+      <section className="py-16 md:py-28 bg-[#FFD894]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
