@@ -29,8 +29,7 @@ const btnPrimary =
 const btnGhost =
   'border border-[hsl(var(--border))] bg-transparent hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]';
 
-const STEPS = ['Intake', 'Discovery', 'Design', 'Build', 'Review', 'Handoff'] as const;
-type StepName = typeof STEPS[number];
+const STEPS = ['Intake', 'Discovery', 'Design', 'Build', 'Review', 'Handoff'];
 
 const ClientsPage = () => {
   // PIN (single box)
@@ -38,16 +37,16 @@ const ClientsPage = () => {
   const [error, setError] = useState('');
   const [shake, setShake] = useState(false);
 
-  const [client, setClient] = useState<{ name: string; pin: string; folder: string } | null>(null);
+  const [client, setClient] = useState(null);
 
   // Project status tracker state (can be driven from Notion or your DB later)
-  const [currentStage, setCurrentStage] = useState<StepName>('Intake');
+  const [currentStage, setCurrentStage] = useState('Intake');
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef(null);
 
   const sanitizedPin = useMemo(() => pinValue.replace(/\D/g, '').slice(0, 4), [pinValue]);
 
-  const attemptVerify = (candidatePin: string) => {
+  const attemptVerify = (candidatePin) => {
     if (candidatePin.length !== 4) return;
     const found = CLIENTS.find((c) => c.pin === candidatePin);
     if (found) {
@@ -62,19 +61,19 @@ const ClientsPage = () => {
       setPinValue('');
       setTimeout(() => {
         setShake(false);
-        inputRef.current?.focus();
+        inputRef.current && inputRef.current.focus();
       }, 450);
     }
   };
 
-  const handlePinChange = (v: string) => {
+  const handlePinChange = (v) => {
     setError('');
     const next = v.replace(/\D/g, '').slice(0, 4);
     setPinValue(next);
     if (next.length === 4) attemptVerify(next);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     attemptVerify(sanitizedPin);
   };
@@ -106,7 +105,7 @@ const ClientsPage = () => {
   };
 
   useEffect(() => {
-    inputRef.current?.focus();
+    if (inputRef.current) inputRef.current.focus();
   }, []);
 
   const resetPortal = () => {
@@ -114,12 +113,12 @@ const ClientsPage = () => {
     setPinValue('');
     setError('');
     setCurrentStage('Intake');
-    setTimeout(() => inputRef.current?.focus(), 0);
+    setTimeout(() => inputRef.current && inputRef.current.focus(), 0);
   };
 
   // ---- UI bits ----
 
-  const Stepper = ({ current }: { current: StepName }) => {
+  const Stepper = ({ current }) => {
     const idx = STEPS.indexOf(current);
     const pct = Math.max(0, (idx / (STEPS.length - 1)) * 100);
 
@@ -179,9 +178,9 @@ const ClientsPage = () => {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-foreground">Client Postal</h1>
           <p id="pin-help" className="text-muted-foreground mt-2">
-            Enter the 4-digit code we shared with you.{' '}
+            Enter the 4-digit code we shared with you{' '}
             <Link to="/contact" className="underline underline-offset-4">
-              Don’t have a code?
+              (Don’t have a code?)
             </Link>
           </p>
         </div>
@@ -232,7 +231,7 @@ const ClientsPage = () => {
             onClick={() => {
               setPinValue('');
               setError('');
-              inputRef.current?.focus();
+              if (inputRef.current) inputRef.current.focus();
             }}
           >
             Clear
@@ -290,11 +289,7 @@ const ClientsPage = () => {
             </Button>
           </a>
 
-          <Button
-            variant="ghost"
-            className={btnGhost}
-            onClick={resetPortal}
-          >
+          <Button variant="ghost" className={btnGhost} onClick={resetPortal}>
             Access another portal
           </Button>
         </div>
