@@ -5,37 +5,17 @@ import { Calendar, User, Tag, Search, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-type Post = {
-  id?: string | number;
-  slug?: string;
-  title: string;
-  excerpt?: string;
-  content?: string;
-  date?: string;          // ISO preferred
-  author?: string;
-  tags?: string[];        // optional
-  category?: string;      // optional
-  cover?: string;         // image URL
-  heroImage?: string;     // fallback image URL
-  coverAlt?: string;
-  heroAlt?: string;
-};
-
-type BlogPageProps = {
-  posts?: Post[];
-  title?: string;
-  description?: string;
-};
-
+// styles
 const grad =
   'bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] text-white font-semibold shadow-lg';
 const outline = 'border border-[hsl(var(--border))]';
-const ghostBtn = 'border border-[hsl(var(--border))] bg-transparent hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]';
+const ghostBtn =
+  'border border-[hsl(var(--border))] bg-transparent hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]';
 
-const keyFor = (p: Post) => (p.slug ?? p.id) as string | number | undefined;
-const imgFor = (p: Post) => p.cover || p.heroImage || '';
+const keyFor = (p) => p.slug ?? p.id;
+const imgFor = (p) => p.cover || p.heroImage || '';
 
-const BlogPage: React.FC<BlogPageProps> = ({
+const BlogPage = ({
   posts = [],
   title = 'All Articles',
   description = 'Insights on UX, UI, and product from Jessabel.Art',
@@ -43,7 +23,7 @@ const BlogPage: React.FC<BlogPageProps> = ({
   // --------- Ordering ----------
   const ordered = useMemo(() => {
     const arr = posts.filter(Boolean);
-    const hasDates = arr.some(p => p.date);
+    const hasDates = arr.some((p) => p.date);
     if (!hasDates) return arr;
     return [...arr].sort((a, b) => {
       const da = a.date ? new Date(a.date).getTime() : 0;
@@ -54,22 +34,22 @@ const BlogPage: React.FC<BlogPageProps> = ({
 
   // --------- Search / Tag filter ----------
   const allTags = useMemo(() => {
-    const t = new Set<string>();
-    ordered.forEach(p => (p.tags || []).forEach(tag => t.add(tag)));
+    const t = new Set();
+    ordered.forEach((p) => (p.tags || []).forEach((tag) => t.add(tag)));
     return Array.from(t).sort((a, b) => a.localeCompare(b));
   }, [ordered]);
 
   const [query, setQuery] = useState('');
-  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [activeTag, setActiveTag] = useState(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return ordered.filter(p => {
+    return ordered.filter((p) => {
       const matchesQ =
         !q ||
         p.title.toLowerCase().includes(q) ||
         (p.excerpt || '').toLowerCase().includes(q) ||
-        (p.tags || []).some(t => t.toLowerCase().includes(q)) ||
+        (p.tags || []).some((t) => t.toLowerCase().includes(q)) ||
         (p.category || '').toLowerCase().includes(q);
       const matchesTag = !activeTag || (p.tags || []).includes(activeTag);
       return matchesQ && matchesTag;
@@ -95,7 +75,7 @@ const BlogPage: React.FC<BlogPageProps> = ({
             <p className="mt-2 text-[hsl(var(--muted-foreground))]">{description}</p>
           </div>
 
-          {/* Search */}
+        {/* Search */}
           <div className="w-full md:w-80">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2" size={16} />
@@ -139,7 +119,14 @@ const BlogPage: React.FC<BlogPageProps> = ({
           <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-8 text-center">
             <p className="text-[hsl(var(--muted-foreground))]">No articles found. Try a different search or tag.</p>
             <div className="mt-4">
-              <Button onClick={() => { setQuery(''); setActiveTag(null); }} variant="outline" className={outline}>
+              <Button
+                onClick={() => {
+                  setQuery('');
+                  setActiveTag(null);
+                }}
+                variant="outline"
+                className={outline}
+              >
                 Clear filters
               </Button>
             </div>
@@ -242,11 +229,12 @@ const BlogPage: React.FC<BlogPageProps> = ({
 
                     <Button
                       variant="outline"
-                      className={`${outline}`}
+                      className={outline}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        window.navigator.clipboard?.writeText(window.location.origin + href);
+                        const absolute = window.location.origin + href;
+                        window.navigator.clipboard?.writeText(absolute);
                       }}
                     >
                       Copy link
