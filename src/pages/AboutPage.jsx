@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/button';
 // Local assets
 import artistPortrait from '@/assets/about/artist-portrait.png';
 import toolsStatsBg from '@/assets/about/tools-stats-bg-strip.jpg';
-import processBg from '@/assets/images/process-background.jpg'; // make sure this exists
+import processBg from '@/assets/images/process-background.jpg'; // ensure this file exists
 
-const WARM_BROWN = 'var(--warm-brown, #5a3a2a)';
+// warm brown used sitewide (matches --warm-brown-hex in index.css)
+const WARM_BROWN = 'var(--warm-brown-hex)';
 
 const AboutPage = () => {
   const journey = [
@@ -23,21 +24,21 @@ const AboutPage = () => {
       title: 'Design Intern — NUA on the Move',
       company: 'New Urban Arts',
       description:
-        'Selected for the studio relocation initiative to plan and test the layout of the new space. I mapped zones for different art disciplines and supported build-out decisions; I also showcased my own work (poetry and realistic portraits). It was my first experience as part of a project team.'
+        'Selected for the studio relocation initiative to plan and test the layout of the new space. I mapped zones for different art disciplines and supported build-out decisions; I also showcased my own work (poetry and realistic portraits). It was my first experience as part of a project team.',
     },
   ];
 
   // Reverse chronological
   const education = [
-    { school:'Western Governors University', degree:'MBA (in progress)', year:'2025' },
-    { school:'Western Governors University', degree:'B.S. Business Administration, Management', year:'2024' },
-    { school:'Full Sail University', degree:'Certificate in User Experience', year:'2024' },
-    { school:'Community College of Rhode Island', degree:'A.S. Business Administration', year:'2022' },
+    { school: 'Western Governors University', degree: 'MBA (in progress)', year: '2025' },
+    { school: 'Western Governors University', degree: 'B.S. Business Administration, Management', year: '2024' },
+    { school: 'Full Sail University', degree: 'Certificate in User Experience', year: '2024' },
+    { school: 'Community College of Rhode Island', degree: 'A.S. Business Administration', year: '2022' },
   ];
 
   const skills = [
-    'UX','UI','User Research','Prototyping','Figma','Design Systems',
-    'Branding','Identity','SEO','React','Tailwind','GitHub','WordPress','Framer'
+    'UX', 'UI', 'User Research', 'Prototyping', 'Figma', 'Design Systems',
+    'Branding', 'Identity', 'SEO', 'React', 'Tailwind', 'GitHub', 'WordPress', 'Framer',
   ];
 
   const pillClass = (label = '') => {
@@ -46,9 +47,9 @@ const AboutPage = () => {
     const secondary = 'bg-[hsl(var(--secondary))] text-white shadow-sm';
     const accent = 'bg-[hsl(var(--accent))] text-[#0B0F1A] shadow-sm';
     const neutral = 'bg-[hsl(var(--foreground))/0.08] text-[hsl(var(--foreground))]';
-    if (['ux','user research','research'].includes(t)) return secondary;
-    if (['ui','figma','prototyping','design systems','react','tailwind','github','framer','wordpress'].includes(t)) return primary;
-    if (['branding','identity','seo'].includes(t)) return accent;
+    if (['ux', 'user research', 'research'].includes(t)) return secondary;
+    if (['ui', 'figma', 'prototyping', 'design systems', 'react', 'tailwind', 'github', 'framer', 'wordpress'].includes(t)) return primary;
+    if (['branding', 'identity', 'seo'].includes(t)) return accent;
     return neutral;
   };
 
@@ -124,7 +125,8 @@ const AboutPage = () => {
               <ul className="list-disc pl-5 space-y-1" style={{ color: WARM_BROWN }}>
                 {education.map((e) => (
                   <li key={`${e.school}-${e.year}`}>
-                    <span className="font-semibold text-[hsl(var(--foreground))]">{e.school}</span> — {e.degree} <span className="opacity-80">({e.year})</span>
+                    <span className="font-semibold text-[hsl(var(--foreground))]">{e.school}</span> — {e.degree}{' '}
+                    <span className="opacity-80">({e.year})</span>
                   </li>
                 ))}
               </ul>
@@ -141,7 +143,11 @@ const AboutPage = () => {
             </div>
           </motion.div>
 
-          <motion.div {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.2 }} className="lg:col-span-2">
+          <motion.div
+            {...fadeIn}
+            transition={{ ...fadeIn.transition, delay: 0.2 }}
+            className="lg:col-span-2"
+          >
             <img
               className="w-full h-auto object-cover rounded-2xl shadow-2xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))/0.2]"
               alt="Abstract artist portrait illustration"
@@ -172,11 +178,15 @@ const AboutPage = () => {
               >
                 <div className={`w-full lg:w-2/3 ${index % 2 === 0 ? 'pr-8 lg:text-right' : 'pl-8 text-left'}`}>
                   <div className="rounded-2xl p-6 bg-[hsl(var(--card))] border border-[hsl(var(--border))] shadow-md hover:shadow-lg transition-shadow relative">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[hsl(var(--accent))] text-[#0B0F1A] ring-1 ring-[hsl(var(--accent))/0.5] ${index % 2 === 0 ? 'lg:absolute lg:-right-3 lg:-top-3' : 'lg:absolute lg:-left-3 lg:-top-3'}`}>
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[hsl(var(--accent))] text-[#0B0F1A] ring-1 ring-[hsl(var(--accent))/0.5] ${index % 2 === 0 ? 'lg:absolute lg:-right-3 lg:-top-3' : 'lg:absolute lg:-left-3 lg:-top-3'}`}
+                    >
                       {item.year}
                     </span>
                     <h3 className="mt-2 text-xl font-bold text-[hsl(var(--foreground))]">{item.title}</h3>
-                    <p className="text-sm font-semibold mb-3" style={{ color: WARM_BROWN }}>{item.company}</p>
+                    <p className="text-sm font-semibold mb-3" style={{ color: WARM_BROWN }}>
+                      {item.company}
+                    </p>
                     <p style={{ color: WARM_BROWN }}>{item.description}</p>
                   </div>
                 </div>
@@ -186,7 +196,7 @@ const AboutPage = () => {
         </motion.div>
       </section>
 
-      {/* Skills + Stats (NO full overlay; readable cards) */}
+      {/* Skills + Stats (no full overlay; readable cards on image) */}
       <section
         className="py-16 bg-cover bg-center relative"
         style={{ backgroundImage: `url(${toolsStatsBg})` }}
@@ -195,11 +205,8 @@ const AboutPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-center">
             <motion.div {...fadeIn} className="lg:col-span-2">
               <h2
-                className="text-3xl md:text-4xl font-bold mb-6 text-center lg:text-left"
-                style={{
-                  color: 'hsl(var(--headline-yellow))',
-                  textShadow: '0 3px 18px rgba(0,0,0,0.22), 0 0 0 #000'
-                }}
+                className="text-3xl md:text-4xl font-bold mb-6 text-center lg:text-left glow-yellow"
+                style={{ color: 'hsl(var(--headline-yellow))', textShadow: '0 3px 18px rgba(0,0,0,0.22)' }}
               >
                 What I Work With
               </h2>
@@ -209,15 +216,19 @@ const AboutPage = () => {
                 <MarqueeRow
                   items={skills}
                   render={(s) => (
-                    <span className={`text-sm px-3 py-1.5 rounded-full font-semibold ${pillClass(s)}`}>{s}</span>
+                    <span className={`text-sm px-3 py-1.5 rounded-full font-semibold pill-contrast ${pillClass(s)}`}>{s}</span>
                   )}
                   duration={30}
                 />
               )}
             </motion.div>
 
-            {/* Stats — glass cards only */}
-            <motion.ul {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.1 }} className="grid grid-cols-1 gap-4">
+            {/* Stats — bright “glass” cards for legibility */}
+            <motion.ul
+              {...fadeIn}
+              transition={{ ...fadeIn.transition, delay: 0.1 }}
+              className="grid grid-cols-1 gap-4"
+            >
               <StatCard icon={<Layers className="mt-1 text-[#0B0F1A]" />} value="15 yrs" label="Design & ops experience" />
               <StatCard icon={<Users className="mt-1 text-[#0B0F1A]" />} value="5+" label="Industries served" />
               <StatCard icon={<Award className="mt-1 text-[#0B0F1A]" />} value="100%" label="Client-first approach" />
@@ -229,7 +240,9 @@ const AboutPage = () => {
       {/* Design Footprints — single marquee row (object-contain to avoid cropping) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div {...fadeIn}>
-          <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))] mb-6 text-center">Design Footprints</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))] mb-6 text-center">
+            Design Footprints
+          </h2>
 
           {collage.length === 0 ? (
             <p className="text-center" style={{ color: WARM_BROWN }}>Adding samples soon.</p>
@@ -246,10 +259,7 @@ const AboutPage = () => {
       >
         <div
           className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.28) 55%, rgba(0,0,0,.35) 100%)'
-          }}
+          style={{ background: 'linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.28) 55%, rgba(0,0,0,.35) 100%)' }}
         />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div {...fadeIn} className="mx-auto max-w-3xl">
@@ -282,7 +292,9 @@ const StatCard = ({ icon, value, label }) => (
     {icon}
     <div>
       <p className="text-[1.9rem] md:text-4xl font-extrabold leading-none">{value}</p>
-      <p className="text-sm md:text-base mt-1" style={{ color: WARM_BROWN }}>{label}</p>
+      <p className="text-sm md:text-base mt-1" style={{ color: WARM_BROWN }}>
+        {label}
+      </p>
     </div>
   </li>
 );
@@ -290,7 +302,7 @@ const StatCard = ({ icon, value, label }) => (
 const MarqueeRow = ({ items = [], render, duration = 30 }) => {
   const doubled = [...items, ...items];
   return (
-    <div className="w-full overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_72px,_black_calc(100%-72px),transparent_100%)]">
+    <div className="w-full overflow-hidden mask-edge-x">
       <ul
         className="flex items-center gap-4 animate-infinite-scroll"
         style={{ animationDuration: `${duration}s` }}
@@ -308,8 +320,8 @@ const MarqueeRow = ({ items = [], render, duration = 30 }) => {
 const ImageMarquee = ({ images = [], duration = 36 }) => {
   const doubled = [...images, ...images];
   return (
-    <div className="w-full overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_72px,_black_calc(100%-72px),transparent_100%)]">
-    {/* slightly larger gaps help prevent visual strobing */}
+    <div className="w-full overflow-hidden mask-edge-x">
+      {/* slightly larger gaps help prevent visual strobing */}
       <ul
         className="flex items-center gap-5 animate-infinite-scroll"
         style={{ animationDuration: `${duration}s` }}
@@ -332,10 +344,11 @@ const Tile = ({ src }) => (
       className="max-w-full max-h-full object-contain"
       loading="lazy"
       decoding="async"
-      onError={(e) => { e.currentTarget.src = 'https://picsum.photos/seed/fallbackja/1200/800'; }}
+      onError={(e) => {
+        e.currentTarget.src = 'https://picsum.photos/seed/fallbackja/1200/800';
+      }}
     />
   </div>
 );
 
 export default AboutPage;
-

@@ -13,7 +13,7 @@ const HomePage = () => {
   const handleConsultationClick = () => {
     toast({
       title: 'Let’s make something delightful ✨',
-      description: 'Taking you to the contact page to start a quick jam session.',
+      description: 'Taking you to the contact page to start a quick consultation.',
     });
   };
 
@@ -35,6 +35,7 @@ const HomePage = () => {
     { name: 'Nora T., Ops Lead', quote: 'Workshops were focused, friendly, and actually productive.' },
   ];
 
+  // Accent chips for “What I Bring”
   const ACCENTS = [
     { bg: 'bg-[#22d3ee]/20', chip: 'bg-[#22d3ee]', ring: 'ring-[#22d3ee]' },
     { bg: 'bg-[#a78bfa]/20', chip: 'bg-[#a78bfa]', ring: 'ring-[#a78bfa]' },
@@ -76,14 +77,24 @@ const HomePage = () => {
               </span>
             </h1>
 
-            {/* Playfair subheader */}
-            <p className="mt-6 font-['Playfair_Display'] text-[clamp(1.25rem,2.2vw,1.7rem)] text-[hsl(var(--muted-foreground))] max-w-3xl">
+            {/* Playfair subheader — higher contrast & subtle glow */}
+            <p
+              className="mt-6 font-['Playfair_Display'] text-[clamp(1.25rem,2.2vw,1.7rem)] max-w-3xl"
+              style={{
+                color: 'var(--orange-200)',
+                textShadow: '0 2px 12px rgba(0,0,0,.28)',
+              }}
+            >
               Crafting experiences with UX/UI, branding, and prototypes people actually enjoy using.
             </p>
 
-            {/* Bigger CTAs (glow to be added later) */}
+            {/* Bigger CTAs — primary vs secondary hierarchy */}
             <div className="hero-ctas mt-9 flex items-center gap-4">
-              <Button asChild className="btn-primary rounded-full px-7 py-3.5 text-lg" onClick={handleConsultationClick}>
+              <Button
+                asChild
+                className="btn-primary rounded-full px-7 py-3.5 text-lg"
+                onClick={handleConsultationClick}
+              >
                 <Link to="/contact" aria-label="Start a project">
                   Start a Project
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -129,12 +140,12 @@ const HomePage = () => {
                   className={`relative rounded-2xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] shadow-sm hover:shadow-md transition-all ring-1 ring-transparent hover:${accent.ring}`}
                 >
                   <div className={`absolute inset-x-0 top-0 h-1 ${accent.chip}`} />
-                  <div className="p-7">
+                  <div className="p-8">
                     <div className={`w-12 h-12 rounded-xl ${accent.bg} flex items-center justify-center mb-5`}>
                       <Icon className={`${accent.chip.replace('bg-', 'text-')}`} size={24} />
                     </div>
                     <h3 className="text-2xl font-bold text-foreground mb-2">{s.title}</h3>
-                    <p className="text-muted-foreground">{s.description}</p>
+                    <p className="text-[hsl(var(--muted-foreground))]">{s.description}</p>
                   </div>
                 </motion.div>
               );
@@ -156,11 +167,11 @@ const HomePage = () => {
             Kind words from collaborators
           </motion.h2>
 
-          <div className="w-full overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
+          <div className="w-full overflow-hidden mask-edge-x">
             <ul className="flex gap-6 animate-infinite-scroll" style={{ animationDuration: '36s' }}>
               {[...reviews, ...reviews].map((r, i) => (
                 <li key={i} className="min-w-max px-4 py-2">
-                  <div className="flex items-center gap-2 text-[hsl(var(--muted-foreground))]">
+                  <div className="flex items-center gap-2 text-warm-brown">
                     <Star className="w-4 h-4 text-[hsl(var(--accent))]" />
                     <p className="whitespace-nowrap">
                       <span className="font-semibold text-foreground">{r.name}:</span> “{r.quote}”
@@ -184,14 +195,18 @@ const HomePage = () => {
             className="glass rounded-3xl p-10 md:p-12"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-foreground">Ready to start your project?</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mt-4">
+            <p className="text-xl text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto mt-4">
               Let’s collaborate and bring your vision to life with exceptional design, strategy, and user experience.
             </p>
 
             <div className="mt-8 flex items-center justify-center gap-4">
-              <Button asChild className="btn-primary rounded-full px-7 py-3.5 text-lg" onClick={handleConsultationClick}>
+              <Button
+                asChild
+                className="btn-primary rounded-full px-7 py-3.5 text-lg"
+                onClick={handleConsultationClick}
+              >
                 <Link to="/contact">
-                  Start a 15-min jam session 🎧
+                  Start a Project
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
@@ -207,6 +222,7 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
 
 
 
