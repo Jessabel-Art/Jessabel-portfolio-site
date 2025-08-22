@@ -1,0 +1,276 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Playfair Display font is loaded in index.html */
+
+/* ---------- Brand Tokens ---------- */
+/* Exact oranges you provided + gradient button colors */
+:root {
+  /* Brand oranges (hex kept for reference, hsl used where the theme expects hsl()) */
+  --orange-100: #fee9a6; /* pale */
+  --orange-200: #ffe574;
+  --orange-400: #fec200;
+  --orange-600: #fa8a00;
+  --orange-800: #d74708;
+
+  /* Gradient CTA colors (used across components) */
+  --btn-pink: #ff3ea5;
+  --btn-teal: #00c2b2;
+
+  /* Site theme (LIGHT) */
+  --background: 47 97% 82%;               /* ≈ #fee9a6 */
+  --foreground: 224 44% 8%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 224 44% 8%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 224 44% 8%;
+
+  /* Use orange as primary now */
+  --primary: 28 100% 49%;                 /* ≈ #fa8a00 */
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary stays teal‑blue for contrast accents */
+  --secondary: 193 100% 50%;
+  --secondary-foreground: 224 44% 8%;
+
+  /* Accent = golden orange for badges/pills */
+  --accent: 46 100% 52%;                  /* ≈ #fec200 */
+  --accent-foreground: 224 44% 8%;
+
+  --muted: 36 100% 92%;                   /* soft orange tint */
+  --muted-foreground: 224 15% 35%;
+
+  --border: 30 40% 84%;
+  --input: 30 40% 84%;
+  --ring: 28 100% 49%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Helpers */
+  --headline-yellow: 46 100% 52%;
+  --hero-scrim: 24 90% 8%;
+}
+
+/* ---------- Dark Theme ---------- */
+.dark {
+  --background: 24 90% 6%;                /* deep ink w/ warm hue */
+  --foreground: 220 14% 94%;
+
+  --card: 24 35% 12%;
+  --card-foreground: 220 14% 94%;
+
+  --popover: 24 35% 12%;
+  --popover-foreground: 220 14% 94%;
+
+  --primary: 28 100% 52%;                 /* orange pops on dark */
+  --primary-foreground: 0 0% 0%;
+
+  --secondary: 193 100% 50%;
+  --secondary-foreground: 0 0% 100%;
+
+  --accent: 46 100% 52%;
+  --accent-foreground: 0 0% 12%;
+
+  --border: 24 25% 22%;
+  --input: 24 25% 22%;
+  --ring: 28 100% 52%;
+
+  --muted: 24 18% 22%;
+  --muted-foreground: 215 16% 72%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --headline-yellow: 46 100% 52%;
+  --hero-scrim: 24 90% 6%;
+}
+
+/* ---------- Base ---------- */
+
+* { border-color: hsl(var(--border)); }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  line-height: 1.7;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: hsl(var(--background)); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--btn-pink), var(--btn-teal));
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, hsl(var(--secondary)), hsl(var(--accent)));
+}
+
+/* Gradient text helpers */
+.gradient-text {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-alt {
+  background: linear-gradient(135deg, hsl(var(--secondary)) 0%, var(--btn-pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass surface */
+.glass {
+  background: hsl(var(--card) / 0.6);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+.dark .glass {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Marquee */
+@keyframes infinite-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+.animate-infinite-scroll { animation: infinite-scroll 25s linear infinite; }
+
+/* ---------- Buttons ---------- */
+/* Replace solid primary with site‑wide gradient CTA */
+.btn-primary {
+  background-image: linear-gradient(135deg, var(--btn-pink), var(--btn-teal));
+  color: #fff;
+  border-radius: 0.75rem;
+  transition: transform 200ms ease, box-shadow 200ms ease, ring 200ms ease, filter 200ms ease;
+  box-shadow: 0 10px 22px rgba(0,0,0,.12);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  filter: saturate(1.05);
+  box-shadow: 0 14px 28px rgba(0,0,0,.18);
+}
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--ring) / .9);
+}
+.btn-ghost:hover {
+  background-color: hsl(var(--foreground) / 0.06);
+  color: hsl(var(--foreground));
+}
+
+/* ---------- Header & Footer Bars ---------- */
+/* Ensure strong contrast + tighter footer spacing */
+.site-header,
+.site-footer {
+  background-color: var(--orange-800);
+  color: #fff;
+}
+.site-header a,
+.site-footer a { color: #fff; }
+.site-footer { padding-top: 1.25rem; padding-bottom: 1.25rem; } /* tightened */
+
+/* ---------- HERO ---------- */
+
+.hero {
+  position: relative;
+  min-height: 86vh;
+  display: grid;
+  place-items: center;
+  overflow: clip;
+}
+.hero-video,
+.hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.05) contrast(1.05) brightness(.9);
+}
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    hsl(var(--hero-scrim) / .55) 0%,
+    hsl(var(--hero-scrim) / .75) 70%,
+    hsl(var(--hero-scrim) / .9) 100%
+  );
+}
+.hero-content { position: relative; z-index: 1; padding: clamp(16px, 3vw, 32px); }
+
+/* Bubble headline */
+.hero-title {
+  font-family: "Baloo 2", "Playfair Display", serif;
+  font-weight: 700;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  line-height: 1.02;
+  color: hsl(var(--headline-yellow));
+  text-shadow: 0 2px 18px hsl(var(--headline-yellow) / .18);
+}
+.hero-title span { display: block; }
+.hero-title em { color: #fff; font-style: normal; }
+
+.hero-subtext {
+  margin-top: 1.1rem;
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  color: hsl(var(--muted-foreground));
+  max-width: 62ch;
+}
+
+.hero-ctas { margin-top: 1.4rem; display: flex; gap: .8rem; flex-wrap: wrap; }
+
+/* ---------- Project Cards ---------- */
+
+.project-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 18px;
+  overflow: hidden;
+  transition: transform .18s ease, box-shadow .25s ease, border-color .2s ease;
+}
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px hsl(var(--foreground) / 0.08);
+  border-color: hsl(var(--border) / .7);
+}
+.project-card .thumb { aspect-ratio: 4 / 3; width: 100%; object-fit: cover; display: block; }
+.project-card .title { color: hsl(var(--foreground)); }
+.project-card .meta { color: hsl(var(--muted-foreground)); }
+
+.project-card .thumb-wrap { position: relative; }
+.project-card .thumb-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, hsl(var(--background) / .55) 100%);
+  pointer-events: none;
+}
+
+/* Bubble-ish look */
+.bubble {
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: .95;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.12),
+    0 6px 18px rgba(0,0,0,.35);
+}
+

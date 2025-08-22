@@ -1,0 +1,64 @@
+name: Build and push to deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show HEAD (debug)
+        run: |
+          echo "Commit: $GITHUB_SHA"
+          echo "Ref:     $GITHUB_REF"
+          echo "Repo root:"
+          ls -la
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        env:
+          CI: false
+        run: npm run build
+
+      - name: Copy 404.html for SPA routing
+        run: cp dist/index.html dist/404.html
+
+      - name: Verify dist (debug)
+        run: |
+          echo "Top-level:"
+          ls -la
+          echo "Dist:"
+          ls -la dist || true
+          test -f dist/index.html || (echo "❌ dist/index.html not found. Build likely failed." && exit 1)
+
+      - name: Deploy dist/ to deploy branch (fast-forward only)
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: deploy
+          folder: dist
+          clean: true
+          force: false
+          # NOTE: 'single-commit' intentionally removed to avoid history rewrites

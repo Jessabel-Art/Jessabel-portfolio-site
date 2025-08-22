@@ -1,0 +1,26 @@
+dist/
+node_modules/
+.env*
+public/videos/hero-bg.mp4
+
+# build artifacts
+dist/
+.vite/
+
+# deps & editor junk
+node_modules/
+*.log
+.DS_Store
+
+# cache
+.cache/
+tmp/
+
+# local uploads / large media
+public/videos/
+public/**/*.mp4
+public/**/*.mov
+public/**/*.webm
+
+# OS
+Thumbs.db
