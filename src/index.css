@@ -11,7 +11,7 @@
   --orange-200: #ffe574; /* header pill yellow */
   --orange-400: #fec200;
   --orange-600: #fa8a00;
-  --orange-800: #d74708; /* header/footer bar */
+  --orange-800: #d74708; /* legacy orange (no longer used for header/footer) */
 
   /* CTA gradients */
   --btn-red: #ba0d0d;     /* legacy warm CTA start (kept for fallback use) */
@@ -57,6 +57,9 @@
   /* Helpers */
   --headline-yellow: 46 100% 52%;
   --hero-scrim: 24 90% 8%;
+
+  /* Navy for header/footer */
+  --navy-900: #0B0F1A;
 }
 
 /* ---------- Base ---------- */
@@ -169,7 +172,7 @@ a { color: inherit; }
 /* ---------- Header & Footer Bars ---------- */
 .site-header,
 .site-footer {
-  background-color: var(--orange-800);
+  background-color: var(--navy-900);
   color: #fff;
   font-family: 'Playfair Display', serif;
 }

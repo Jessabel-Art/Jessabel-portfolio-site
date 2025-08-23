@@ -5,6 +5,8 @@ import { Linkedin, Instagram, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 
+const NAVY = '#0B0F1A';
+
 const Footer = () => {
   const handleSocialClick = (url, label) => {
     toast({ title: `Opening ${label}…`, description: 'This will open in a new tab.' });
@@ -33,17 +35,16 @@ const Footer = () => {
   return (
     <footer
       role="contentinfo"
-      className="site-footer relative overflow-hidden border-t"
+      className="relative overflow-hidden border-t"
       style={{
-        // site-footer bg is set in index.css to var(--orange-800); keep here for clarity
-        backgroundColor: 'var(--orange-800)',
-        borderColor: 'rgba(255,255,255,0.18)',
+        backgroundColor: NAVY,
+        borderColor: 'rgba(255,255,255,0.08)',
       }}
     >
       {/* subtle top fade */}
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-8"
-        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.10), transparent)' }}
+        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.28), transparent)' }}
         aria-hidden="true"
       />
 
@@ -61,7 +62,11 @@ const Footer = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25 }}
                 className="text-white text-3xl md:text-4xl font-bold tracking-tight select-none"
-                style={{ fontFamily: "'Playfair Display', serif", textShadow: '0 2px 0 rgba(0,0,0,.18), 0 8px 22px rgba(0,0,0,.25)' }}
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  textShadow: '0 2px 0 rgba(0,0,0,.25), 0 10px 24px rgba(0,0,0,.35)',
+                  letterSpacing: '-0.02em',
+                }}
               >
                 Jessabel<span>.Art</span>
               </motion.span>
@@ -119,7 +124,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-6 pt-5 border-t border-white/15 flex flex-col-reverse md:flex-row items-center justify-between gap-3 pb-8">
+        <div className="mt-6 pt-5 border-t border-white/10 flex flex-col-reverse md:flex-row items-center justify-between gap-3 pb-8">
           <p className="text-sm text-white/80 text-center md:text-left">
             © {new Date().getFullYear()} Jessabel.Art. All rights reserved.
             <span className="block md:inline opacity-80"> Fueled by caffeine and curiosity.</span>
@@ -136,7 +141,7 @@ const Footer = () => {
               </Link>
             ))}
 
-            {/* Back to Top button — uses theme gradient via .btn-primary */}
+            {/* Back to Top button — theme gradient */}
             <Button
               onClick={backToTop}
               className="inline-flex items-center gap-2 text-sm rounded-full px-3 py-1.5 font-semibold btn-primary focus-visible:ring-2 focus-visible:ring-white/70"
@@ -154,4 +159,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
