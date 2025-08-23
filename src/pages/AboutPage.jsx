@@ -7,7 +7,6 @@ import { CheckCircle, BarChart3, Sparkles } from 'lucide-react';
 
 // Local assets (adjust paths if needed)
 import artistPortrait from '@/assets/about/artist-portrait.png';
-import processBg from '@/assets/images/process-background.jpg';
 import toolsStatsBg from '@/assets/about/tools-stats-bg-strip.jpg';
 
 const WARM_BROWN = 'var(--warm-brown-hex)';
@@ -260,16 +259,12 @@ const AboutPage = () => {
         </motion.div>
       </section>
 
-      {/* PROCESS CTA — white overlay + gradient headline + dark subheader + seamless footer transition */}
+      {/* PROCESS CTA — background & overlay removed (inherits page colors) */}
       <section className="relative pt-12 md:pt-16 pb-8 md:pb-10 -mb-1">
-        {/* background image */}
         <div
-          className="relative overflow-hidden rounded-[28px] md:rounded-[36px] bg-cover bg-center"
-          style={{ backgroundImage: `url(${processBg})` }}
+          className="relative overflow-hidden rounded-[28px] md:rounded-[36px]
+                     border border-[hsl(var(--border)/0.7)] bg-transparent"
         >
-          {/* opaque white overlay for readability */}
-          <div className="absolute inset-0 bg-white/90" />
-
           {/* content */}
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-12 md:py-16">
             <motion.div {...fadeIn} className="mx-auto max-w-3xl">

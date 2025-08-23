@@ -95,7 +95,7 @@ const UxProcessPage = () => {
             {/* Left: GIF + heading */}
             <motion.div {...fadeIn}>
               <div className="mb-4">
-                <h2 className="text-2xl sm:text-3xl font-bold text-foreground">UX Highlights</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-[hsl(var(--foreground))]">UX Highlights</h2>
                 <div className="h-1 w-32 rounded bg-[linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]" />
               </div>
 
@@ -119,7 +119,7 @@ const UxProcessPage = () => {
               transition={{ ...fadeIn.transition, delay: 0.1 }}
               className="space-y-5 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-md p-6 sm:p-8"
             >
-              <h3 className="text-2xl font-bold text-foreground">Project Cornerstones</h3>
+              <h3 className="text-2xl font-bold text-[hsl(var(--foreground))]">Project Cornerstones</h3>
               <ul className="space-y-3">
                 {checklistItems.map((item, index) => (
                   <li key={index} className="flex items-center text-base sm:text-lg text-[hsl(var(--muted-foreground))]">
@@ -137,7 +137,7 @@ const UxProcessPage = () => {
       <section className="mt-16 md:mt-24 bg-[#FFE7B3]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
           <div className="mb-8 md:mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">From discovery to launch</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-[hsl(var(--foreground))]">From discovery to launch</h2>
             <p className="text-[hsl(var(--muted-foreground))]">
               Clear checkpoints keep teams aligned and decisions measurable.
             </p>
@@ -175,7 +175,7 @@ const UxProcessPage = () => {
                         <div className="w-12 h-12 rounded-xl bg-[hsl(var(--accent))/0.12] flex items-center justify-center">
                           <Icon size={26} className="text-[hsl(var(--accent))]" />
                         </div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-foreground">{step.title}</h3>
+                        <h3 className="text-xl sm:text-2xl font-bold text-[hsl(var(--foreground))]">{step.title}</h3>
                       </div>
                     </div>
 
