@@ -1,12 +1,12 @@
 {
   "name": "Jessabel.Art",
-  "short_name": "Jessabel.Art",
+  "short_name": "Jessabel",
   "description": "I map Ideas onto Screens — crafting UX/UI, branding, and prototypes people actually enjoy using.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0B0F14",
-  "theme_color": "#0B0F14",
+  "background_color": "#d74708",
+  "theme_color": "#d74708",
   "icons": [
     {
       "src": "/logos/favicon-32x32.png",
@@ -27,7 +27,18 @@
       "src": "/logos/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
+    },
+    {
+      "src": "/logos/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logos/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }
+
 
