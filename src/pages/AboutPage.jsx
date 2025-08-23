@@ -255,30 +255,53 @@ const AboutPage = () => {
         </motion.div>
       </section>
 
-      {/* CTA: Process */}
-      <section className="py-20 bg-cover bg-center relative" style={{ backgroundImage: `url(${processBg})` }}>
-        <div className="absolute inset-0"
-          style={{ background: 'linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.28) 55%, rgba(0,0,0,.35) 100%)' }} />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div {...fadeIn} className="mx-auto max-w-3xl">
-            <h2 className="font-hero text-4xl md:text-5xl font-extrabold mb-4"
-              style={{ color: 'hsl(var(--headline-yellow)))', textShadow: '0 6px 26px rgba(0,0,0,0.45)' }}>
-              Curious about my process?
-            </h2>
-            <p className="text-2xl md:text-3xl mb-8" style={{ color: '#ffffff', textShadow: '0 2px 14px rgba(0,0,0,.35)' }}>
-              See how I approach projects from discovery to launch.
-            </p>
-            <Button
-              asChild
-              size="lg"
-              className="rounded-full px-6 h-11 font-semibold text-white shadow-lg
-                         bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
-                         focus:outline-none focus:ring-2 focus:ring-white/70"
-            >
-              <Link to="/process">View My UX Process</Link>
-            </Button>
-          </motion.div>
+      {/* PROCESS CTA — white overlay + gradient headline + dark subheader + seamless footer transition */}
+      <section className="relative pt-12 md:pt-16 pb-8 md:pb-10 -mb-1">
+        {/* background image */}
+        <div className="relative overflow-hidden rounded-[28px] md:rounded-[36px] bg-cover bg-center"
+             style={{ backgroundImage: `url(${processBg})` }}>
+          {/* opaque white overlay for readability */}
+          <div className="absolute inset-0 bg-white/90" />
+
+          {/* content */}
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-12 md:py-16">
+            <motion.div {...fadeIn} className="mx-auto max-w-3xl">
+              <h2
+                className="
+                  text-4xl md:text-5xl font-extrabold
+                  bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
+                  bg-clip-text text-transparent
+                "
+              >
+                Curious about my process?
+              </h2>
+
+              <p className="mt-3 text-xl md:text-2xl text-[hsl(var(--foreground))]">
+                See how I approach projects from discovery to launch.
+              </p>
+
+              <div className="mt-6">
+                <Button
+                  asChild
+                  size="lg"
+                  className="rounded-full px-6 h-11 font-semibold text-white btn-primary"
+                >
+                  <Link to="/ux-process">View My UX Process</Link>
+                </Button>
+              </div>
+            </motion.div>
+          </div>
         </div>
+
+        {/* bottom separator that blends into the navy footer */}
+        <svg
+          className="absolute -bottom-1 left-0 right-0 w-full text-[#0B0F1A]"
+          viewBox="0 0 1440 20"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path d="M0,0 L1440,20 L0,20 Z" fill="currentColor" />
+        </svg>
       </section>
     </div>
   );
