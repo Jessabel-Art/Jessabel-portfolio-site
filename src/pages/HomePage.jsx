@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import React, { useMemo, useState, useRef } from 'react';
+import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { Helmet } from 'react-helmet';
 import {
   ArrowRight,
@@ -35,7 +35,6 @@ const toInitials = (full = '') =>
 const hueFor = (i) => (i * 47) % 360;
 
 const grainDataUrl =
-  // tiny repeating noise texture (base64)
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAFo9M/3AAAAL0lEQVQ4T2NkoBAwUqifgXHfP2H4P0YgGQwxgGkY4r9GQqCkQzGg0E0GgYw4Gq4QpGgAAP0v3yZc8w2wAAAAASUVORK5CYII=';
 
 /* ------------------------------------------------
@@ -53,42 +52,12 @@ const HomePage = () => {
 
   // Skills data with tags for filtering
   const expertise = [
-    {
-      icon: LayoutGrid,
-      title: 'UX/UI Design',
-      description: 'Intuitive, accessible, visually engaging interfaces.',
-      tags: ['UI', 'Systems'],
-    },
-    {
-      icon: Lightbulb,
-      title: 'Prototyping',
-      description: 'Interactive mockups for rapid iteration and clarity.',
-      tags: ['UI', 'Systems'],
-    },
-    {
-      icon: Users,
-      title: 'User Research',
-      description: 'Testing, surveys, and observation for real insights.',
-      tags: ['Research'],
-    },
-    {
-      icon: PenTool,
-      title: 'Branding',
-      description: 'Cohesive, memorable systems that scale.',
-      tags: ['Brand'],
-    },
-    {
-      icon: BarChart3,
-      title: 'UX Strategy',
-      description: 'Business goals aligned to user expectations.',
-      tags: ['Systems', 'Biz'],
-    },
-    {
-      icon: Briefcase,
-      title: 'Career & Biz Support',
-      description: 'Roadmaps, positioning, and GTM ops that work.',
-      tags: ['Biz'],
-    },
+    { icon: LayoutGrid, title: 'UX/UI Design', description: 'Intuitive, accessible, visually engaging interfaces.', tags: ['UI', 'Systems'] },
+    { icon: Lightbulb, title: 'Prototyping', description: 'Interactive mockups for rapid iteration and clarity.', tags: ['UI', 'Systems'] },
+    { icon: Users, title: 'User Research', description: 'Testing, surveys, and observation for real insights.', tags: ['Research'] },
+    { icon: PenTool, title: 'Branding', description: 'Cohesive, memorable systems that scale.', tags: ['Brand'] },
+    { icon: BarChart3, title: 'UX Strategy', description: 'Business goals aligned to user expectations.', tags: ['Systems', 'Biz'] },
+    { icon: Briefcase, title: 'Career & Biz Support', description: 'Roadmaps, positioning, and GTM ops that work.', tags: ['Biz'] },
   ];
 
   const reviews = [
@@ -125,11 +94,49 @@ const HomePage = () => {
   -----------------------------*/
   const [paused, setPaused] = useState(false);
 
+  /* ----------------------------
+     Scroll progress
+  -----------------------------*/
+  const { scrollYProgress } = useScroll();
+  const progressWidth = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+
+  /* ----------------------------
+     Hero parallax + spotlight
+  -----------------------------*/
+  const heroRef = useRef(null);
+  const { scrollYProgress: heroProg } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  });
+  const heroY = useTransform(heroProg, [0, 1], ['0%', '-12%']);
+
+  const [cursor, setCursor] = useState({ x: 50, y: 50 });
+  const onHeroMouseMove = (e) => {
+    if (prefersReducedMotion) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setCursor({ x, y });
+  };
+
+  /* ----------------------------
+     Micro "magnetic" for buttons
+  -----------------------------*/
+  const [mag, setMag] = useState({ x: 0, y: 0 });
+  const onMagMove = (e) => {
+    if (prefersReducedMotion) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+    const dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+    setMag({ x: dx * 6, y: dy * 6 });
+  };
+  const resetMag = () => setMag({ x: 0, y: 0 });
+
   /* ==============================================================
      Render
   ============================================================== */
   return (
-    <div className="overflow-x-hidden">
+    <div className="overflow-x-hidden bg-[#FAFAF7]">
       <Helmet>
         <title>Jessabel.Art · UX Designer</title>
         <meta
@@ -138,10 +145,23 @@ const HomePage = () => {
         />
       </Helmet>
 
+      {/* Scroll progress bar */}
+      <motion.div
+        style={{ width: progressWidth }}
+        className="fixed top-0 left-0 h-[3px] z-[60] bg-[linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]"
+      />
+
       {/* ============ HERO ============ */}
-      <section className="relative min-h-[70vh] sm:min-h-[82vh] md:min-h-[86vh] grid place-items-center overflow-clip bg-[#FFEFD2]">
-        {/* Use a <picture> to help mobile get a smaller source if you add one later */}
-        <img
+      <section
+        ref={heroRef}
+        onMouseMove={onHeroMouseMove}
+        className="relative min-h-[70vh] sm:min-h-[82vh] md:min-h-[86vh] grid place-items-center overflow-clip"
+      >
+        {/* Offwhite base */}
+        <div className="absolute inset-0 bg-[#FAF6EE]" aria-hidden="true" />
+
+        {/* Parallax image */}
+        <motion.img
           src={heroBg}
           alt=""
           className="hero-image"
@@ -149,19 +169,29 @@ const HomePage = () => {
           decoding="async"
           fetchpriority="high"
           sizes="100vw"
+          style={{ y: prefersReducedMotion ? 0 : heroY }}
         />
+
         {/* Dark wash */}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.25))]" />
-        {/* Animated grain overlay (disabled if prefers-reduced-motion) */}
+
+        {/* Spotlight that follows cursor */}
+        {!prefersReducedMotion && (
+          <div
+            className="absolute inset-0 pointer-events-none mix-blend-soft-light"
+            style={{
+              background: `radial-gradient(600px circle at ${cursor.x}% ${cursor.y}%, rgba(255,255,255,0.18), transparent 60%)`,
+            }}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Animated grain */}
         {!prefersReducedMotion && (
           <motion.div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-20"
-            style={{
-              backgroundImage: `url(${grainDataUrl})`,
-              backgroundRepeat: 'repeat',
-              backgroundSize: 'auto',
-            }}
+            style={{ backgroundImage: `url(${grainDataUrl})`, backgroundRepeat: 'repeat', backgroundSize: 'auto' }}
             animate={{ backgroundPosition: ['0px 0px', '200px 120px', '0px 0px'] }}
             transition={{ duration: 18, ease: 'linear', repeat: Infinity }}
           />
@@ -197,18 +227,27 @@ const HomePage = () => {
             </p>
 
             <div className="mt-6 sm:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-              <Button
-                asChild
-                className="h-11 w-full sm:w-auto rounded-full px-6 sm:px-7 text-base sm:text-lg font-semibold text-white shadow-lg
-                           bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
-                           focus:outline-none focus:ring-2 focus:ring-white/70"
-                onClick={handleConsultationClick}
+              {/* Magnetic primary */}
+              <motion.div
+                onMouseMove={onMagMove}
+                onMouseLeave={resetMag}
+                animate={prefersReducedMotion ? { x: 0, y: 0 } : { x: mag.x, y: mag.y }}
+                transition={{ type: 'spring', stiffness: 150, damping: 18, mass: 0.3 }}
+                className="w-full sm:w-auto"
               >
-                <Link to="/contact" aria-label="Start a project">
-                  Start a Project
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
+                <Button
+                  asChild
+                  className="h-11 w-full sm:w-auto rounded-full px-6 sm:px-7 text-base sm:text-lg font-semibold text-white shadow-lg
+                             bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
+                             focus:outline-none focus:ring-2 focus:ring-white/70"
+                  onClick={handleConsultationClick}
+                >
+                  <Link to="/contact" aria-label="Start a project">
+                    Start a Project
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </motion.div>
 
               <Button
                 asChild
@@ -227,7 +266,10 @@ const HomePage = () => {
       </section>
 
       {/* ============ WHAT I BRING (with filter chips) ============ */}
-      <section className="relative z-10 -mt-4 md:-mt-8 py-12 sm:py-14 md:py-20 bg-[#FFE7B3] rounded-t-[24px] md:rounded-t-[28px] shadow-2xl">
+      <section className="relative z-10 -mt-4 md:-mt-8 py-12 sm:py-14 md:py-20 bg-[#FAFAF7] rounded-t-[24px] md:rounded-t-[28px] shadow-2xl">
+        {/* edge fade to separate from hero */}
+        <div className="pointer-events-none absolute -top-10 inset-x-0 h-10 shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]" />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-left space-y-3 sm:space-y-4 mb-5 sm:mb-7 md:mb-8">
             <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground">What I Bring to Every Project</h2>
@@ -237,13 +279,19 @@ const HomePage = () => {
             </p>
           </div>
 
-          {/* Filter chips (scrollable row on mobile) */}
+          {/* Filter chips */}
           <div className="-mx-4 px-4 sm:mx-0 sm:px-0 mb-6 sm:mb-8 overflow-x-auto whitespace-nowrap sm:whitespace-normal no-scrollbar">
-            <div className="flex gap-2 sm:flex-wrap">
+            <motion.div
+              className="flex gap-2 sm:flex-wrap"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.4 }}
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }}
+            >
               {ALL_CHIPS.map((chip) => {
                 const active = chip === activeChip;
                 return (
-                  <button
+                  <motion.button
                     key={chip}
                     onClick={() => setActiveChip(chip)}
                     className={`rounded-full px-4 py-2 text-sm font-semibold transition shrink-0
@@ -253,16 +301,24 @@ const HomePage = () => {
                           : 'border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-foreground hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]'
                       }`}
                     aria-pressed={active}
+                    variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }}
+                    transition={{ duration: 0.25 }}
                   >
                     {chip}
-                  </button>
+                  </motion.button>
                 );
               })}
-            </div>
+            </motion.div>
           </div>
 
-          {/* Cards with micro-interactions (equal height) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-stretch gap-5 sm:gap-6">
+          {/* Cards */}
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-stretch gap-5 sm:gap-6"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
+          >
             <AnimatePresence mode="popLayout">
               {filteredExpertise.map((s, index) => {
                 const Icon = s.icon;
@@ -271,16 +327,17 @@ const HomePage = () => {
                   <motion.div
                     key={s.title}
                     layout
-                    initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
+                    initial={{ opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 18 }}
+                    variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
                     transition={{ duration: 0.35 }}
                     whileHover={prefersReducedMotion ? undefined : { y: -6, rotate: -0.2 }}
                     whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
                     className="relative group rounded-2xl overflow-hidden h-full"
                   >
                     <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accent.top}`} />
-                    <div className="relative h-full rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]/95 backdrop-blur-sm shadow-sm hover:shadow-lg transition-all p-5 sm:p-7 flex flex-col">
+                    <div className="relative h-full rounded-2xl border border-[hsl(var(--border))] bg-white/95 backdrop-blur-sm shadow-sm hover:shadow-lg transition-all p-5 sm:p-7 flex flex-col">
                       {/* icon with parallax */}
                       <motion.div
                         className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl ${accent.chip} bg-opacity-20 flex items-center justify-center mb-3 sm:mb-4`}
@@ -291,26 +348,22 @@ const HomePage = () => {
                       </motion.div>
                       <h3 className="text-lg sm:text-2xl font-bold text-foreground">{s.title}</h3>
                       <p className="mt-1.5 sm:mt-2 text-[hsl(var(--muted-foreground))]">{s.description}</p>
-
-                      {/* spacer to keep heights aligned even if content differs slightly */}
                       <div className="mt-auto pt-2" />
                     </div>
                   </motion.div>
                 );
               })}
             </AnimatePresence>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* ============ TESTIMONIALS (pause/play + avatars + edge fade) ============ */}
-      <section className="relative py-14 sm:py-16 md:py-24 overflow-hidden bg-[linear-gradient(180deg,#ffe8b3_0%,#ffe0a1_100%)]">
-        {/* Soft top shadow to separate from previous section */}
+      {/* ============ TESTIMONIALS ============ */}
+      <section className="relative py-14 sm:py-16 md:py-24 overflow-hidden bg-[#FDF8EE]">
         <div className="pointer-events-none absolute -top-10 inset-x-0 h-10 shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]" />
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 md:mb-10">
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground">
+            <h2 className="text-2xl sm:text-4xl md:5xl font-bold text-foreground">
               Kind words from collaborators
             </h2>
 
@@ -353,7 +406,6 @@ const HomePage = () => {
                       className="h-full rounded-2xl border border-[hsl(var(--border))] bg-white/92 backdrop-blur shadow-[0_12px_30px_rgba(0,0,0,0.08)] p-5 md:p-6 flex flex-col justify-between"
                     >
                       <div className="flex items-center gap-3 mb-3">
-                        {/* Avatar ring */}
                         <div
                           className="relative w-9 h-9 md:w-10 md:h-10 rounded-full p-[2px] shadow"
                           style={{
@@ -393,15 +445,15 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* ============ CTA (sparkles on hover) ============ */}
-      <section className="py-14 sm:py-20 md:py-28 bg-[#FFD894]">
+      {/* ============ CTA ============ */}
+      <section className="py-14 sm:py-20 md:py-28 bg-[#FAFAF7]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55 }}
             viewport={{ once: true }}
-            className="glass relative rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 overflow-hidden"
+            className="glass relative rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 overflow-hidden border border-[hsl(var(--border))] bg-white/90 backdrop-blur"
           >
             <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground">
               Ready to design something people love?
@@ -416,7 +468,6 @@ const HomePage = () => {
               whileHover={prefersReducedMotion ? undefined : 'hovered'}
               initial="idle"
             >
-              {/* sparkle particles (hidden for reduced motion) */}
               {!prefersReducedMotion && (
                 <AnimatePresence>
                   <motion.span
