@@ -73,10 +73,14 @@ const UxProcessPage = () => {
         >
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight">
             <span
-              className="bg-clip-text text-transparent"
+              className="inline-block" // ensures background fits to text box
               style={{
-                background:
+                backgroundImage:
                   'linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                color: 'transparent',
+                WebkitTextFillColor: 'transparent',
               }}
             >
               My UX Process
@@ -150,7 +154,7 @@ const UxProcessPage = () => {
                 <motion.div
                   key={step.title}
                   {...fadeIn}
-                  className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm p-6 sm:p-8"
+                  className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm p-6 sm:px-8 sm:py-8"
                 >
                   <div className="flex flex-col md:flex-row md:items-start md:gap-8">
                     <div className="flex items-center gap-4 mb-4 md:mb-0 md:min-w-[320px]">
