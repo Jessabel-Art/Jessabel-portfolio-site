@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Helmet } from 'react-helmet';
 import {
   ArrowRight,
@@ -42,6 +42,8 @@ const grainDataUrl =
    Page
 --------------------------------------------------*/
 const HomePage = () => {
+  const prefersReducedMotion = useReducedMotion();
+
   const handleConsultationClick = () => {
     toast({
       title: 'Let’s make something delightful ✨',
@@ -137,33 +139,44 @@ const HomePage = () => {
       </Helmet>
 
       {/* ============ HERO ============ */}
-      <section className="relative min-h-[74vh] sm:min-h-[82vh] md:min-h-[86vh] grid place-items-center overflow-clip bg-[#FFEFD2]">
-        <img src={heroBg} alt="" className="hero-image" loading="eager" decoding="async" />
+      <section className="relative min-h-[70vh] sm:min-h-[82vh] md:min-h-[86vh] grid place-items-center overflow-clip bg-[#FFEFD2]">
+        {/* Use a <picture> to help mobile get a smaller source if you add one later */}
+        <img
+          src={heroBg}
+          alt=""
+          className="hero-image"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+          sizes="100vw"
+        />
         {/* Dark wash */}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.25))]" />
-        {/* Animated grain overlay */}
-        <motion.div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-20"
-          style={{
-            backgroundImage: `url(${grainDataUrl})`,
-            backgroundRepeat: 'repeat',
-            backgroundSize: 'auto',
-          }}
-          animate={{ backgroundPosition: ['0px 0px', '200px 120px', '0px 0px'] }}
-          transition={{ duration: 18, ease: 'linear', repeat: Infinity }}
-        />
+        {/* Animated grain overlay (disabled if prefers-reduced-motion) */}
+        {!prefersReducedMotion && (
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-20"
+            style={{
+              backgroundImage: `url(${grainDataUrl})`,
+              backgroundRepeat: 'repeat',
+              backgroundSize: 'auto',
+            }}
+            animate={{ backgroundPosition: ['0px 0px', '200px 120px', '0px 0px'] }}
+            transition={{ duration: 18, ease: 'linear', repeat: Infinity }}
+          />
+        )}
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
+            initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="max-w-5xl"
           >
-            {/* Headline: Poppins ExtraBold + outline + shadow */}
+            {/* Headline */}
             <h1
-              className="tracking-tight text-[clamp(2.6rem,6.8vw,5.2rem)] leading-[1.04] text-white"
+              className="tracking-tight text-[clamp(2.1rem,7vw,5.2rem)] leading-[1.06] text-white"
               style={{
                 fontFamily:
                   "'Poppins', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial",
@@ -176,17 +189,17 @@ const HomePage = () => {
             </h1>
 
             <p
-              className="mt-6 max-w-3xl text-lg sm:text-xl text-[#fff8e7] font-medium"
+              className="mt-5 sm:mt-6 max-w-[45ch] sm:max-w-3xl text-base sm:text-xl text-[#fff8e7] font-medium"
               style={{ textShadow: '0 3px 12px rgba(0,0,0,.55)' }}
             >
               Research‑driven UX, thoughtful UI, and design systems that scale — so your product feels
               intuitive, inclusive, and measurable from day one.
             </p>
 
-            <div className="mt-7 sm:mt-9 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+            <div className="mt-6 sm:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <Button
                 asChild
-                className="h-11 w-full sm:w-auto rounded-full px-7 text-base sm:text-lg font-semibold text-white shadow-lg
+                className="h-11 w-full sm:w-auto rounded-full px-6 sm:px-7 text-base sm:text-lg font-semibold text-white shadow-lg
                            bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
                            focus:outline-none focus:ring-2 focus:ring-white/70"
                 onClick={handleConsultationClick}
@@ -200,7 +213,7 @@ const HomePage = () => {
               <Button
                 asChild
                 variant="outline"
-                className="h-11 w-full sm:w-auto rounded-full px-7 text-base sm:text-lg
+                className="h-11 w-full sm:w-auto rounded-full px-6 sm:px-7 text-base sm:text-lg
                            border-white/35 text-white bg-white/10 backdrop-blur hover:bg-white/20
                            focus:outline-none focus:ring-2 focus:ring-white/70"
               >
@@ -214,39 +227,42 @@ const HomePage = () => {
       </section>
 
       {/* ============ WHAT I BRING (with filter chips) ============ */}
-      <section className="relative z-10 -mt-4 md:-mt-8 py-14 md:py-20 bg-[#FFE7B3] rounded-t-[28px] shadow-2xl">
+      <section className="relative z-10 -mt-4 md:-mt-8 py-12 sm:py-14 md:py-20 bg-[#FFE7B3] rounded-t-[24px] md:rounded-t-[28px] shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-left space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">What I Bring to Every Project</h2>
-            <div className="h-1 w-40 rounded bg-[linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]" />
-            <p className="text-base sm:text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-3xl">
+          <div className="text-left space-y-3 sm:space-y-4 mb-5 sm:mb-7 md:mb-8">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground">What I Bring to Every Project</h2>
+            <div className="h-1 w-36 sm:w-40 rounded bg-[linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]" />
+            <p className="text-[15px] sm:text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-3xl">
               Strategy, taste, and rigorous usability—delivered through a clear, collaborative process.
             </p>
           </div>
 
-          {/* Filter chips */}
-          <div className="mb-6 flex flex-wrap gap-2">
-            {ALL_CHIPS.map((chip) => {
-              const active = chip === activeChip;
-              return (
-                <button
-                  key={chip}
-                  onClick={() => setActiveChip(chip)}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition
-                    ${
-                      active
-                        ? 'text-white shadow-md bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]'
-                        : 'border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-foreground hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]'
-                    }`}
-                >
-                  {chip}
-                </button>
-              );
-            })}
+          {/* Filter chips (scrollable row on mobile) */}
+          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 mb-6 sm:mb-8 overflow-x-auto whitespace-nowrap sm:whitespace-normal no-scrollbar">
+            <div className="flex gap-2 sm:flex-wrap">
+              {ALL_CHIPS.map((chip) => {
+                const active = chip === activeChip;
+                return (
+                  <button
+                    key={chip}
+                    onClick={() => setActiveChip(chip)}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition shrink-0
+                      ${
+                        active
+                          ? 'text-white shadow-md bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]'
+                          : 'border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-foreground hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]'
+                      }`}
+                    aria-pressed={active}
+                  >
+                    {chip}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Cards with micro-interactions (equal height) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-stretch gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-stretch gap-5 sm:gap-6">
             <AnimatePresence mode="popLayout">
               {filteredExpertise.map((s, index) => {
                 const Icon = s.icon;
@@ -255,26 +271,26 @@ const HomePage = () => {
                   <motion.div
                     key={s.title}
                     layout
-                    initial={{ opacity: 0, y: 18 }}
+                    initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 18 }}
                     transition={{ duration: 0.35 }}
-                    whileHover={{ y: -6, rotate: -0.2 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={prefersReducedMotion ? undefined : { y: -6, rotate: -0.2 }}
+                    whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
                     className="relative group rounded-2xl overflow-hidden h-full"
                   >
                     <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accent.top}`} />
-                    <div className="relative h-full rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]/95 backdrop-blur-sm shadow-sm hover:shadow-lg transition-all p-6 sm:p-7 flex flex-col">
+                    <div className="relative h-full rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]/95 backdrop-blur-sm shadow-sm hover:shadow-lg transition-all p-5 sm:p-7 flex flex-col">
                       {/* icon with parallax */}
                       <motion.div
-                        className={`w-12 h-12 rounded-xl ${accent.chip} bg-opacity-20 flex items-center justify-center mb-4`}
-                        whileHover={{ x: 2, y: -2 }}
+                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl ${accent.chip} bg-opacity-20 flex items-center justify-center mb-3 sm:mb-4`}
+                        whileHover={prefersReducedMotion ? undefined : { x: 2, y: -2 }}
                         transition={{ type: 'spring', stiffness: 200, damping: 12 }}
                       >
-                        <Icon className={`${accent.text}`} size={24} />
+                        <Icon className={`${accent.text}`} size={22} />
                       </motion.div>
-                      <h3 className="text-xl sm:text-2xl font-bold text-foreground">{s.title}</h3>
-                      <p className="mt-2 text-[hsl(var(--muted-foreground))]">{s.description}</p>
+                      <h3 className="text-lg sm:text-2xl font-bold text-foreground">{s.title}</h3>
+                      <p className="mt-1.5 sm:mt-2 text-[hsl(var(--muted-foreground))]">{s.description}</p>
 
                       {/* spacer to keep heights aligned even if content differs slightly */}
                       <div className="mt-auto pt-2" />
@@ -288,19 +304,19 @@ const HomePage = () => {
       </section>
 
       {/* ============ TESTIMONIALS (pause/play + avatars + edge fade) ============ */}
-      <section className="relative py-16 md:py-24 overflow-hidden bg-[linear-gradient(180deg,#ffe8b3_0%,#ffe0a1_100%)]">
+      <section className="relative py-14 sm:py-16 md:py-24 overflow-hidden bg-[linear-gradient(180deg,#ffe8b3_0%,#ffe0a1_100%)]">
         {/* Soft top shadow to separate from previous section */}
         <div className="pointer-events-none absolute -top-10 inset-x-0 h-10 shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-4 mb-8 md:mb-10">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 md:mb-10">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground">
               Kind words from collaborators
             </h2>
 
             <button
               onClick={() => setPaused((p) => !p)}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition shadow-sm"
+              className="self-start sm:self-auto inline-flex items-center justify-center w-10 h-10 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition shadow-sm"
               aria-pressed={paused}
               title={paused ? 'Play carousel' : 'Pause carousel'}
             >
@@ -318,35 +334,35 @@ const HomePage = () => {
             }}
           >
             <ul
-              className="flex items-stretch gap-6 animate-infinite-scroll px-6"
+              className="flex items-stretch gap-4 sm:gap-6 animate-infinite-scroll px-4 sm:px-6"
               style={{
-                animationDuration: '38s',
-                animationPlayState: paused ? 'paused' : 'running',
+                animationDuration: prefersReducedMotion ? '0s' : '38s',
+                animationPlayState: paused || prefersReducedMotion ? 'paused' : 'running',
               }}
               aria-live={paused ? 'polite' : 'off'}
             >
-              <li className="min-w-[6px] pointer-events-none" aria-hidden="true" />
+              <li className="min-w-[4px] sm:min-w-[6px] pointer-events-none" aria-hidden="true" />
               {[...reviews, ...reviews].map((r, i) => {
                 const initials = toInitials(r.name);
                 const hue = hueFor(i);
                 return (
-                  <li key={`${r.name}-${i}`} className="min-w-[280px] sm:min-w-[360px]">
+                  <li key={`${r.name}-${i}`} className="min-w-[260px] sm:min-w-[340px] md:min-w-[360px]">
                     <motion.div
-                      whileHover={{ y: -4 }}
+                      whileHover={prefersReducedMotion ? undefined : { y: -4 }}
                       transition={{ type: 'spring', stiffness: 200, damping: 18 }}
                       className="h-full rounded-2xl border border-[hsl(var(--border))] bg-white/92 backdrop-blur shadow-[0_12px_30px_rgba(0,0,0,0.08)] p-5 md:p-6 flex flex-col justify-between"
                     >
                       <div className="flex items-center gap-3 mb-3">
                         {/* Avatar ring */}
                         <div
-                          className="relative w-10 h-10 rounded-full p-[2px] shadow"
+                          className="relative w-9 h-9 md:w-10 md:h-10 rounded-full p-[2px] shadow"
                           style={{
                             background: `conic-gradient(from 0deg, hsl(${hue} 85% 55%), hsl(${(hue + 60) % 360} 85% 55%))`,
                           }}
                           aria-hidden="true"
                         >
                           <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                            <span className="text-xs font-extrabold text-[hsl(var(--foreground))]">
+                            <span className="text-[10px] md:text-xs font-extrabold text-[hsl(var(--foreground))]">
                               {initials}
                             </span>
                           </div>
@@ -355,7 +371,7 @@ const HomePage = () => {
                         <div className="flex items-center gap-2">
                           <motion.span
                             initial={{ rotate: 0 }}
-                            whileHover={{ rotate: 16 }}
+                            whileHover={prefersReducedMotion ? undefined : { rotate: 16 }}
                             transition={{ type: 'spring', stiffness: 250, damping: 12 }}
                             className="inline-flex"
                             aria-hidden="true"
@@ -371,64 +387,66 @@ const HomePage = () => {
                   </li>
                 );
               })}
-              <li className="min-w-[6px] pointer-events-none" aria-hidden="true" />
+              <li className="min-w-[4px] sm:min-w-[6px] pointer-events-none" aria-hidden="true" />
             </ul>
           </div>
         </div>
       </section>
 
       {/* ============ CTA (sparkles on hover) ============ */}
-      <section className="py-16 md:py-28 bg-[#FFD894]">
+      <section className="py-14 sm:py-20 md:py-28 bg-[#FFD894]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
+            initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55 }}
             viewport={{ once: true }}
-            className="glass relative rounded-3xl p-6 sm:p-10 md:p-12 overflow-hidden"
+            className="glass relative rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 overflow-hidden"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground">
               Ready to design something people love?
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto mt-3 sm:mt-4">
+            <p className="text-[15px] sm:text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto mt-3 sm:mt-4">
               Let’s collaborate and bring your vision to life with thoughtful UX, clean UI, and systems that scale.
             </p>
 
             {/* Buttons + sparkles */}
             <motion.div
-              className="relative mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
-              whileHover="hovered"
+              className="relative mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4"
+              whileHover={prefersReducedMotion ? undefined : 'hovered'}
               initial="idle"
             >
-              {/* sparkle particles */}
-              <AnimatePresence>
-                <motion.span
-                  variants={{ idle: { opacity: 0 }, hovered: { opacity: 1 } }}
-                  className="pointer-events-none absolute inset-0"
-                >
-                  {[...Array(8)].map((_, i) => {
-                    const x = Math.random() * 100;
-                    const y = Math.random() * 100;
-                    const delay = (i * 0.12) % 1.2;
-                    return (
-                      <motion.span
-                        key={i}
-                        className="absolute"
-                        style={{ left: `${x}%`, top: `${y}%` }}
-                        initial={{ opacity: 0, scale: 0.4 }}
-                        animate={{ opacity: [0, 1, 0], scale: [0.4, 1, 0.4] }}
-                        transition={{ duration: 1.2, repeat: Infinity, delay, ease: 'easeInOut' }}
-                      >
-                        <Sparkles className="w-4 h-4 text-[hsl(var(--primary))]" />
-                      </motion.span>
-                    );
-                  })}
-                </motion.span>
-              </AnimatePresence>
+              {/* sparkle particles (hidden for reduced motion) */}
+              {!prefersReducedMotion && (
+                <AnimatePresence>
+                  <motion.span
+                    variants={{ idle: { opacity: 0 }, hovered: { opacity: 1 } }}
+                    className="pointer-events-none absolute inset-0"
+                  >
+                    {[...Array(8)].map((_, i) => {
+                      const x = Math.random() * 100;
+                      const y = Math.random() * 100;
+                      const delay = (i * 0.12) % 1.2;
+                      return (
+                        <motion.span
+                          key={i}
+                          className="absolute"
+                          style={{ left: `${x}%`, top: `${y}%` }}
+                          initial={{ opacity: 0, scale: 0.4 }}
+                          animate={{ opacity: [0, 1, 0], scale: [0.4, 1, 0.4] }}
+                          transition={{ duration: 1.2, repeat: Infinity, delay, ease: 'easeInOut' }}
+                        >
+                          <Sparkles className="w-4 h-4 text-[hsl(var(--primary))]" />
+                        </motion.span>
+                      );
+                    })}
+                  </motion.span>
+                </AnimatePresence>
+              )}
 
               <Button
                 asChild
-                className="h-11 w-full sm:w-auto rounded-full px-7 text-base sm:text-lg font-semibold text-white shadow-lg
+                className="h-11 w-full sm:w-auto rounded-full px-6 sm:px-7 text-base sm:text-lg font-semibold text-white shadow-lg
                            bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
                            focus:outline-none focus:ring-2 focus:ring-white/70"
                 onClick={handleConsultationClick}
@@ -439,7 +457,11 @@ const HomePage = () => {
                 </Link>
               </Button>
 
-              <Button asChild variant="outline" className="h-11 w-full sm:w-auto rounded-full px-7 text-base sm:text-lg">
+              <Button
+                asChild
+                variant="outline"
+                className="h-11 w-full sm:w-auto rounded-full px-6 sm:px-7 text-base sm:text-lg"
+              >
                 <Link to="/portfolio">See recent work</Link>
               </Button>
             </motion.div>

@@ -113,7 +113,7 @@ const AboutPage = () => {
                   bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
                   focus:outline-none focus:ring-2 focus:ring-white/70"
               >
-                <Link to="/work">View Case Studies</Link>
+                <Link to="/portfolio">View Case Studies</Link>
               </Button>
               <Button
                 asChild
@@ -189,26 +189,31 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* SKILLS on soft photo backdrop */}
-      <section className="py-16 bg-cover bg-center relative" style={{ backgroundImage: `url(${toolsStatsBg})` }}>
-        <div className="pointer-events-none absolute inset-0
-          [background:radial-gradient(1200px_500px_at_20%_20%,rgba(0,0,0,.18),transparent_60%),radial-gradient(900px_400px_at_90%_50%,rgba(0,0,0,.14),transparent_55%)]" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2
-            {...fadeIn}
-            className="text-3xl md:text-4xl font-extrabold text-center mb-8"
-            style={{ color: '#fff', textShadow: '0 3px 18px rgba(0,0,0,.35)' }}
-          >
-            What I work with
-          </motion.h2>
+      {/* SKILLS — full-width glass overlay for heading + pills */}
+      <section
+        className="relative py-16 bg-cover bg-center"
+        style={{ backgroundImage: `url(${toolsStatsBg})` }}
+      >
+        {/* subtle vignette over the photo */}
+        <div className="pointer-events-none absolute inset-0 [background:radial-gradient(900px_400px_at_15%_20%,rgba(0,0,0,.14),transparent_60%),radial-gradient(900px_400px_at_85%_60%,rgba(0,0,0,.14),transparent_60%)]" />
 
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* one big glass panel that includes the heading and all pills */}
           <motion.div
             {...fadeIn}
-            transition={{ ...fadeIn.transition, delay: 0.05 }}
-            className="mx-auto max-w-5xl rounded-2xl border border-white/35 bg-white/10 backdrop-blur-md shadow-lg p-4 sm:p-6"
+            className="mx-auto w-full md:w-[92%] lg:w-[88%] rounded-[22px] md:rounded-[26px]
+                       border border-white/45 bg-white/18 backdrop-blur-lg shadow-[0_24px_60px_rgba(0,0,0,.22)]
+                       px-5 sm:px-8 py-8 sm:py-10"
             aria-label="Skill toolkit"
           >
-            <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+            <h2
+              className="text-3xl md:text-4xl font-extrabold text-center mb-7 md:mb-8"
+              style={{ color: 'hsl(var(--foreground))' }}
+            >
+              What I work with
+            </h2>
+
+            <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-3.5">
               {skills.map((s) => (
                 <li key={s} className="flex">
                   <span className="px-3 py-1.5 rounded-full text-sm font-semibold bg-[hsl(var(--accent))] text-[#0B0F1A] shadow-sm">
@@ -258,8 +263,10 @@ const AboutPage = () => {
       {/* PROCESS CTA — white overlay + gradient headline + dark subheader + seamless footer transition */}
       <section className="relative pt-12 md:pt-16 pb-8 md:pb-10 -mb-1">
         {/* background image */}
-        <div className="relative overflow-hidden rounded-[28px] md:rounded-[36px] bg-cover bg-center"
-             style={{ backgroundImage: `url(${processBg})` }}>
+        <div
+          className="relative overflow-hidden rounded-[28px] md:rounded-[36px] bg-cover bg-center"
+          style={{ backgroundImage: `url(${processBg})` }}
+        >
           {/* opaque white overlay for readability */}
           <div className="absolute inset-0 bg-white/90" />
 
@@ -281,12 +288,8 @@ const AboutPage = () => {
               </p>
 
               <div className="mt-6">
-                <Button
-                  asChild
-                  size="lg"
-                  className="rounded-full px-6 h-11 font-semibold text-white btn-primary"
-                >
-                  <Link to="/ux-process">View My UX Process</Link>
+                <Button asChild size="lg" className="rounded-full px-6 h-11 font-semibold text-white btn-primary">
+                  <Link to="/process">View My UX Process</Link>
                 </Button>
               </div>
             </motion.div>
@@ -321,4 +324,3 @@ const ProofChip = ({ icon, label, sub }) => (
 );
 
 export default AboutPage;
-

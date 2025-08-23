@@ -23,13 +23,14 @@ const Navigation = () => {
   ];
 
   // ——— Navy header palette
-  const NAVY = '#0B0F1A';                 // solid at top
-  const NAVY_TRANS = 'rgba(11,15,26,.92)';// slightly translucent when scrolled
-  const ACTIVE_PILL = '#ffe574';          // gold pill behind active link
+  const NAVY = '#0B0F1A';                  // solid at top
+  const NAVY_TRANS = 'rgba(11,15,26,.92)'; // slightly translucent when scrolled
+  const ACTIVE_PILL = '#ffe574';           // gold pill behind active link
 
   const isRouteActive = (path) =>
-    path === '/' ? location.pathname === '/' :
-    location.pathname === path || location.pathname.startsWith(path + '/');
+    path === '/'
+      ? location.pathname === '/'
+      : location.pathname === path || location.pathname.startsWith(path + '/');
 
   const isClientsActive =
     location.pathname === '/clients' || location.pathname.startsWith('/clients/');
@@ -108,19 +109,25 @@ const Navigation = () => {
 
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center">
+            {/* Clients — secondary pill (outline by default, gradient when active) */}
             <Link
               to="/clients"
               aria-current={isClientsActive ? 'page' : undefined}
-              className={`mr-3 rounded-full px-5 py-2.5 font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition-all
-                ${isClientsActive
-                  ? 'bg-[#ffe574] text-black shadow-[0_8px_18px_rgba(0,0,0,.28)]'
-                  : 'text-white bg-white/10 hover:bg-white/16 border border-white/25 shadow-sm'
-                }`}
-              style={{ textShadow: isClientsActive ? 'none' : '0 1px 0 rgba(0,0,0,.35)' }}
+              className={`mr-3 rounded-full px-5 py-2.5 font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition-all ${
+                isClientsActive
+                  ? 'text-white shadow-[0_8px_18px_rgba(0,0,0,.28)]'
+                  : 'text-white border border-white/25 bg-white/10 hover:bg-white/16 shadow-sm'
+              }`}
+              style={{
+                background: isClientsActive
+                  ? 'linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))'
+                  : undefined,
+              }}
             >
               Clients
             </Link>
 
+            {/* Contact — primary pill */}
             <Button asChild className="btn-primary rounded-full focus-visible:ring-2 focus-visible:ring-white/60">
               <Link to="/contact">
                 Contact Me
@@ -172,19 +179,26 @@ const Navigation = () => {
 
             {/* Mobile CTAs */}
             <div className="pt-3 flex flex-col gap-2">
+              {/* Clients — match shape; gradient when active */}
               <Link
                 to="/clients"
                 onClick={() => setIsOpen(false)}
                 aria-current={isClientsActive ? 'page' : undefined}
-                className={`w-full text-center rounded-full px-4 py-3 font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60
-                  ${isClientsActive
-                    ? 'bg-[#ffe574] text-black'
-                    : 'text-white bg-white/10 hover:bg-white/16 border border-white/25'}`
-                }
+                className={`w-full text-center rounded-full px-4 py-3 font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
+                  isClientsActive
+                    ? 'text-white shadow-md'
+                    : 'text-white border border-white/25 bg-white/10 hover:bg-white/16'
+                }`}
+                style={{
+                  background: isClientsActive
+                    ? 'linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))'
+                    : undefined,
+                }}
               >
                 Clients
               </Link>
 
+              {/* Contact — primary pill */}
               <Button asChild className="w-full btn-primary rounded-full focus-visible:ring-2 focus-visible:ring-white/60">
                 <Link to="/contact" onClick={() => setIsOpen(false)}>
                   Contact Me

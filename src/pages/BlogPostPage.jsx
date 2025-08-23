@@ -211,8 +211,8 @@ const BlogPostPage = ({ posts = [] }) => {
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
 
-      {/* Sticky reading progress */}
-      <div aria-hidden="true" className="fixed top-0 left-0 right-0 h-[3px] z-40 bg-transparent" style={{ pointerEvents: 'none' }}>
+      {/* Sticky reading progress (above header) */}
+      <div aria-hidden="true" className="fixed top-0 left-0 right-0 h-[3px] z-[60] bg-transparent" style={{ pointerEvents: 'none' }}>
         <div
           className="h-full transition-[width] duration-150 ease-out"
           style={{ width: `${progress}%`, background: 'linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))' }}
@@ -250,19 +250,19 @@ const BlogPostPage = ({ posts = [] }) => {
 
         {/* Main column */}
         <div>
-          {/* Back to All Articles (button style) */}
+          {/* Back to All Articles */}
           <div className="mb-8">
-            <Button asChild variant="outline" className={`${outline}`}>
+            <Button asChild variant="outline" className={`${outline} rounded-full`}>
               <Link to="/blog" className="inline-flex items-center gap-2">
                 <ArrowLeft size={16} /> All Articles
               </Link>
             </Button>
           </div>
 
-          {/* Hero / Meta */}
-          <div className="mb-12">
+          {/* Hero / Meta band */}
+          <div className="mb-12 rounded-3xl bg-[#FFEFD2] p-5 sm:p-7 md:p-8">
             {coverUrl ? (
-              <div className="aspect-video w-full overflow-hidden rounded-xl mb-8 bg-[hsl(var(--muted))/0.2]">
+              <div className="aspect-video w-full overflow-hidden rounded-xl mb-6 bg-[hsl(var(--muted))/0.2]">
                 <img
                   src={coverUrl}
                   alt={post.coverAlt || post.heroAlt || ''}
@@ -272,7 +272,7 @@ const BlogPostPage = ({ posts = [] }) => {
                 />
               </div>
             ) : (
-              <div className="aspect-video w-full overflow-hidden rounded-xl mb-8 bg-[linear-gradient(135deg,#fa8a00,#fec200)]" />
+              <div className="aspect-video w-full overflow-hidden rounded-xl mb-6 bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]" />
             )}
 
             {post.category && (
@@ -280,7 +280,7 @@ const BlogPostPage = ({ posts = [] }) => {
                 {post.category}
               </p>
             )}
-            <h1 className="text-4xl md:text-5xl font-bold text-[hsl(var(--foreground))] mb-4">{post.title}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-[hsl(var(--foreground))] mb-3">{post.title}</h1>
 
             <div className="flex flex-wrap items-center text-sm text-[hsl(var(--muted-foreground))] gap-x-6 gap-y-2">
               {post.author && (
@@ -302,11 +302,11 @@ const BlogPostPage = ({ posts = [] }) => {
 
               {/* Share */}
               <span className="ml-auto inline-flex items-center gap-2">
-                <Button size="sm" variant="outline" className="h-8 px-3" onClick={handleWebShare} title="Share">
+                <Button size="sm" variant="outline" className="h-8 px-3 rounded-full" onClick={handleWebShare} title="Share">
                   <Share2 size={14} className="mr-2" />
                   Share
                 </Button>
-                <Button size="sm" variant="outline" className="h-8 px-3" onClick={handleCopyLink} title="Copy link">
+                <Button size="sm" variant="outline" className="h-8 px-3 rounded-full" onClick={handleCopyLink} title="Copy link">
                   <Copy size={14} className="mr-2" />
                   Copy
                 </Button>
@@ -364,28 +364,29 @@ const BlogPostPage = ({ posts = [] }) => {
             </div>
           )}
 
-          {/* Content */}
+          {/* Content (wrapped in a readable card) */}
           {sanitizedHtml ? (
-            <article
-              ref={articleRef}
-              className="
-                prose prose-lg max-w-none
-                prose-headings:font-bold prose-headings:scroll-mt-24
-                prose-headings:text-[hsl(var(--foreground))]
-                prose-p:text-[hsl(var(--muted-foreground))]
-                prose-a:text-[hsl(var(--primary))] hover:prose-a:no-underline
-                prose-strong:text-[hsl(var(--foreground))]
-                prose-table:border prose-table:border-[hsl(var(--border))]
-                prose-th:border prose-td:border
-                prose-hr:border-[hsl(var(--border))]
-                prose-ul:list-disc prose-ul:pl-6
-                prose-li:text-[hsl(var(--muted-foreground))]
-                prose-li:marker:text-[hsl(var(--primary))]
-                dark:prose-invert
-              "
-              // Ensure post.content is sanitized HTML upstream
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
+            <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 md:p-8 shadow-sm">
+              <article
+                ref={articleRef}
+                className="
+                  prose prose-lg max-w-none
+                  prose-headings:font-bold prose-headings:scroll-mt-24
+                  prose-headings:text-[hsl(var(--foreground))]
+                  prose-p:text-[hsl(var(--muted-foreground))]
+                  prose-a:text-[hsl(var(--primary))] hover:prose-a:no-underline
+                  prose-strong:text-[hsl(var(--foreground))]
+                  prose-table:border prose-table:border-[hsl(var(--border))]
+                  prose-th:border prose-td:border
+                  prose-hr:border-[hsl(var(--border))]
+                  prose-ul:list-disc prose-ul:pl-6
+                  prose-li:text-[hsl(var(--muted-foreground))]
+                  prose-li:marker:text-[hsl(var(--primary))]
+                "
+                // Ensure post.content is sanitized HTML upstream
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
+            </div>
           ) : (
             <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6">
               <p className="text-[hsl(var(--muted-foreground))]">
@@ -397,7 +398,7 @@ const BlogPostPage = ({ posts = [] }) => {
           {/* Prev / Next */}
           <div className="mt-16 pt-8 border-t border-[hsl(var(--border))] flex flex-col sm:flex-row gap-4 sm:gap-0 justify-between items-stretch sm:items-center">
             {prevPost ? (
-              <Button asChild variant="outline" className={`${outline}`}>
+              <Button asChild variant="outline" className={`${outline} rounded-full`}>
                 <Link to={`/blog/${keyFor(prevPost)}`} className="flex items-center gap-2">
                   <ArrowLeft size={16} />
                   <span className="hidden sm:inline">Previous:</span> {prevPost.title}
@@ -408,14 +409,14 @@ const BlogPostPage = ({ posts = [] }) => {
             )}
 
             {nextPost ? (
-              <Button asChild className={grad}>
+              <Button asChild className={`${grad} rounded-full`}>
                 <Link to={`/blog/${keyFor(nextPost)}`} className="flex items-center gap-2">
                   <span className="hidden sm:inline">Next:</span> {nextPost.title}
                   <ArrowRight size={16} />
                 </Link>
               </Button>
             ) : (
-              <Button asChild variant="outline" className={`${outline}`}>
+              <Button asChild variant="outline" className={`${outline} rounded-full`}>
                 <Link to="/blog" className="flex items-center gap-2">
                   Back to All Articles <ArrowRight size={16} />
                 </Link>
@@ -425,8 +426,8 @@ const BlogPostPage = ({ posts = [] }) => {
 
           {/* Extra share (X / LinkedIn) */}
           <div className="mt-6 flex gap-3 justify-center">
-            <Button variant="ghost" onClick={() => shareTo('x')}>Share on X</Button>
-            <Button variant="ghost" onClick={() => shareTo('linkedin')}>Share on LinkedIn</Button>
+            <Button variant="ghost" className="rounded-full" onClick={() => shareTo('x')}>Share on X</Button>
+            <Button variant="ghost" className="rounded-full" onClick={() => shareTo('linkedin')}>Share on LinkedIn</Button>
           </div>
         </div>
       </div>

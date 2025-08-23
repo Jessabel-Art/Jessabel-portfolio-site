@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster } from '@/components/ui/toaster';
 
@@ -16,7 +16,7 @@ import UxProcessPage from '@/pages/UxProcessPage';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import CaseStudyPage from '@/pages/CaseStudyPage';
-import FullSailCaseStudyPage from '@/pages/FullSailCaseStudyPage'; // 👈 NEW
+import FullSailCaseStudyPage from '@/pages/FullSailCaseStudyPage';
 import { projects } from '@/data/projects';
 import { posts } from '@/data/blog';
 
@@ -44,13 +44,17 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageLayout><HomePage /></PageLayout>} />
         <Route path="/about" element={<PageLayout><AboutPage /></PageLayout>} />
+
+        {/* Canonical route */}
         <Route path="/process" element={<PageLayout><UxProcessPage /></PageLayout>} />
+        {/* Alias + redirect to keep one URL in analytics/SEO */}
+        <Route path="/ux-process" element={<Navigate to="/process" replace />} />
 
         {/* Portfolio + case studies */}
         <Route path="/portfolio" element={<PageLayout><PortfolioPage projects={projects} /></PageLayout>} />
         <Route path="/portfolio/:projectId" element={<PageLayout><CaseStudyPage projects={projects} /></PageLayout>} />
 
-        {/* 🔗 Dedicated Full Sail case study page (used by the round button in About) */}
+        {/* Dedicated case study */}
         <Route path="/case-study/full-sail" element={<PageLayout><FullSailCaseStudyPage /></PageLayout>} />
 
         {/* Blog */}

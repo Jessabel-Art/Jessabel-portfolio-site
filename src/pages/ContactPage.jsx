@@ -22,6 +22,7 @@ const ContactPage = () => {
     e.message = formData.message.trim().length >= 20 ? '' : 'Please share a bit more (20+ characters).';
     return e;
   }, [formData]);
+
   const isValid = !errors.name && !errors.email && !errors.message && !formData.honey;
 
   const handleInputChange = (e) => {
@@ -106,8 +107,6 @@ const ContactPage = () => {
     'hover:scale-[1.01] active:scale-[.99] ' +
     'bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]';
 
-  const headingShadow = { textShadow: '0 3px 14px rgba(0,0,0,.18)' };
-
   const charCount = formData.message.length;
   const maxChars = 1200;
 
@@ -129,13 +128,13 @@ const ContactPage = () => {
 
       {/* Warm background (cream) to match site palette */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-3xl py-12 md:py-16 bg-[#FFEFD2]">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
           {/* FORM */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="order-1 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-xl p-6 sm:p-8"
+            className="order-2 lg:order-1 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-xl p-6 sm:p-8"
           >
             {isSubmitted ? (
               <motion.div
@@ -169,7 +168,13 @@ const ContactPage = () => {
                   className="hidden"
                   tabIndex={-1}
                   autoComplete="off"
+                  aria-hidden="true"
                 />
+
+                {/* Error summary for SR users */}
+                <div role="status" aria-live="polite" className="sr-only">
+                  {!isValid && (touched.name || touched.email || touched.message) ? 'Form has errors' : ''}
+                </div>
 
                 <div className="space-y-2">
                   <label htmlFor="name" className="block text-sm font-semibold text-[hsl(var(--foreground))]">
@@ -181,6 +186,7 @@ const ContactPage = () => {
                     type="text"
                     autoComplete="name"
                     inputMode="text"
+                    minLength={2}
                     value={formData.name}
                     onChange={handleInputChange}
                     onBlur={handleBlur}
@@ -245,7 +251,13 @@ const ContactPage = () => {
                         All fields are required.
                       </p>
                     )}
-                    <span className="text-xs text-[hsl(var(--muted-foreground))]">
+                    <span
+                      className={`text-xs ${
+                        charCount > maxChars - 40
+                          ? 'text-destructive'
+                          : 'text-[hsl(var(--muted-foreground))]'
+                      }`}
+                    >
                       {charCount}/{maxChars}
                     </span>
                   </div>
@@ -254,7 +266,7 @@ const ContactPage = () => {
                 <Button
                   type="submit"
                   size="lg"
-                  className={`w-full text-base md:text-lg py-3.5 rounded-full ${gradBtn}`}
+                  className={`w-full text-base md:text-lg py-3.5 rounded-full ${gradBtn} disabled:opacity-60 disabled:cursor-not-allowed`}
                   disabled={!isValid || isSubmitting}
                 >
                   {isSubmitting ? 'Sending…' : 'Send Message'}
@@ -269,11 +281,14 @@ const ContactPage = () => {
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut', delay: 0.05 }}
-            className="order-2 space-y-8"
+            className="order-1 lg:order-2 space-y-8"
           >
             <h1
-              className="text-[2.5rem] sm:text-6xl lg:text-7xl font-bold leading-[0.95] text-[var(--orange-800,#d74708)]"
-              style={headingShadow}
+              className="
+                text-[2.2rem] sm:text-5xl lg:text-6xl font-extrabold leading-[0.98]
+                bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
+                bg-clip-text text-transparent
+              "
             >
               Let’s Work
               <br />

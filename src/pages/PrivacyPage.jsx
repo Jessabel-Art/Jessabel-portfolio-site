@@ -36,7 +36,10 @@ const PrivacyPage = () => {
         </>,
         <>
           <strong>Data controller:</strong> Jessabel.Art •{' '}
-          <a className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)]" href="mailto:hello@jessabel.art">
+          <a
+            className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] rounded"
+            href="mailto:hello@jessabel.art"
+          >
             hello@jessabel.art
           </a>
           .
@@ -107,9 +110,7 @@ const PrivacyPage = () => {
       id: 'third-parties',
       title: 'Third-party services we use',
       content: [
-        <>
-          We don’t sell your personal data. We share limited data with providers that help us run the site and projects:
-        </>,
+        <>We don’t sell your personal data. We share limited data with providers that help us run the site and projects:</>,
         <>
           <strong>Formspree</strong> (contact form processing); <strong>Cloudinary</strong> (client file uploads via
           widget); <strong>Notion</strong> (embedded intake form); website hosting/CDN and privacy-friendly analytics.
@@ -162,7 +163,10 @@ const PrivacyPage = () => {
         <>
           Depending on your location, you may have rights to access, correct, delete, or receive a copy of your personal
           data, and to object or restrict certain processing. To exercise these rights, contact{' '}
-          <a className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)]" href="mailto:hello@jessabel.art">
+          <a
+            className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] rounded"
+            href="mailto:hello@jessabel.art"
+          >
             hello@jessabel.art
           </a>
           .
@@ -200,7 +204,10 @@ const PrivacyPage = () => {
       content: [
         <>
           Questions or requests? Email{' '}
-          <a className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)]" href="mailto:hello@jessabel.art">
+          <a
+            className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] rounded"
+            href="mailto:hello@jessabel.art"
+          >
             hello@jessabel.art
           </a>
           .
@@ -209,7 +216,7 @@ const PrivacyPage = () => {
     },
   ];
 
-  // soft orange backgrounds that alternate
+  // soft orange backgrounds that alternate (kept, but you can swap to tokens if you prefer)
   const bgByIndex = (i) => {
     const colors = [
       'bg-[#fee9a6]', // lightest
@@ -230,10 +237,18 @@ const PrivacyPage = () => {
         />
       </Helmet>
 
-      {/* Header band */}
+      {/* Header band (navy gradient, matches site chrome) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
-        <div className="rounded-3xl px-6 py-10 md:px-10 md:py-14 bg-[#d74708] text-white relative overflow-hidden">
-          <h1 className="text-4xl md:text-6xl font-['Playfair_Display'] italic tracking-tight">Privacy Policy</h1>
+        <div
+          className="relative overflow-hidden rounded-3xl px-6 py-10 md:px-10 md:py-14 text-white ring-1 ring-white/10"
+          style={{
+            background:
+              'linear-gradient(135deg, var(--navy-900), #121826 60%, #0B0F1A)',
+          }}
+        >
+          <h1 className="text-4xl md:text-6xl font-['Playfair_Display'] italic tracking-tight">
+            Privacy Policy
+          </h1>
           <p className="mt-3 text-sm md:text-base opacity-90">
             Effective date: <time dateTime={effectiveDate}>{effectiveDate}</time>
           </p>
@@ -251,7 +266,7 @@ const PrivacyPage = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[280px,1fr] gap-8">
         {/* Sticky quick nav on desktop */}
-        <nav className="hidden lg:block sticky top-24 self-start">
+        <nav className="hidden lg:block sticky top-24 self-start print:hidden">
           <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
             <p className="text-sm font-semibold text-[hsl(var(--foreground))] mb-2">On this page</p>
             <ul className="space-y-2 text-sm">
@@ -259,7 +274,7 @@ const PrivacyPage = () => {
                 <li key={s.id}>
                   <a
                     className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:underline
-                               focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] rounded"
+                               focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] rounded"
                     href={`#${s.id}`}
                   >
                     {s.title}
@@ -277,6 +292,26 @@ const PrivacyPage = () => {
             </button>
           </div>
         </nav>
+
+        {/* Mobile quick nav (collapsible) */}
+        <details className="lg:hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 mb-2">
+          <summary className="cursor-pointer text-sm font-semibold text-[hsl(var(--foreground))]">
+            On this page
+          </summary>
+          <ul className="mt-3 space-y-2 text-sm">
+            {sections.map((s) => (
+              <li key={s.id}>
+                <a
+                  className="block py-1 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:underline
+                             focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] rounded"
+                  href={`#${s.id}`}
+                >
+                  {s.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
 
         {/* Sections */}
         <motion.div {...fadeIn} className="space-y-6">
@@ -305,7 +340,7 @@ const PrivacyPage = () => {
             </p>
             <a
               href="mailto:hello@jessabel.art?subject=Privacy%20Request&body=Hi%20Jessabel%2C%0A%0AI'd%20like%20to%20ask%20about%20%5Baccess%2Fdeletion%2Fupdate%5D%20of%20my%20data.%0A%0AThanks!"
-              className="mt-4 inline-block font-semibold underline decoration-[hsl(var(--accent))] underline-offset-4 hover:no-underline text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] rounded"
+              className="mt-4 inline-block font-semibold underline decoration-[hsl(var(--accent))] underline-offset-4 hover:no-underline text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] rounded"
             >
               hello@jessabel.art
             </a>
@@ -321,9 +356,17 @@ const PrivacyPage = () => {
           </section>
         </motion.div>
       </div>
+
+      {/* Print tweaks */}
+      <style>{`
+        @media print {
+          html, body { background: #fff; }
+          .site-header, .site-footer { display: none !important; }
+          a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.9em; }
+        }
+      `}</style>
     </div>
   );
 };
 
 export default PrivacyPage;
-

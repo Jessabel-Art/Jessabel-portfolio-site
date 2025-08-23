@@ -69,9 +69,9 @@ const UxProcessPage = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           {...fadeIn}
-          className="text-center max-w-4xl mx-auto px-4 py-10 rounded-3xl bg-[#FFEFD2]"
+          className="text-center max-w-4xl mx-auto px-4 py-8 sm:py-10 rounded-3xl bg-[#FFEFD2]"
         >
-          <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight">
             <span
               className="bg-clip-text text-transparent"
               style={{
@@ -82,24 +82,24 @@ const UxProcessPage = () => {
               My UX Process
             </span>
           </h1>
-          <p className="mt-4 text-xl text-[hsl(var(--muted-foreground))]">
+          <p className="mt-3 sm:mt-4 text-lg sm:text-xl text-[hsl(var(--muted-foreground))]">
             A structured yet flexible approach to turning complex problems into elegant solutions.
           </p>
         </motion.div>
       </section>
 
       {/* HIGHLIGHTS + CHECKLIST */}
-      <section className="mt-14 md:mt-18">
+      <section className="mt-12 md:mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
             {/* Left: GIF + heading */}
             <motion.div {...fadeIn}>
               <div className="mb-4">
-                <h2 className="text-3xl font-bold text-foreground">UX Highlights</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-foreground">UX Highlights</h2>
                 <div className="h-1 w-32 rounded bg-[linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]" />
               </div>
 
-              {/* 16:9 container with glass frame */}
+              {/* 16:9 container with glass frame (ensures legibility) */}
               <div className="relative w-full pt-[56.25%] rounded-2xl overflow-hidden glass shadow-lg">
                 <img
                   src={sereneGif}
@@ -108,6 +108,8 @@ const UxProcessPage = () => {
                   loading="lazy"
                   decoding="async"
                 />
+                {/* subtle white veil for extra contrast on busy frames */}
+                <div className="absolute inset-0 bg-white/10" aria-hidden="true" />
               </div>
             </motion.div>
 
@@ -120,7 +122,7 @@ const UxProcessPage = () => {
               <h3 className="text-2xl font-bold text-foreground">Project Cornerstones</h3>
               <ul className="space-y-3">
                 {checklistItems.map((item, index) => (
-                  <li key={index} className="flex items-center text-lg text-[hsl(var(--muted-foreground))]">
+                  <li key={index} className="flex items-center text-base sm:text-lg text-[hsl(var(--muted-foreground))]">
                     <CheckCircle className="w-5 h-5 text-[hsl(var(--primary))] mr-3 flex-shrink-0" />
                     <span>{item}</span>
                   </li>
@@ -132,16 +134,16 @@ const UxProcessPage = () => {
       </section>
 
       {/* PROCESS STEPS */}
-      <section className="mt-20 md:mt-28 bg-[#FFE7B3]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-          <div className="mb-10">
-            <h2 className="text-3xl font-bold text-foreground">From discovery to launch</h2>
+      <section className="mt-16 md:mt-24 bg-[#FFE7B3]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+          <div className="mb-8 md:mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">From discovery to launch</h2>
             <p className="text-[hsl(var(--muted-foreground))]">
               Clear checkpoints keep teams aligned and decisions measurable.
             </p>
           </div>
 
-          <div className="space-y-10 md:space-y-12">
+          <div className="space-y-8 md:space-y-10">
             {processSteps.map((step, i) => {
               const Icon = step.icon;
               return (
@@ -173,11 +175,11 @@ const UxProcessPage = () => {
                         <div className="w-12 h-12 rounded-xl bg-[hsl(var(--accent))/0.12] flex items-center justify-center">
                           <Icon size={26} className="text-[hsl(var(--accent))]" />
                         </div>
-                        <h3 className="text-2xl font-bold text-foreground">{step.title}</h3>
+                        <h3 className="text-xl sm:text-2xl font-bold text-foreground">{step.title}</h3>
                       </div>
                     </div>
 
-                    <p className="text-lg text-[hsl(var(--muted-foreground))] leading-relaxed">
+                    <p className="text-base sm:text-lg text-[hsl(var(--muted-foreground))] leading-relaxed">
                       {step.description}
                     </p>
                   </div>
@@ -188,9 +190,9 @@ const UxProcessPage = () => {
         </div>
       </section>
 
-      {/* WRAP / CTA‑ish stripe for visual rhythm */}
+      {/* WRAP / visual rhythm */}
       <section className="bg-[#FFD894]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-center">
           <p className="text-[hsl(var(--muted-foreground))]">
             Want a deeper dive into artifacts and deliverables? Check the case studies on the Portfolio page.
           </p>
