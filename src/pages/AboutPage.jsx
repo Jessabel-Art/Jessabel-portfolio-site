@@ -11,7 +11,7 @@ import toolsStatsBg from '@/assets/about/tools-stats-bg-strip.jpg';
 
 const WARM_BROWN = 'var(--warm-brown-hex)';
 
-/* ---------- Anim presets ---------- */
+/* ---------- Shared animation presets ---------- */
 const fadeIn = {
   initial: { opacity: 0, y: 30 },
   whileInView: { opacity: 1, y: 0 },
@@ -46,6 +46,58 @@ const education = [
   { school: 'Community College of Rhode Island', degree: 'A.S. Business Administration', year: '2022' },
 ];
 
+/* ---------- Tiny sparkle overlay for links/buttons ---------- */
+const SparkleOverlay = ({ active }) => {
+  const prefersReducedMotion = useReducedMotion();
+  if (prefersReducedMotion) return null;
+  return (
+    <motion.span
+      initial={{ opacity: 0 }}
+      animate={{ opacity: active ? 1 : 0 }}
+      className="pointer-events-none absolute inset-0"
+    >
+      {[...Array(6)].map((_, i) => {
+        const x = (i * 17 + 8) % 100;
+        const y = (i * 29 + 12) % 100;
+        const delay = (i * 0.12) % 1.4;
+        return (
+          <motion.span
+            key={i}
+            className="absolute"
+            style={{ left: `${x}%`, top: `${y}%` }}
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: [0, 1, 0], scale: [0.6, 1.1, 0.6] }}
+            transition={{ duration: 1.4, repeat: Infinity, delay, ease: 'easeInOut' }}
+          >
+            <Sparkles className="w-4 h-4 text-[hsl(var(--primary))]" />
+          </motion.span>
+        );
+      })}
+    </motion.span>
+  );
+};
+
+/* Inline link with sparkle (use for any text links if needed) */
+const LinkWithSparkle = ({ to, href, children, className = '' }) => {
+  const [hover, setHover] = useState(false);
+  const common =
+    "relative inline-flex items-center gap-1.5 font-semibold underline decoration-transparent hover:decoration-current transition";
+  if (to) {
+    return (
+      <span className="relative" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+        <Link to={to} className={`${common} ${className}`}>{children}</Link>
+        <SparkleOverlay active={hover} />
+      </span>
+    );
+  }
+  return (
+    <span className="relative" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+      <a href={href} className={`${common} ${className}`}>{children}</a>
+      <SparkleOverlay active={hover} />
+    </span>
+  );
+};
+
 const AboutPage = () => {
   const prefersReducedMotion = useReducedMotion();
 
@@ -73,6 +125,9 @@ const AboutPage = () => {
     const r = e.currentTarget.getBoundingClientRect();
     setCursor({ x: ((e.clientX - r.left)/r.width)*100, y: ((e.clientY - r.top)/r.height)*100 });
   };
+
+  /* hover state for button sparkles */
+  const [btnHover, setBtnHover] = useState({ a:false, b:false, c:false, d:false });
 
   return (
     <div className="bg-[#FAFAF7]">
@@ -113,32 +168,52 @@ const AboutPage = () => {
                 <ProofChip icon={<Sparkles size={18} />} label="Systems + UI" sub="Design systems & craft" />
               </ul>
 
-              {/* CTAs */}
+              {/* CTAs with sparkle + color-shift on hover */}
               <div className="flex flex-wrap gap-3 pt-2">
-                <Button
-                  asChild size="lg"
-                  className="relative overflow-hidden h-11 font-semibold text-white shadow-lg
-                             bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
-                             focus:outline-none focus:ring-2 focus:ring-white/70"
-                >
-                  <Link to="/portfolio">View Case Studies</Link>
-                </Button>
+                <span className="relative" onMouseEnter={()=>setBtnHover(s=>({...s,a:true}))} onMouseLeave={()=>setBtnHover(s=>({...s,a:false}))}>
+                  <Button
+                    asChild size="lg"
+                    className="relative overflow-hidden h-11 font-semibold text-white shadow-lg
+                               bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
+                               hover:brightness-[1.08] hover:shadow-[0_12px_30px_rgba(0,0,0,.18)]
+                               transition focus:outline-none focus:ring-2 focus:ring-white/70"
+                  >
+                    <Link to="/portfolio">View Case Studies</Link>
+                  </Button>
+                  {/* gradient sweep */}
+                  {!prefersReducedMotion && (
+                    <motion.span
+                      className="pointer-events-none absolute inset-0 opacity-30"
+                      initial={{ x: '-110%' }}
+                      animate={{ x: btnHover.a ? '110%' : '-110%' }}
+                      transition={{ duration: 1.8, ease: 'easeInOut' }}
+                      style={{ background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent)' }}
+                    />
+                  )}
+                  <SparkleOverlay active={btnHover.a} />
+                </span>
 
-                <Button asChild size="lg" variant="outline" className="h-11">
-                  <Link to="/contact">Contact Me</Link>
-                </Button>
+                <span className="relative" onMouseEnter={()=>setBtnHover(s=>({...s,b:true}))} onMouseLeave={()=>setBtnHover(s=>({...s,b:false}))}>
+                  <Button asChild size="lg" variant="outline"
+                    className="h-11 transition border-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]
+                               hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]">
+                    <Link to="/contact">Contact Me</Link>
+                  </Button>
+                  <SparkleOverlay active={btnHover.b} />
+                </span>
 
-                <Button
-                  asChild size="lg" variant="outline" className="h-11"
-                >
-                  <a href="/resume.pdf" target="_blank" rel="noreferrer">
-                    Download Resume
-                  </a>
-                </Button>
+                <span className="relative" onMouseEnter={()=>setBtnHover(s=>({...s,c:true}))} onMouseLeave={()=>setBtnHover(s=>({...s,c:false}))}>
+                  <Button asChild size="lg" variant="outline"
+                    className="h-11 transition border-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]
+                               hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]">
+                    <a href="/resume.pdf" target="_blank" rel="noreferrer">Download Resume</a>
+                  </Button>
+                  <SparkleOverlay active={btnHover.c} />
+                </span>
               </div>
             </motion.div>
 
-            {/* Portrait block with parallax + spotlight */}
+            {/* Portrait with parallax + spotlight */}
             <motion.div
               {...fadeIn}
               transition={{ ...fadeIn.transition, delay: 0.1 }}
@@ -188,16 +263,13 @@ const AboutPage = () => {
                 for non‑technical teams. I care about evidence, inclusivity, and craft—because details
                 are how we earn trust.
               </p>
-
-              {/* Mini highlights */}
-              <div className="mt-4 grid sm:grid-cols-3 gap-3">
-                <MiniStat k="12+" v="end‑to‑end projects" />
-                <MiniStat k="4.8/5" v="avg. stakeholder rating" />
-                <MiniStat k="30–50%" v="faster onboarding" />
-              </div>
+              {/* Example inline link with sparkle (use anywhere) */}
+              <p className="text-lg" style={{ color: WARM_BROWN }}>
+                See my <LinkWithSparkle to="/portfolio" className="text-[hsl(var(--accent-foreground))]">case studies</LinkWithSparkle> for outcomes and process.
+              </p>
             </motion.div>
 
-            {/* Education two‑column grid */}
+            {/* Education */}
             <motion.div {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.1 }}>
               <h3 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-3">Education</h3>
               <ul className="divide-y divide-[hsl(var(--border)/0.7)] border-t border-b border-[hsl(var(--border)/0.7)]">
@@ -226,10 +298,12 @@ const AboutPage = () => {
                        px-5 sm:px-8 py-8 sm:py-10"
             aria-label="Skill toolkit"
           >
-            <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-7 md:mb-8" style={{ color: 'hsl(var(--foreground))' }}>
+            {/* Header: bold white */}
+            <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-7 md:mb-8 text-white">
               What I work with
             </h2>
 
+            {/* Pills: with pink dot icon */}
             <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-3.5">
               {skills.map((s, i) => (
                 <motion.li
@@ -241,20 +315,12 @@ const AboutPage = () => {
                   className="flex"
                 >
                   <span
-                    className="relative px-3 py-1.5 rounded-full text-sm font-semibold bg-[hsl(var(--accent))] text-[#0B0F1A] shadow-sm
-                               overflow-hidden"
+                    className="relative inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold
+                               bg-[hsl(var(--accent))] text-[#0B0F1A] shadow-sm overflow-hidden"
                   >
+                    {/* pink dot icon */}
+                    <span className="inline-block w-2.5 h-2.5 rounded-full bg-[var(--btn-pink,#ff3ea5)]" />
                     {s}
-                    {!prefersReducedMotion && (
-                      <motion.span
-                        className="pointer-events-none absolute inset-0 opacity-30"
-                        initial={{ x: '-120%' }}
-                        whileInView={{ x: '120%' }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1.6, ease: 'easeInOut', delay: i * 0.03 }}
-                        style={{ background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.7), transparent)' }}
-                      />
-                    )}
                   </span>
                 </motion.li>
               ))}
@@ -318,7 +384,7 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* ===================== PROCESS CTA ===================== */}
+      {/* ===================== PROCESS CTA (theme-matched buttons) ===================== */}
       <section className="relative pt-12 md:pt-16 pb-8 md:pb-10 -mb-1 bg-[#FAFAF7]">
         <div className="relative overflow-hidden rounded-[28px] md:rounded-[36px] border border-[hsl(var(--border)/0.7)]">
           {/* gentle radial glow */}
@@ -342,12 +408,33 @@ const AboutPage = () => {
               </p>
 
               <div className="mt-6 flex items-center justify-center gap-3">
-                <Button asChild size="lg" className="rounded-full px-6 h-11 font-semibold text-white">
-                  <Link to="/process">
-                    View My UX Process <ArrowRight className="ml-1.5 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="rounded-full px-6 h-11">
+                {/* Primary: theme gradient + hover light-up */}
+                <span className="relative" onMouseEnter={()=>setBtnHover(s=>({...s,d:true}))} onMouseLeave={()=>setBtnHover(s=>({...s,d:false}))}>
+                  <Button asChild size="lg"
+                    className="relative overflow-hidden rounded-full px-6 h-11 font-semibold text-white
+                               bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
+                               hover:brightness-[1.08] hover:shadow-[0_12px_30px_rgba(0,0,0,.18)] transition">
+                    <Link to="/process">
+                      View My UX Process <ArrowRight className="ml-1.5 h-4 w-4" />
+                    </Link>
+                  </Button>
+                  {!prefersReducedMotion && (
+                    <motion.span
+                      className="pointer-events-none absolute inset-0 opacity-30"
+                      initial={{ x: '-110%' }}
+                      animate={{ x: btnHover.d ? '110%' : '-110%' }}
+                      transition={{ duration: 1.8, ease: 'easeInOut' }}
+                      style={{ background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent)' }}
+                    />
+                  )}
+                  <SparkleOverlay active={btnHover.d} />
+                </span>
+
+                {/* Secondary: outline that fills with accent on hover */}
+                <Button asChild size="lg" variant="outline"
+                  className="rounded-full px-6 h-11 transition border-[hsl(var(--accent))]
+                             text-[hsl(var(--accent-foreground))]
+                             hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]">
                   <Link to="/portfolio">See Case Studies</Link>
                 </Button>
               </div>
@@ -381,13 +468,6 @@ const ProofChip = ({ icon, label, sub }) => (
       <p className="text-xs text-[hsl(var(--muted-foreground)/0.9)]">{sub}</p>
     </div>
   </motion.li>
-);
-
-const MiniStat = ({ k, v }) => (
-  <div className="rounded-xl border border-[hsl(var(--border)/0.6)] bg-[hsl(var(--card))] px-4 py-3 shadow-sm">
-    <p className="text-sm font-semibold text-[hsl(var(--muted-foreground))]">{k}</p>
-    <p className="text-lg font-extrabold text-[hsl(var(--foreground))]">{v}</p>
-  </div>
 );
 
 export default AboutPage;
