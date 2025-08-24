@@ -32,11 +32,11 @@ const journey = [
   { year: '2018–2022', title: 'Systems Implementation Lead', company: 'Healthcare SaaS',
     description: 'Rolled out an internal platform; focused on usability, accessibility, and adoption.' },
   { year: '2015–2018', title: 'Platform Usability Contributor', company: 'Fintech / Insurance',
-    description: 'Helped define features, ran studies, and improved cross‑team workflow efficiency.' },
+    description: 'Helped define features, ran studies, and improved cross-team workflow efficiency.' },
   { year: '2014', title: 'The Spark', company: 'Independent',
     description: 'Built early websites and learned SEO; realized design could be both art and utility.' },
   { year: '2011', title: 'Design Intern — NUA on the Move', company: 'New Urban Arts',
-    description: 'Mapped studio zones, supported build‑out decisions, and showed my first public work.' }
+    description: 'Mapped studio zones, supported build-out decisions, and showed my first public work.' }
 ];
 
 const education = [
@@ -130,7 +130,7 @@ const AboutPage = () => {
   const [btnHover, setBtnHover] = useState({ a:false, b:false, c:false, d:false });
 
   return (
-    <div className="bg-[#FAFAF7]">
+    <div className="bg-[#FEE6D4]">
       <Helmet>
         <title>Jessabel — UX Designer | About</title>
         <meta
@@ -151,7 +151,7 @@ const AboutPage = () => {
                            bg-clip-text text-transparent"
                 style={{ textShadow: '0 6px 22px rgba(0,0,0,0.22)' }}
               >
-                I turn complex ideas into intuitive, human‑centered experiences.
+                I turn complex ideas into intuitive, human-centered experiences.
               </h1>
 
               <p className="text-lg md:text-xl leading-relaxed max-w-prose" style={{ color: WARM_BROWN }}>
@@ -163,8 +163,8 @@ const AboutPage = () => {
 
               {/* Proof chips */}
               <ul className="grid sm:grid-cols-3 gap-3">
-                <ProofChip icon={<CheckCircle size={18} />} label="Human‑centered" sub="Clear, inclusive flows" />
-                <ProofChip icon={<BarChart3 size={18} />} label="Data‑informed" sub="Decisions & metrics" />
+                <ProofChip icon={<CheckCircle size={18} />} label="Human-centered" sub="Clear, inclusive flows" />
+                <ProofChip icon={<BarChart3 size={18} />} label="Data-informed" sub="Decisions & metrics" />
                 <ProofChip icon={<Sparkles size={18} />} label="Systems + UI" sub="Design systems & craft" />
               </ul>
 
@@ -254,13 +254,13 @@ const AboutPage = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))]">A practical path into UX</h2>
               <p className="text-lg leading-relaxed max-w-prose" style={{ color: WARM_BROWN }}>
                 I started in business and people operations, where I saw how clunky tools waste time.
-                That led me to UX—combining <strong>analytical problem‑solving</strong> with
-                <strong> creative design</strong>. Today, I run projects end‑to‑end: from research and
+                That led me to UX—combining <strong>analytical problem-solving</strong> with
+                <strong> creative design</strong>. Today, I run projects end-to-end: from research and
                 information architecture to prototyping and visual design.
               </p>
               <p className="text-lg leading-relaxed max-w-prose" style={{ color: WARM_BROWN }}>
                 I’ve shipped client portals, onboarding flows, and internal tools that reduce friction
-                for non‑technical teams. I care about evidence, inclusivity, and craft—because details
+                for non-technical teams. I care about evidence, inclusivity, and craft—because details
                 are how we earn trust.
               </p>
               {/* Example inline link with sparkle (use anywhere) */}
@@ -385,7 +385,7 @@ const AboutPage = () => {
       </section>
 
       {/* ===================== PROCESS CTA (theme-matched buttons) ===================== */}
-      <section className="relative pt-12 md:pt-16 pb-8 md:pb-10 -mb-1 bg-[#FAFAF7]">
+      <section className="relative pt-12 md:pt-16 pb-8 md:pb-10 -mb-1 bg-[#FEE6D4]">
         <div className="relative overflow-hidden rounded-[28px] md:rounded-[36px] border border-[hsl(var(--border)/0.7)]">
           {/* gentle radial glow */}
           <div
