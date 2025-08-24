@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { Calendar, User, Tag, Search, ArrowRight } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { Calendar, User, Tag, Search as SearchIcon, ArrowRight, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-// styles
+/* ==================== Styles ==================== */
 const grad =
   'bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] text-white font-semibold shadow-lg';
 const outline = 'border border-[hsl(var(--border))]';
@@ -15,12 +16,60 @@ const ghostBtn =
 const keyFor = (p) => p.slug ?? p.id;
 const imgFor = (p) => p.cover || p.heroImage || '';
 
+/* ==================== Sparkle utilities ==================== */
+const SparkleOverlay = ({ active }) => {
+  const prefersReducedMotion = useReducedMotion();
+  if (prefersReducedMotion) return null;
+  return (
+    <motion.span
+      initial={{ opacity: 0 }}
+      animate={{ opacity: active ? 1 : 0 }}
+      className="pointer-events-none absolute inset-0"
+    >
+      {[...Array(6)].map((_, i) => {
+        const x = (i * 17 + 8) % 100;
+        const y = (i * 29 + 12) % 100;
+        const delay = (i * 0.12) % 1.4;
+        return (
+          <motion.span
+            key={i}
+            className="absolute"
+            style={{ left: `${x}%`, top: `${y}%` }}
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: [0, 1, 0], scale: [0.6, 1.1, 0.6] }}
+            transition={{ duration: 1.4, repeat: Infinity, delay, ease: 'easeInOut' }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" className="text-[hsl(var(--primary))]">
+              <path fill="currentColor" d="M12 2l1.6 4.7L18 8.4l-4.2 2.9L14.8 16 12 13.7 9.2 16l1-4.7L6 8.4l4.4-1.7L12 2z" />
+            </svg>
+          </motion.span>
+        );
+      })}
+    </motion.span>
+  );
+};
+
+const LinkWithSparkle = ({ to, children, className = '' }) => {
+  const [hover, setHover] = useState(false);
+  return (
+    <span className="relative" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+      <Link to={to} className={`relative inline-flex items-center gap-1.5 font-semibold underline decoration-transparent hover:decoration-current transition ${className}`}>
+        {children}
+      </Link>
+      <SparkleOverlay active={hover} />
+    </span>
+  );
+};
+
+/* ==================== Page ==================== */
 const BlogPage = ({
   posts = [],
   title = 'All Articles',
   description = 'Insights on UX, UI, and product from Jessabel.Art',
 }) => {
-  // --------- Ordering ----------
+  const prefersReducedMotion = useReducedMotion();
+
+  /* Ordering */
   const ordered = useMemo(() => {
     const arr = posts.filter(Boolean);
     const hasDates = arr.some((p) => p.date);
@@ -28,11 +77,11 @@ const BlogPage = ({
     return [...arr].sort((a, b) => {
       const da = a.date ? new Date(a.date).getTime() : 0;
       const db = b.date ? new Date(b.date).getTime() : 0;
-      return db - da; // newest first
+      return db - da;
     });
   }, [posts]);
 
-  // --------- Search / Tag filter ----------
+  /* Search / Tag */
   const allTags = useMemo(() => {
     const t = new Set();
     ordered.forEach((p) => (p.tags || []).forEach((tag) => t.add(tag)));
@@ -47,7 +96,7 @@ const BlogPage = ({
     return ordered.filter((p) => {
       const matchesQ =
         !q ||
-        p.title.toLowerCase().includes(q) ||
+        p.title?.toLowerCase().includes(q) ||
         (p.excerpt || '').toLowerCase().includes(q) ||
         (p.tags || []).some((t) => t.toLowerCase().includes(q)) ||
         (p.category || '').toLowerCase().includes(q);
@@ -56,8 +105,11 @@ const BlogPage = ({
     });
   }, [ordered, query, activeTag]);
 
+  /* Hover state for sparkle buttons */
+  const [btnHover, setBtnHover] = useState({ clear: false, read: {}, copy: {}, footer: false });
+
   return (
-    <div className="py-20">
+    <div className="py-20 bg-[#FAFAF7]">
       <Helmet>
         <title>Blog - Jessabel.Art</title>
         <meta name="description" content={description} />
@@ -75,15 +127,15 @@ const BlogPage = ({
             <p className="mt-2 text-[hsl(var(--muted-foreground))]">{description}</p>
           </div>
 
-        {/* Search */}
+          {/* Search */}
           <div className="w-full md:w-80">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2" size={16} />
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2" size={16} />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search articles…"
-                className="pl-9"
+                className="pl-9 focus:ring-2 focus:ring-[hsl(var(--accent))] focus:border-[hsl(var(--accent))]"
                 aria-label="Search articles"
               />
             </div>
@@ -101,41 +153,52 @@ const BlogPage = ({
               All
             </Button>
             {allTags.map((t) => (
-              <Button
-                key={t}
-                variant="ghost"
-                className={activeTag === t ? grad : ghostBtn}
-                onClick={() => setActiveTag(t === activeTag ? null : t)}
-              >
-                <Tag size={14} className="mr-2" />
-                {t}
-              </Button>
+              <motion.span key={t} whileHover={{ y: -1 }}>
+                <Button
+                  variant="ghost"
+                  className={activeTag === t ? grad : ghostBtn}
+                  onClick={() => setActiveTag(t === activeTag ? null : t)}
+                >
+                  <Tag size={14} className="mr-2" />
+                  {t}
+                </Button>
+              </motion.span>
             ))}
           </div>
         )}
 
         {/* Empty state */}
         {filtered.length === 0 && (
-          <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-8 text-center">
-            <p className="text-[hsl(var(--muted-foreground))]">No articles found. Try a different search or tag.</p>
-            <div className="mt-4">
+          <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-8 text-center relative overflow-hidden">
+            {!prefersReducedMotion && (
+              <motion.span
+                className="pointer-events-none absolute inset-0 opacity-20"
+                initial={{ x: '-120%' }}
+                animate={{ x: ['-120%', '120%'] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                style={{ background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.8), transparent)' }}
+              />
+            )}
+            <p className="relative text-[hsl(var(--muted-foreground))]">No articles found. Try a different search or tag.</p>
+            <div className="relative mt-4 inline-block" onMouseEnter={() => setBtnHover((s) => ({ ...s, clear: true }))} onMouseLeave={() => setBtnHover((s) => ({ ...s, clear: false }))}>
               <Button
                 onClick={() => {
                   setQuery('');
                   setActiveTag(null);
                 }}
                 variant="outline"
-                className={outline}
+                className={`${outline} hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition`}
               >
                 Clear filters
               </Button>
+              <SparkleOverlay active={btnHover.clear} />
             </div>
           </div>
         )}
 
         {/* Grid of posts */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((p) => {
+          {filtered.map((p, idx) => {
             const href = `/blog/${keyFor(p)}`;
             const img = imgFor(p);
             const dateStr =
@@ -146,23 +209,34 @@ const BlogPage = ({
                 day: 'numeric',
               });
 
+            const readHoverKey = `read-${idx}`;
+            const copyHoverKey = `copy-${idx}`;
+
             return (
-              <article
+              <motion.article
                 key={String(keyFor(p))}
-                className="group rounded-2xl overflow-hidden border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:shadow-xl transition-shadow flex flex-col"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.35 }}
+                whileHover={{ y: -4, boxShadow: '0 24px 50px -24px rgba(0,0,0,.25)' }}
+                className="group rounded-2xl overflow-hidden border border-[hsl(var(--border))] bg-[hsl(var(--card))] transition-shadow flex flex-col"
               >
                 {/* Cover */}
-                <Link to={href} className="block aspect-video bg-[hsl(var(--muted))/0.2] overflow-hidden">
+                <Link to={href} className="relative block aspect-video bg-[hsl(var(--muted))/0.2] overflow-hidden">
                   {img ? (
                     <img
                       src={img}
                       alt={p.coverAlt || p.heroAlt || ''}
-                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                       loading="lazy"
                       decoding="async"
                     />
                   ) : (
                     <div className="w-full h-full bg-[linear-gradient(135deg,#fa8a00,#fec200)]" />
+                  )}
+                  {!prefersReducedMotion && (
+                    <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   )}
                 </Link>
 
@@ -174,11 +248,11 @@ const BlogPage = ({
                     </span>
                   )}
 
-                  <Link to={href} className="block">
-                    <h2 className="text-xl font-bold text-[hsl(var(--foreground))] group-hover:underline">
+                  <LinkWithSparkle to={href} className="block">
+                    <h2 className="text-xl font-bold text-[hsl(var(--foreground))] [text-decoration-thickness:2px]">
                       {p.title}
                     </h2>
-                  </Link>
+                  </LinkWithSparkle>
 
                   {p.excerpt && (
                     <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))] line-clamp-3">
@@ -221,36 +295,70 @@ const BlogPage = ({
 
                   {/* CTA */}
                   <div className="mt-4 pt-3 flex items-center justify-between gap-2 border-t border-[hsl(var(--border))]">
-                    <Button asChild className={grad}>
-                      <Link to={href} className="inline-flex items-center gap-2">
-                        Read article <ArrowRight size={16} />
-                      </Link>
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className={outline}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const absolute = window.location.origin + href;
-                        window.navigator.clipboard?.writeText(absolute);
-                      }}
+                    {/* Read button with sweep & sparkles */}
+                    <span
+                      className="relative inline-block"
+                      onMouseEnter={() => setBtnHover((s) => ({ ...s, read: { ...s.read, [readHoverKey]: true } }))}
+                      onMouseLeave={() => setBtnHover((s) => ({ ...s, read: { ...s.read, [readHoverKey]: false } }))}
                     >
-                      Copy link
-                    </Button>
+                      <Button asChild className={`${grad} relative overflow-hidden`}>
+                        <Link to={href} className="inline-flex items-center gap-2">
+                          Read article <ArrowRight size={16} />
+                        </Link>
+                      </Button>
+                      {/* gradient sweep */}
+                      {!prefersReducedMotion && (
+                        <motion.span
+                          className="pointer-events-none absolute inset-0 opacity-30"
+                          initial={{ x: '-110%' }}
+                          animate={{ x: btnHover.read[readHoverKey] ? '110%' : '-110%' }}
+                          transition={{ duration: 1.8, ease: 'easeInOut' }}
+                          style={{ background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent)' }}
+                        />
+                      )}
+                      <SparkleOverlay active={!!btnHover.read[readHoverKey]} />
+                    </span>
+
+                    {/* Copy link button with accent fill on hover + sparkles */}
+                    <span
+                      className="relative inline-block"
+                      onMouseEnter={() => setBtnHover((s) => ({ ...s, copy: { ...s.copy, [copyHoverKey]: true } }))}
+                      onMouseLeave={() => setBtnHover((s) => ({ ...s, copy: { ...s.copy, [copyHoverKey]: false } }))}
+                    >
+                      <Button
+                        variant="outline"
+                        className={`${outline} transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const absolute = window.location.origin + href;
+                          window.navigator.clipboard?.writeText(absolute);
+                        }}
+                      >
+                        <LinkIcon size={16} className="mr-1" />
+                        Copy link
+                      </Button>
+                      <SparkleOverlay active={!!btnHover.copy[copyHoverKey]} />
+                    </span>
                   </div>
                 </div>
-              </article>
+              </motion.article>
             );
           })}
         </div>
 
         {/* Footer helper */}
         <div className="mt-10 text-center">
-          <Button asChild variant="outline" className={outline}>
-            <Link to="/blog">All Articles</Link>
-          </Button>
+          <span
+            className="relative inline-block"
+            onMouseEnter={() => setBtnHover((s) => ({ ...s, footer: true }))}
+            onMouseLeave={() => setBtnHover((s) => ({ ...s, footer: false }))}
+          >
+            <Button asChild variant="outline" className={`${outline} transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]`}>
+              <Link to="/blog">All Articles</Link>
+            </Button>
+            <SparkleOverlay active={btnHover.footer} />
+          </span>
         </div>
       </div>
     </div>

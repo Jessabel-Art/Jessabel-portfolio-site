@@ -1,11 +1,66 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { Calendar, User, ArrowLeft, ArrowRight, Clock, Share2, Copy, ListTree } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { Calendar, User, ArrowLeft, ArrowRight, Clock, Share2, Copy, ListTree, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 
+/* ==================== Sparkle utilities ==================== */
+const SparkleOverlay = ({ active }) => {
+  const prefersReducedMotion = useReducedMotion();
+  if (prefersReducedMotion) return null;
+  return (
+    <motion.span initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} className="pointer-events-none absolute inset-0">
+      {[...Array(6)].map((_, i) => {
+        const x = (i * 17 + 8) % 100;
+        const y = (i * 29 + 12) % 100;
+        const delay = (i * 0.12) % 1.4;
+        return (
+          <motion.span
+            key={i}
+            className="absolute"
+            style={{ left: `${x}%`, top: `${y}%` }}
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: [0, 1, 0], scale: [0.6, 1.1, 0.6] }}
+            transition={{ duration: 1.4, repeat: Infinity, delay, ease: 'easeInOut' }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" className="text-[hsl(var(--primary))]">
+              <path fill="currentColor" d="M12 2l1.6 4.7L18 8.4l-4.2 2.9L14.8 16 12 13.7 9.2 16l1-4.7L6 8.4l4.4-1.7L12 2z" />
+            </svg>
+          </motion.span>
+        );
+      })}
+    </motion.span>
+  );
+};
+
+const LinkWithSparkle = ({ to, children, className = '' }) => {
+  const [hover, setHover] = useState(false);
+  return (
+    <span className="relative inline-block" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+      <Link to={to} className={`relative inline-flex items-center gap-2 underline decoration-transparent hover:decoration-current transition ${className}`}>
+        {children}
+      </Link>
+      <SparkleOverlay active={hover} />
+    </span>
+  );
+};
+
+const AnchorWithSparkle = ({ href, onClick, children, className = '' }) => {
+  const [hover, setHover] = useState(false);
+  return (
+    <span className="relative inline-block" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+      <a href={href} onClick={onClick} className={`relative block ${className}`}>{children}</a>
+      <SparkleOverlay active={hover} />
+    </span>
+  );
+};
+
+/* ==================== Page ==================== */
 const BlogPostPage = ({ posts = [] }) => {
+  const prefersReducedMotion = useReducedMotion();
+
   // Support either /blog/:id or /blog/:postId
   const { id, postId } = useParams();
   const targetId = id ?? postId;
@@ -104,15 +159,15 @@ const BlogPostPage = ({ posts = [] }) => {
 
   if (!post) {
     return (
-      <div className="py-20 text-center">
+      <div className="py-20 text-center bg-[#FAFAF7]">
         <Helmet>
           <title>Post Not Found - Jessabel.Art</title>
         </Helmet>
         <h1 className="text-4xl font-bold text-[hsl(var(--foreground))]">404 - Post Not Found</h1>
         <p className="mt-4 text-lg text-[hsl(var(--muted-foreground))]">The article you are looking for does not exist.</p>
-        <Link to="/blog" className="mt-8 inline-flex items-center gap-2 text-[hsl(var(--primary))] hover:underline">
+        <LinkWithSparkle to="/blog" className="mt-8 text-[hsl(var(--primary))]">
           <ArrowLeft size={16} /> Back to All Articles
-        </Link>
+        </LinkWithSparkle>
       </div>
     );
   }
@@ -197,7 +252,7 @@ const BlogPostPage = ({ posts = [] }) => {
   }, [sanitizedHtml]);
 
   return (
-    <div className="py-20">
+    <div className="py-20 bg-[#FAFAF7]">
       <Helmet>
         <title>{post.title} - Jessabel.Art</title>
         <meta name="description" content={post.excerpt} />
@@ -231,16 +286,17 @@ const BlogPostPage = ({ posts = [] }) => {
               <ul className="space-y-2 text-sm">
                 {toc.map((item) => (
                   <li key={item.id} className={item.level === 3 ? 'ml-4' : ''}>
-                    <a
+                    <AnchorWithSparkle
                       href={`#${item.id}`}
-                      className={`block rounded px-2 py-1 transition-colors ${
-                        activeId === item.id
+                      className={`
+                        rounded px-2 py-1 transition-colors
+                        ${activeId === item.id
                           ? 'text-[hsl(var(--foreground))] bg-[hsl(var(--foreground))/0.06]'
-                          : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]'
-                      }`}
+                          : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]'}
+                      `}
                     >
                       {item.text}
-                    </a>
+                    </AnchorWithSparkle>
                   </li>
                 ))}
               </ul>
@@ -252,23 +308,34 @@ const BlogPostPage = ({ posts = [] }) => {
         <div>
           {/* Back to All Articles */}
           <div className="mb-8">
-            <Button asChild variant="outline" className={`${outline} rounded-full`}>
-              <Link to="/blog" className="inline-flex items-center gap-2">
-                <ArrowLeft size={16} /> All Articles
-              </Link>
-            </Button>
+            <span className="relative inline-block">
+              <Button asChild variant="outline" className={`${outline} rounded-full transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]`}>
+                <Link to="/blog" className="inline-flex items-center gap-2">
+                  <ArrowLeft size={16} /> All Articles
+                </Link>
+              </Button>
+              <SparkleOverlay active />
+            </span>
           </div>
 
           {/* Hero / Meta band */}
-          <div className="mb-12 rounded-3xl bg-[#FFEFD2] p-5 sm:p-7 md:p-8">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
+            className="mb-12 rounded-3xl bg-[#FFEFD2] p-5 sm:p-7 md:p-8 overflow-hidden"
+          >
             {coverUrl ? (
               <div className="aspect-video w-full overflow-hidden rounded-xl mb-6 bg-[hsl(var(--muted))/0.2]">
-                <img
+                <motion.img
                   src={coverUrl}
                   alt={post.coverAlt || post.heroAlt || ''}
                   className="w-full h-full object-cover"
                   loading="lazy"
                   decoding="async"
+                  initial={{ scale: 1.02 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
                 />
               </div>
             ) : (
@@ -302,14 +369,20 @@ const BlogPostPage = ({ posts = [] }) => {
 
               {/* Share */}
               <span className="ml-auto inline-flex items-center gap-2">
-                <Button size="sm" variant="outline" className="h-8 px-3 rounded-full" onClick={handleWebShare} title="Share">
-                  <Share2 size={14} className="mr-2" />
-                  Share
-                </Button>
-                <Button size="sm" variant="outline" className="h-8 px-3 rounded-full" onClick={handleCopyLink} title="Copy link">
-                  <Copy size={14} className="mr-2" />
-                  Copy
-                </Button>
+                <span className="relative inline-block">
+                  <Button size="sm" variant="outline" className="h-8 px-3 rounded-full transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]" onClick={handleWebShare} title="Share">
+                    <Share2 size={14} className="mr-2" />
+                    Share
+                  </Button>
+                  <SparkleOverlay active />
+                </span>
+                <span className="relative inline-block">
+                  <Button size="sm" variant="outline" className="h-8 px-3 rounded-full transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]" onClick={handleCopyLink} title="Copy link">
+                    <Copy size={14} className="mr-2" />
+                    Copy
+                  </Button>
+                  <SparkleOverlay active />
+                </span>
               </span>
             </div>
 
@@ -323,50 +396,63 @@ const BlogPostPage = ({ posts = [] }) => {
                 ))}
               </div>
             )}
-          </div>
+          </motion.div>
 
           {/* Mobile ToC */}
           {toc.length > 0 && (
             <div className="lg:hidden mb-6">
-              <button
+              <motion.button
                 type="button"
                 onClick={() => setTocOpen((v) => !v)}
                 className="w-full flex items-center justify-between rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-3"
                 aria-expanded={tocOpen}
                 aria-controls="mobile-toc"
+                whileTap={{ scale: 0.98 }}
               >
                 <span className="inline-flex items-center gap-2 font-semibold">
                   <ListTree size={16} /> On this page
                 </span>
                 <span className="text-sm text-[hsl(var(--muted-foreground))]">{tocOpen ? 'Hide' : 'Show'}</span>
-              </button>
-              {tocOpen && (
-                <nav id="mobile-toc" className="mt-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-3">
+              </motion.button>
+              <motion.nav
+                id="mobile-toc"
+                initial={false}
+                animate={{ height: tocOpen ? 'auto' : 0, opacity: tocOpen ? 1 : 0 }}
+                className="overflow-hidden"
+              >
+                <div className="mt-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-3">
                   <ul className="space-y-2 text-sm">
                     {toc.map((item) => (
                       <li key={item.id} className={item.level === 3 ? 'ml-4' : ''}>
-                        <a
+                        <AnchorWithSparkle
                           href={`#${item.id}`}
                           onClick={() => setTocOpen(false)}
-                          className={`block rounded px-2 py-1 ${
-                            activeId === item.id
+                          className={`
+                            rounded px-2 py-1 transition-colors
+                            ${activeId === item.id
                               ? 'text-[hsl(var(--foreground))] bg-[hsl(var(--foreground))/0.06]'
-                              : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]'
-                          }`}
+                              : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]'}
+                          `}
                         >
                           {item.text}
-                        </a>
+                        </AnchorWithSparkle>
                       </li>
                     ))}
                   </ul>
-                </nav>
-              )}
+                </div>
+              </motion.nav>
             </div>
           )}
 
           {/* Content (wrapped in a readable card) */}
           {sanitizedHtml ? (
-            <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 md:p-8 shadow-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.35 }}
+              className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 md:p-8 shadow-sm"
+            >
               <article
                 ref={articleRef}
                 className="
@@ -386,7 +472,7 @@ const BlogPostPage = ({ posts = [] }) => {
                 // Ensure post.content is sanitized HTML upstream
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
-            </div>
+            </motion.div>
           ) : (
             <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6">
               <p className="text-[hsl(var(--muted-foreground))]">
@@ -398,36 +484,69 @@ const BlogPostPage = ({ posts = [] }) => {
           {/* Prev / Next */}
           <div className="mt-16 pt-8 border-t border-[hsl(var(--border))] flex flex-col sm:flex-row gap-4 sm:gap-0 justify-between items-stretch sm:items-center">
             {prevPost ? (
-              <Button asChild variant="outline" className={`${outline} rounded-full`}>
-                <Link to={`/blog/${keyFor(prevPost)}`} className="flex items-center gap-2">
-                  <ArrowLeft size={16} />
-                  <span className="hidden sm:inline">Previous:</span> {prevPost.title}
-                </Link>
-              </Button>
+              <motion.span whileHover={{ y: -2 }} className="inline-block">
+                <Button asChild variant="outline" className={`${outline} rounded-full transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]`}>
+                  <Link to={`/blog/${keyFor(prevPost)}`} className="flex items-center gap-2">
+                    <ArrowLeft size={16} />
+                    <span className="hidden sm:inline">Previous:</span> {prevPost.title}
+                  </Link>
+                </Button>
+              </motion.span>
             ) : (
               <span />
             )}
 
             {nextPost ? (
-              <Button asChild className={`${grad} rounded-full`}>
-                <Link to={`/blog/${keyFor(nextPost)}`} className="flex items-center gap-2">
-                  <span className="hidden sm:inline">Next:</span> {nextPost.title}
-                  <ArrowRight size={16} />
-                </Link>
-              </Button>
+              <span className="relative inline-block">
+                <motion.span whileHover={{ y: -2, boxShadow: '0 18px 40px -20px rgba(0,0,0,.25)' }} className="inline-block">
+                  <Button asChild className={`${grad} rounded-full relative overflow-hidden`}>
+                    <Link to={`/blog/${keyFor(nextPost)}`} className="flex items-center gap-2">
+                      <span className="hidden sm:inline">Next:</span> {nextPost.title}
+                      <ArrowRight size={16} />
+                    </Link>
+                  </Button>
+                </motion.span>
+                {/* gradient sweep + sparkles */}
+                {!prefersReducedMotion && (
+                  <motion.span
+                    className="pointer-events-none absolute inset-0 opacity-30"
+                    initial={{ x: '-110%' }}
+                    whileHover={{}}
+                    animate={{ x: ['-110%', '110%'] }}
+                    transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{ background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent)' }}
+                  />
+                )}
+                <SparkleOverlay active />
+              </span>
             ) : (
-              <Button asChild variant="outline" className={`${outline} rounded-full`}>
-                <Link to="/blog" className="flex items-center gap-2">
-                  Back to All Articles <ArrowRight size={16} />
-                </Link>
-              </Button>
+              <span className="relative inline-block">
+                <motion.span whileHover={{ y: -2 }} className="inline-block">
+                  <Button asChild variant="outline" className={`${outline} rounded-full transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]`}>
+                    <Link to="/blog" className="flex items-center gap-2">
+                      Back to All Articles <ArrowRight size={16} />
+                    </Link>
+                  </Button>
+                </motion.span>
+                <SparkleOverlay active />
+              </span>
             )}
           </div>
 
           {/* Extra share (X / LinkedIn) */}
           <div className="mt-6 flex gap-3 justify-center">
-            <Button variant="ghost" className="rounded-full" onClick={() => shareTo('x')}>Share on X</Button>
-            <Button variant="ghost" className="rounded-full" onClick={() => shareTo('linkedin')}>Share on LinkedIn</Button>
+            <span className="relative inline-block">
+              <Button variant="ghost" className="rounded-full transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]" onClick={() => shareTo('x')}>
+                <LinkIcon size={16} className="mr-1" /> Share on X
+              </Button>
+              <SparkleOverlay active />
+            </span>
+            <span className="relative inline-block">
+              <Button variant="ghost" className="rounded-full transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]" onClick={() => shareTo('linkedin')}>
+                <LinkIcon size={16} className="mr-1" /> Share on LinkedIn
+              </Button>
+              <SparkleOverlay active />
+            </span>
           </div>
         </div>
       </div>
