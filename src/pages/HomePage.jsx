@@ -45,17 +45,63 @@ const grainDataUrl =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAFo9M/3AAAAL0lEQVQ4T2NkoBAwUqifgXHfP2H4P0YgGQwxgGkY4r9GQqCkQzGg0E0GgYw4Gq4QpGgAAP0v3yZc8w2wAAAAASUVORK5CYII=';
 
 /* ------------------------------------------------
+   Tiny confetti burst (no external libs)
+--------------------------------------------------*/
+const ConfettiBurst = ({ trigger, prefersReducedMotion }) => {
+  const [show, setShow] = useState(false);
+  React.useEffect(() => {
+    if (!trigger || prefersReducedMotion) return;
+    setShow(true);
+    const t = setTimeout(() => setShow(false), 1400);
+    return () => clearTimeout(t);
+  }, [trigger, prefersReducedMotion]);
+  if (!show) return null;
+
+  const colors = ['#ff3ea5', '#00c2b2', '#fec200', '#6a5cff', '#34d399'];
+  const pieces = Array.from({ length: 30 });
+
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[70] overflow-hidden">
+      {pieces.map((_, i) => {
+        const left = Math.random() * 100;
+        const delay = Math.random() * 0.15;
+        const rotate = Math.floor(Math.random() * 360);
+        const size = 6 + Math.random() * 8;
+        return (
+          <motion.span
+            key={`${trigger}-${i}`}
+            className="absolute rounded-sm"
+            style={{
+              left: `${left}%`,
+              top: '-10px',
+              width: size,
+              height: size,
+              background: colors[i % colors.length],
+            }}
+            initial={{ y: -20, opacity: 0, rotate: 0 }}
+            animate={{ y: ['20vh', '60vh', '100vh'], opacity: [1, 1, 0], rotate }}
+            transition={{ duration: 1.25 + Math.random() * 0.35, delay, ease: 'easeOut' }}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+/* ------------------------------------------------
    Page
 --------------------------------------------------*/
 const HomePage = () => {
   const prefersReducedMotion = useReducedMotion();
 
+  const [burst, setBurst] = useState(0);
   const handleConsultationClick = () => {
     toast({
       title: 'Let’s make something delightful ✨',
       description:
         'Taking you to the contact page to start a quick consultation.',
     });
+    setBurst(Date.now()); // trigger confetti
   };
 
   // Skills data with tags for filtering
@@ -211,15 +257,22 @@ const HomePage = () => {
   /* ==============================================================
      Render
   ============================================================== */
+  const HEADLINE =
+    'I design seamless, human-centered digital experiences.';
+  const headlineWords = useMemo(() => HEADLINE.split(' '), []);
+
   return (
     <div className="overflow-x-hidden bg-[#FAFAF7]">
       <Helmet>
         <title>Jessabel.Art · UX Designer</title>
         <meta
           name="description"
-          content="Research‑driven UX, clean UI, and design systems that scale. I turn ideas into seamless, human‑centered digital experiences."
+          content="Research-driven UX, clean UI, and design systems that scale. I turn ideas into seamless, human-centered digital experiences."
         />
       </Helmet>
+
+      {/* Confetti overlay */}
+      <ConfettiBurst trigger={burst} prefersReducedMotion={prefersReducedMotion} />
 
       {/* Scroll progress bar */}
       <motion.div
@@ -286,7 +339,7 @@ const HomePage = () => {
             transition={{ duration: 0.5 }}
             className="max-w-5xl"
           >
-            {/* Headline */}
+            {/* Staggered Headline */}
             <h1
               className="tracking-tight text-[clamp(2.1rem,7vw,5.2rem)] leading-[1.06] text-white"
               style={{
@@ -297,14 +350,24 @@ const HomePage = () => {
                 WebkitTextStroke: '2px rgba(0,0,0,.35)',
               }}
             >
-              I design seamless, human‑centered digital experiences.
+              {headlineWords.map((w, i) => (
+                <motion.span
+                  key={i}
+                  className="inline-block mr-2"
+                  initial={prefersReducedMotion ? { y: 0, opacity: 1 } : { y: 18, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: prefersReducedMotion ? 0 : 0.02 * i, duration: 0.45, ease: 'easeOut' }}
+                >
+                  {w}
+                </motion.span>
+              ))}
             </h1>
 
             <p
               className="mt-5 sm:mt-6 max-w-[45ch] sm:max-w-3xl text-base sm:text-xl text-[#fff8e7] font-medium"
               style={{ textShadow: '0 3px 12px rgba(0,0,0,.55)' }}
             >
-              Research‑driven UX, thoughtful UI, and design systems that scale — so your product feels
+              Research-driven UX, thoughtful UI, and design systems that scale — so your product feels
               intuitive, inclusive, and measurable from day one.
             </p>
 
@@ -327,7 +390,7 @@ const HomePage = () => {
                   <Link to="/contact" aria-label="Start a project">
                     Start a Project
                     <ArrowRight className="ml-2 h-5 w-5" />
-                    {/* Ripple pass */}
+                    {/* Gradient sweep */}
                     {!prefersReducedMotion && (
                       <motion.span
                         aria-hidden="true"
@@ -359,6 +422,16 @@ const HomePage = () => {
             </div>
           </motion.div>
         </div>
+
+        {/* Wavy divider to off-white */}
+        <svg
+          className="absolute -bottom-[1px] left-0 right-0 w-full text-[#FAFAF7]"
+          viewBox="0 0 1440 80"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path d="M0,64 C360,0 1080,128 1440,32 L1440,80 L0,80 Z" fill="currentColor" />
+        </svg>
       </section>
 
       {/* ===================== WHAT I BRING ===================== */}
@@ -651,6 +724,16 @@ const HomePage = () => {
             </div>
           </div>
         </div>
+
+        {/* Divider to CTA’s offwhite */}
+        <svg
+          className="absolute -bottom-[1px] left-0 right-0 w-full text-[#FAFAF7]"
+          viewBox="0 0 1440 80"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path d="M0,64 C360,0 1080,128 1440,32 L1440,80 L0,80 Z" fill="currentColor" />
+        </svg>
       </section>
 
       {/* ===================== CTA ===================== */}
@@ -663,6 +746,35 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 overflow-hidden border border-[hsl(var(--border))] bg-white/90 backdrop-blur"
           >
+            {/* Morphing gradient blob */}
+            {!prefersReducedMotion && (
+              <motion.svg
+                viewBox="0 0 600 600"
+                className="absolute -z-10 left-1/2 -translate-x-1/2 -top-28 w-[54rem] opacity-[.23]"
+                fill="url(#cta-grad)"
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient id="cta-grad" x1="0" x2="1">
+                    <stop offset="0" stopColor="#ff3ea5" />
+                    <stop offset="1" stopColor="#00c2b2" />
+                  </linearGradient>
+                </defs>
+                <motion.path
+                  initial={{
+                    d: 'M300,520C430,520 540,420 520,300C500,180 380,80 260,100C140,120 60,220 80,340C100,460 170,520 300,520Z',
+                  }}
+                  animate={{
+                    d: [
+                      'M300,520C430,520 540,420 520,300C500,180 380,80 260,100C140,120 60,220 80,340C100,460 170,520 300,520Z',
+                      'M300,520C410,540 560,420 520,300C480,180 380,80 260,100C160,140 60,220 100,340C140,460 200,500 300,520Z',
+                    ],
+                  }}
+                  transition={{ repeat: Infinity, duration: 10, ease: 'easeInOut', repeatType: 'mirror' }}
+                />
+              </motion.svg>
+            )}
+
             {/* radial glow behind */}
             <div
               className="pointer-events-none absolute -inset-16"
@@ -670,16 +782,6 @@ const HomePage = () => {
               style={{
                 background:
                   'radial-gradient(600px circle at 50% 0%, rgba(255,206,158,.25), transparent 60%)',
-              }}
-            />
-            {/* soft vertical wash */}
-            <div
-              className="pointer-events-none absolute inset-0 opacity-60"
-              aria-hidden="true"
-              style={{
-                background:
-                  'linear-gradient(180deg, rgba(255,249,240,.6), rgba(255,249,240,0))',
-                mixBlendMode: 'soft-light',
               }}
             />
 

@@ -21,7 +21,8 @@
   --btn-violet: #6a5cff;  /* used in client stepper gradients */
 
   /* Site theme */
-  --background: 47 97% 82%;         /* warm, bright base */
+  /* NEW: Off-white base (nearly white, not pure white) ≈ #FAFAF7 */
+  --background: 48 46% 97%;
   --foreground: 224 44% 8%;
 
   --card: 0 0% 100%;
@@ -44,11 +45,14 @@
 
   /* ✅ Warm system (replace gray with warm brown across site) */
   --warm-brown-hex: #5a3a2a;
-  --muted: 36 100% 92%;
+
+  /* Slightly lighter muted on the off-white base */
+  --muted: 36 100% 96%;
   --muted-foreground: 22 35% 28%;   /* warm brown instead of gray */
 
-  --border: 30 40% 84%;
-  --input: 30 40% 84%;
+  /* Borders a touch darker so they still show up on the new base */
+  --border: 30 28% 82%;
+  --input: 30 28% 82%;
   --ring: 28 100% 49%;
 
   --destructive: 0 84% 60%;
@@ -195,6 +199,7 @@ a { color: inherit; }
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Slightly richer, slightly darker for legibility on lighter site base */
   filter: saturate(1.03) contrast(1.03) brightness(.95);
 }
 .hero-overlay {
