@@ -38,7 +38,7 @@ const toInitials = (full = '') =>
     .slice(0, 2)
     .join('');
 
-const hueFor = (i) => (i * 47) % 360;
+const hueFor = (i: number) => (i * 47) % 360;
 
 const grainDataUrl =
   // tiny repeating noise texture (base64)
@@ -47,7 +47,7 @@ const grainDataUrl =
 /* ------------------------------------------------
    Tiny confetti burst (no external libs)
 --------------------------------------------------*/
-const ConfettiBurst = ({ trigger, prefersReducedMotion }) => {
+const ConfettiBurst = ({ trigger, prefersReducedMotion }: { trigger: number; prefersReducedMotion: boolean }) => {
   const [show, setShow] = useState(false);
   React.useEffect(() => {
     if (!trigger || prefersReducedMotion) return;
@@ -106,75 +106,21 @@ const HomePage = () => {
 
   // Skills data with tags for filtering
   const expertise = [
-    {
-      icon: LayoutGrid,
-      title: 'UX/UI Design',
-      description: 'Intuitive, accessible, visually engaging interfaces.',
-      tags: ['UI', 'Systems'],
-    },
-    {
-      icon: Lightbulb,
-      title: 'Prototyping',
-      description: 'Interactive mockups for rapid iteration and clarity.',
-      tags: ['UI', 'Systems'],
-    },
-    {
-      icon: Users,
-      title: 'User Research',
-      description: 'Testing, surveys, and observation for real insights.',
-      tags: ['Research'],
-    },
-    {
-      icon: PenTool,
-      title: 'Branding',
-      description: 'Cohesive, memorable systems that scale.',
-      tags: ['Brand'],
-    },
-    {
-      icon: BarChart3,
-      title: 'UX Strategy',
-      description: 'Business goals aligned to user expectations.',
-      tags: ['Systems', 'Biz'],
-    },
-    {
-      icon: Briefcase,
-      title: 'Career & Biz Support',
-      description: 'Roadmaps, positioning, and GTM ops that work.',
-      tags: ['Biz'],
-    },
+    { icon: LayoutGrid, title: 'UX/UI Design', description: 'Intuitive, accessible, visually engaging interfaces.', tags: ['UI', 'Systems'] },
+    { icon: Lightbulb, title: 'Prototyping', description: 'Interactive mockups for rapid iteration and clarity.', tags: ['UI', 'Systems'] },
+    { icon: Users, title: 'User Research', description: 'Testing, surveys, and observation for real insights.', tags: ['Research'] },
+    { icon: PenTool, title: 'Branding', description: 'Cohesive, memorable systems that scale.', tags: ['Brand'] },
+    { icon: BarChart3, title: 'UX Strategy', description: 'Business goals aligned to user expectations.', tags: ['Systems', 'Biz'] },
+    { icon: Briefcase, title: 'Career & Biz Support', description: 'Roadmaps, positioning, and GTM ops that work.', tags: ['Biz'] },
   ];
 
   const reviews = [
-    {
-      name: 'Alicia M., Founder',
-      quote:
-        'Jess turned our messy idea into a clear, lovable product flow.',
-    },
-    {
-      name: 'Derrick P., Product Lead',
-      quote:
-        'Stakeholders finally understood the vision after her prototype.',
-    },
-    {
-      name: 'Lena R., Marketing Director',
-      quote:
-        'Brand system feels bold yet usable across all channels.',
-    },
-    {
-      name: 'Mateo S., Engineering Manager',
-      quote:
-        'Design handoff was a dream—clean files and thoughtful states.',
-    },
-    {
-      name: 'Priya K., Startup CEO',
-      quote:
-        'Customers stopped getting lost. Time-to-value went way up.',
-    },
-    {
-      name: 'Nora T., Ops Lead',
-      quote:
-        'Workshops were focused, friendly, and actually productive.',
-    },
+    { name: 'Alicia M., Founder', quote: 'Jess turned our messy idea into a clear, lovable product flow.' },
+    { name: 'Derrick P., Product Lead', quote: 'Stakeholders finally understood the vision after her prototype.' },
+    { name: 'Lena R., Marketing Director', quote: 'Brand system feels bold yet usable across all channels.' },
+    { name: 'Mateo S., Engineering Manager', quote: 'Design handoff was a dream—clean files and thoughtful states.' },
+    { name: 'Priya K., Startup CEO', quote: 'Customers stopped getting lost. Time-to-value went way up.' },
+    { name: 'Nora T., Ops Lead', quote: 'Workshops were focused, friendly, and actually productive.' },
   ];
 
   const ACCENTS = [
@@ -206,7 +152,7 @@ const HomePage = () => {
   /* ----------------------------
      Hero parallax + spotlight
   -----------------------------*/
-  const heroRef = useRef(null);
+  const heroRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress: heroProg } = useScroll({
     target: heroRef,
     offset: ['start start', 'end start'],
@@ -214,7 +160,7 @@ const HomePage = () => {
   const heroY = useTransform(heroProg, [0, 1], ['0%', '-12%']);
 
   const [cursor, setCursor] = useState({ x: 50, y: 50 });
-  const onHeroMouseMove = (e) => {
+  const onHeroMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (prefersReducedMotion) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -226,7 +172,7 @@ const HomePage = () => {
      Magnetic primary button
   -----------------------------*/
   const [mag, setMag] = useState({ x: 0, y: 0 });
-  const onMagMove = (e) => {
+  const onMagMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (prefersReducedMotion) return;
     const r = e.currentTarget.getBoundingClientRect();
     const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
@@ -239,16 +185,16 @@ const HomePage = () => {
      Testimonials marquee control
   -----------------------------*/
   const [paused, setPaused] = useState(false);
-  const rowRef = useRef(null);
+  const rowRef = useRef<HTMLDivElement | null>(null);
 
   // Simple mobile pager (scrolls the row; desktop continues marquee)
   const [page, setPage] = useState(0);
-  const pagerTo = (i) => {
+  const pagerTo = (i: number) => {
     setPage(i);
     setPaused(true);
-    const el = rowRef.current;
+    const el = rowRef.current as HTMLDivElement | null;
     if (!el) return;
-    const card = el.querySelectorAll('[data-tcard]')[i];
+    const card = el.querySelectorAll('[data-tcard]')[i] as HTMLElement | undefined;
     if (card?.scrollIntoView) {
       card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
@@ -257,12 +203,11 @@ const HomePage = () => {
   /* ==============================================================
      Render
   ============================================================== */
-  const HEADLINE =
-    'I design seamless, human-centered digital experiences.';
+  const HEADLINE = 'I design seamless, human-centered digital experiences.';
   const headlineWords = useMemo(() => HEADLINE.split(' '), []);
 
   return (
-    <div className="overflow-x-hidden bg-[#FAFAF7]">
+    <div className="overflow-x-hidden bg-[#FEE6D4]">
       <Helmet>
         <title>Jessabel.Art · UX Designer</title>
         <meta
@@ -296,7 +241,7 @@ const HomePage = () => {
           className="hero-image"
           loading="eager"
           decoding="async"
-          fetchpriority="high"
+          fetchPriority="high"
           sizes="100vw"
           style={{ y: prefersReducedMotion ? 0 : heroY }}
         />
@@ -325,9 +270,7 @@ const HomePage = () => {
               backgroundRepeat: 'repeat',
               backgroundSize: 'auto',
             }}
-            animate={{
-              backgroundPosition: ['0px 0px', '200px 120px', '0px 0px'],
-            }}
+            animate={{ backgroundPosition: ['0px 0px', '200px 120px', '0px 0px'] }}
             transition={{ duration: 18, ease: 'linear', repeat: Infinity }}
           />
         )}
@@ -390,7 +333,6 @@ const HomePage = () => {
                   <Link to="/contact" aria-label="Start a project">
                     Start a Project
                     <ArrowRight className="ml-2 h-5 w-5" />
-                    {/* Gradient sweep */}
                     {!prefersReducedMotion && (
                       <motion.span
                         aria-hidden="true"
@@ -423,9 +365,9 @@ const HomePage = () => {
           </motion.div>
         </div>
 
-        {/* Wavy divider to off-white */}
+        {/* Wavy divider to body color (#FEE6D4) */}
         <svg
-          className="absolute -bottom-[1px] left-0 right-0 w-full text-[#FAFAF7]"
+          className="absolute -bottom-[1px] left-0 right-0 w-full text-[#FEE6D4]"
           viewBox="0 0 1440 80"
           preserveAspectRatio="none"
           aria-hidden="true"
@@ -435,7 +377,7 @@ const HomePage = () => {
       </section>
 
       {/* ===================== WHAT I BRING ===================== */}
-      <section className="relative z-10 -mt-4 md:-mt-8 py-12 sm:py-14 md:py-20 bg-[#FAFAF7] rounded-t-[24px] md:rounded-t-[28px] shadow-2xl">
+      <section className="relative z-10 -mt-4 md:-mt-8 py-12 sm:py-14 md:py-20 bg-[#FEE6D4] rounded-t-[24px] md:rounded-t-[28px] shadow-2xl">
         {/* Soft top shadow */}
         <div className="pointer-events-none absolute -top-10 inset-x-0 h-10 shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]" />
 
@@ -445,7 +387,6 @@ const HomePage = () => {
               What I Bring to Every Project
             </h2>
             <div className="relative h-1 w-36 sm:w-40 rounded overflow-hidden">
-              {/* shimmer line */}
               <div className="absolute inset-0 bg-[linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]" />
               {!prefersReducedMotion && (
                 <motion.span
@@ -461,7 +402,7 @@ const HomePage = () => {
             </p>
           </div>
 
-          {/* Filter chips (with gradient shimmer when active) */}
+          {/* Filter chips */}
           <div className="-mx-4 px-4 sm:mx-0 sm:px-0 mb-6 sm:mb-8 overflow-x-auto whitespace-nowrap sm:whitespace-normal no-scrollbar">
             <div className="flex gap-2 sm:flex-wrap">
               {ALL_CHIPS.map((chip) => {
@@ -479,7 +420,6 @@ const HomePage = () => {
                     aria-pressed={active}
                   >
                     {chip}
-                    {/* active shimmer */}
                     {active && !prefersReducedMotion && (
                       <motion.span
                         className="pointer-events-none absolute inset-0 rounded-full"
@@ -530,7 +470,6 @@ const HomePage = () => {
                   >
                     <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accent.top}`} />
                     <div className="relative h-full rounded-2xl border border-[hsl(var(--border))] bg-white/95 backdrop-blur-sm transition-all p-5 sm:p-7 flex flex-col">
-                      {/* icon with pop glow */}
                       <motion.div
                         className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl ${accent.chip} bg-opacity-20 flex items-center justify-center mb-3 sm:mb-4`}
                         whileHover={
@@ -548,12 +487,7 @@ const HomePage = () => {
                         {s.description}
                       </p>
 
-                      {/* Learn more reveal */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 6 }}
-                        whileHover={{ opacity: 1, y: 0 }}
-                        className="mt-4"
-                      >
+                      <motion.div initial={{ opacity: 0, y: 6 }} whileHover={{ opacity: 1, y: 0 }} className="mt-4">
                         <Link
                           to={`/portfolio#${slug}`}
                           className="inline-flex items-center text-sm font-semibold text-[hsl(var(--accent-foreground))] hover:underline"
@@ -592,7 +526,7 @@ const HomePage = () => {
             </button>
           </div>
 
-          {/* Row: marquee on desktop, scrollable on mobile */}
+          {/* Row */}
           <div
             className="relative"
             style={{
@@ -602,17 +536,12 @@ const HomePage = () => {
                 'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,1) 8%, rgba(0,0,0,1) 92%, rgba(0,0,0,0))',
             }}
           >
-            <div
-              ref={rowRef}
-              className="relative overflow-x-auto md:overflow-hidden no-scrollbar"
-              aria-live={paused ? 'polite' : 'off'}
-            >
+            <div ref={rowRef} className="relative overflow-x-auto md:overflow-hidden no-scrollbar" aria-live={paused ? 'polite' : 'off'}>
               <ul
                 className="flex items-stretch gap-4 sm:gap-6 animate-infinite-scroll px-4 sm:px-6"
                 style={{
                   animationDuration: prefersReducedMotion ? '0s' : '38s',
-                  animationPlayState:
-                    paused || prefersReducedMotion ? 'paused' : 'running',
+                  animationPlayState: paused || prefersReducedMotion ? 'paused' : 'running',
                 }}
               >
                 <li className="min-w-[4px] sm:min-w-[6px] pointer-events-none" aria-hidden="true" />
@@ -620,29 +549,19 @@ const HomePage = () => {
                   const initials = toInitials(r.name);
                   const hue = hueFor(i);
                   return (
-                    <li
-                      key={`${r.name}-${i}`}
-                      data-tcard
-                      className="min-w-[260px] sm:min-w-[340px] md:min-w-[360px]"
-                    >
+                    <li key={`${r.name}-${i}`} data-tcard className="min-w-[260px] sm:min-w-[340px] md:min-w-[360px]">
                       <motion.div
                         onClick={() => setPaused((p) => !p)}
-                        whileHover={
-                          prefersReducedMotion
-                            ? undefined
-                            : { y: -4, rotate: -0.3, scale: 1.01 }
-                        }
+                        whileHover={prefersReducedMotion ? undefined : { y: -4, rotate: -0.3, scale: 1.01 }}
                         transition={{ type: 'spring', stiffness: 200, damping: 18 }}
                         className="relative h-full rounded-2xl border border-[hsl(var(--border))] bg-white/92 backdrop-blur shadow-[0_12px_30px_rgba(0,0,0,0.08)] p-5 md:p-6 flex flex-col justify-between cursor-pointer"
                         title="Click to pause/play"
                       >
-                        {/* giant faint quote mark */}
                         <span className="pointer-events-none absolute -top-2 right-3 text-7xl font-serif text-black/5 select-none">
                           &ldquo;
                         </span>
 
                         <div className="flex items-center gap-3 mb-3">
-                          {/* Avatar ring */}
                           <div
                             className="relative w-9 h-9 md:w-10 md:h-10 rounded-full p-[2px] shadow"
                             style={{
@@ -660,45 +579,26 @@ const HomePage = () => {
                           <div className="flex items-center gap-2">
                             <motion.span
                               initial={{ rotate: 0 }}
-                              whileHover={
-                                prefersReducedMotion ? undefined : { rotate: 16 }
-                              }
-                              transition={{
-                                type: 'spring',
-                                stiffness: 250,
-                                damping: 12,
-                              }}
+                              whileHover={prefersReducedMotion ? undefined : { rotate: 16 }}
+                              transition={{ type: 'spring', stiffness: 250, damping: 12 }}
                               className="inline-flex"
                               aria-hidden="true"
                             >
                               <Star className="w-4 h-4 text-[hsl(var(--accent))]" />
                             </motion.span>
-                            <span className="font-semibold text-foreground">
-                              {r.name}
-                            </span>
+                            <span className="font-semibold text-foreground">{r.name}</span>
                           </div>
                         </div>
 
-                        <p className="text-[hsl(var(--muted-foreground))] leading-relaxed">
-                          “{r.quote}”
-                        </p>
+                        <p className="text-[hsl(var(--muted-foreground))] leading-relaxed">“{r.quote}”</p>
 
-                        {/* subtle star glow pulse */}
                         {!prefersReducedMotion && (
                           <motion.span
                             className="pointer-events-none absolute -bottom-2 -left-2 w-16 h-16 rounded-full"
                             initial={{ opacity: 0.0, scale: 0.9 }}
                             animate={{ opacity: [0, 0.25, 0], scale: [0.9, 1.1, 0.9] }}
-                            transition={{
-                              duration: 3.2,
-                              repeat: Infinity,
-                              ease: 'easeInOut',
-                              delay: (i % 4) * 0.4,
-                            }}
-                            style={{
-                              background:
-                                'radial-gradient(circle, rgba(255,215,130,.28), transparent 60%)',
-                            }}
+                            transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: (i % 4) * 0.4 }}
+                            style={{ background: 'radial-gradient(circle, rgba(255,215,130,.28), transparent 60%)' }}
                           />
                         )}
                       </motion.div>
@@ -716,18 +616,16 @@ const HomePage = () => {
                   key={i}
                   aria-label={`Go to testimonial ${i + 1}`}
                   onClick={() => pagerTo(i)}
-                  className={`h-2.5 w-2.5 rounded-full transition ${
-                    page === i ? 'bg-[hsl(var(--accent))]' : 'bg-black/15'
-                  }`}
+                  className={`h-2.5 w-2.5 rounded-full transition ${page === i ? 'bg-[hsl(var(--accent))]' : 'bg-black/15'}`}
                 />
               ))}
             </div>
           </div>
         </div>
 
-        {/* Divider to CTA’s offwhite */}
+        {/* Divider to CTA’s body color */}
         <svg
-          className="absolute -bottom-[1px] left-0 right-0 w-full text-[#FAFAF7]"
+          className="absolute -bottom-[1px] left-0 right-0 w-full text-[#FEE6D4]"
           viewBox="0 0 1440 80"
           preserveAspectRatio="none"
           aria-hidden="true"
@@ -737,7 +635,7 @@ const HomePage = () => {
       </section>
 
       {/* ===================== CTA ===================== */}
-      <section className="py-14 sm:py-20 md:py-28 bg-[#FAFAF7]">
+      <section className="py-14 sm:py-20 md:py-28 bg-[#FEE6D4]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
@@ -786,11 +684,7 @@ const HomePage = () => {
             />
 
             <motion.h2
-              animate={
-                prefersReducedMotion
-                  ? undefined
-                  : { y: [0, -2, 0] }
-              }
+              animate={prefersReducedMotion ? undefined : { y: [0, -2, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
               className="relative text-2xl sm:text-4xl md:text-5xl font-bold text-foreground"
             >
@@ -807,7 +701,6 @@ const HomePage = () => {
               whileHover={prefersReducedMotion ? undefined : 'hovered'}
               initial="idle"
             >
-              {/* Sparkles */}
               {!prefersReducedMotion && (
                 <AnimatePresence>
                   <motion.span
@@ -845,7 +738,6 @@ const HomePage = () => {
                 <Link to="/contact">
                   Start a Project
                   <ArrowRight className="ml-2 h-5 w-5" />
-                  {/* ripple sweep */}
                   {!prefersReducedMotion && (
                     <motion.span
                       aria-hidden="true"
@@ -862,11 +754,7 @@ const HomePage = () => {
                 </Link>
               </Button>
 
-              <Button
-                asChild
-                variant="outline"
-                className="h-11 w-full sm:w-auto rounded-full px-6 sm:px-7 text-base sm:text-lg"
-              >
+              <Button asChild variant="outline" className="h-11 w-full sm:w-auto rounded-full px-6 sm:px-7 text-base sm:text-lg">
                 <Link to="/portfolio">See recent work</Link>
               </Button>
             </motion.div>
