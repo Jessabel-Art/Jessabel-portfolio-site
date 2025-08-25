@@ -19,6 +19,15 @@ const fadeIn = {
   viewport: { once: true, amount: 0.3 },
 };
 
+/* ---------- Story colors for the rail ---------- */
+const STORY_COLORS = [
+  ['#ffe574', '#fa8a00'], // Hero
+  ['#fec200', '#ff9f1a'], // Story+Education
+  ['#ff8f8f', '#f05d5d'], // Skills
+  ['#d74708', '#8a2c0a'], // Journey
+  ['#fec200', '#fa8a00'], // CTA
+];
+
 const skills = [
   'UX Research','UI Design','Prototyping','Design Systems',
   'Figma','Information Architecture','Heuristic Evaluation',
@@ -98,6 +107,50 @@ const LinkWithSparkle = ({ to, href, children, className = '' }) => {
   );
 };
 
+/* ---------- Sticky Story Rail (color updates per section) ---------- */
+const StoryRail = ({ index = 0 }) => {
+  const [from, to] = STORY_COLORS[index % STORY_COLORS.length];
+  return (
+    <motion.div
+      aria-hidden
+      className="hidden lg:block fixed left-4 top-28 bottom-24 w-[6px] rounded-full z-10"
+      style={{ background: `linear-gradient(180deg, ${from}, ${to})` }}
+      initial={{ opacity: 0.6 }}
+      animate={{ opacity: 0.9 }}
+      transition={{ duration: 0.4 }}
+    />
+  );
+};
+
+/* ---------- Kinetic Headline (word-by-word reveal) ---------- */
+const RevealWords = ({ text, className }) => {
+  const words = text.split(' ');
+  return (
+    <span className={className}>
+      {words.map((w, i) => (
+        <motion.span
+          key={i}
+          initial={{ y: '0.6em', opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.45, delay: i * 0.04, ease: 'easeOut' }}
+          className="inline-block will-change-transform"
+        >
+          {w}{i < words.length - 1 ? ' ' : ''}
+        </motion.span>
+      ))}
+    </span>
+  );
+};
+
+/* ---------- Small hook for parallax drift ---------- */
+const useParallaxY = (strength = 20) => {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end','end start'] });
+  const y = useTransform(scrollYProgress, [0,1], [strength, -strength]);
+  return { ref, y };
+};
+
 const AboutPage = () => {
   const prefersReducedMotion = useReducedMotion();
 
@@ -129,6 +182,12 @@ const AboutPage = () => {
   /* hover state for button sparkles */
   const [btnHover, setBtnHover] = useState({ a:false, b:false, c:false, d:false });
 
+  /* ---------- Section state for StoryRail ---------- */
+  const [activeSection, setActiveSection] = useState(0);
+
+  /* ---------- Skills parallax ---------- */
+  const { ref: skillsRef, y: skillsBgY } = useParallaxY(18);
+
   return (
     <div className="bg-[#FEE6D4]">
       <Helmet>
@@ -140,8 +199,16 @@ const AboutPage = () => {
         <script type="application/ld+json">{JSON.stringify(personLd)}</script>
       </Helmet>
 
+      {/* Story color rail */}
+      <StoryRail index={activeSection} />
+
       {/* ===================== HERO ===================== */}
-      <section ref={heroRef} className="pt-20 pb-16 sm:pb-24">
+      <motion.section
+        ref={heroRef}
+        className="pt-20 pb-16 sm:pb-24"
+        onViewportEnter={() => setActiveSection(0)}
+        viewport={{ amount: 0.5 }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
             <motion.div {...fadeIn} className="lg:col-span-3 space-y-7 max-w-3xl">
@@ -151,7 +218,7 @@ const AboutPage = () => {
                            bg-clip-text text-transparent"
                 style={{ textShadow: '0 6px 22px rgba(0,0,0,0.22)' }}
               >
-                I turn complex ideas into intuitive, human-centered experiences.
+                <RevealWords text="I turn complex ideas into intuitive, human-centered experiences." />
               </h1>
 
               <p className="text-lg md:text-xl leading-relaxed max-w-prose" style={{ color: WARM_BROWN }}>
@@ -180,13 +247,13 @@ const AboutPage = () => {
                   >
                     <Link to="/portfolio">View Case Studies</Link>
                   </Button>
-                  {/* gradient sweep */}
+                  {/* gradient sweep (only while hovered) */}
                   {!prefersReducedMotion && (
                     <motion.span
                       className="pointer-events-none absolute inset-0 opacity-30"
                       initial={{ x: '-110%' }}
                       animate={{ x: btnHover.a ? '110%' : '-110%' }}
-                      transition={{ duration: 1.8, ease: 'easeInOut' }}
+                      transition={{ duration: 1.4, ease: 'easeInOut' }}
                       style={{ background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent)' }}
                     />
                   )}
@@ -244,10 +311,14 @@ const AboutPage = () => {
             </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ===================== STORY + EDUCATION ===================== */}
-      <section className="pb-20 sm:pb-24">
+      <motion.section
+        className="pb-20 sm:pb-24"
+        onViewportEnter={() => setActiveSection(1)}
+        viewport={{ amount: 0.5 }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <motion.div {...fadeIn} className="space-y-5">
@@ -285,10 +356,17 @@ const AboutPage = () => {
             </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* ===================== SKILLS (glass panel) ===================== */}
-      <section className="relative py-16 bg-cover bg-center" style={{ backgroundImage: `url(${toolsStatsBg})` }}>
+      {/* ===================== SKILLS (glass panel with parallax) ===================== */}
+      <motion.section
+        ref={skillsRef}
+        className="relative py-16 bg-cover bg-center"
+        style={{ backgroundImage: `url(${toolsStatsBg})` }}
+        onViewportEnter={() => setActiveSection(2)}
+        viewport={{ amount: 0.5 }}
+      >
+        <motion.div aria-hidden className="absolute inset-0 -z-10" style={{ y: prefersReducedMotion ? 0 : skillsBgY }} />
         <div className="pointer-events-none absolute inset-0 [background:radial-gradient(900px_400px_at_15%_20%,rgba(0,0,0,.14),transparent_60%),radial-gradient(900px_400px_at_85%_60%,rgba(0,0,0,.14),transparent_60%)]" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -327,65 +405,17 @@ const AboutPage = () => {
             </ul>
           </motion.div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* ===================== UX JOURNEY ===================== */}
-      <section className="py-20 sm:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 {...fadeIn} className="text-4xl md:text-5xl font-bold text-[hsl(var(--foreground))] mb-12">
-            My UX Journey
-          </motion.h2>
-
-          <motion.div {...fadeIn} className="relative space-y-12">
-            {/* rails */}
-            <div className="absolute left-1.5 md:left-2 top-0 bottom-0 w-1 rounded-full bg-[linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.12))]" />
-            <div className="absolute left-[9px] md:left-[13px] top-0 bottom-0 w-0.5 bg-[linear-gradient(180deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] opacity-60" />
-
-            {journey.map((item, idx) => (
-              <motion.div
-                key={`${item.year}-${item.title}`}
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.35, delay: idx * 0.04 }}
-                className="relative pl-10 md:pl-14"
-              >
-                {/* pin */}
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  whileInView={{ scale: 1, opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.3, delay: 0.08 + idx * 0.04 }}
-                  className="absolute left-0 top-2 w-4 h-4 md:w-5 md:h-5 rounded-full
-                             bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
-                             ring-4 ring-white/80 shadow-[0_6px_18px_rgba(0,0,0,.18)]"
-                />
-
-                <div className="rounded-2xl p-6 bg-[hsl(var(--card))] border border-[hsl(var(--border)/0.7)] shadow-md hover:shadow-lg transition-shadow">
-                  <motion.span
-                    initial={{ x: -6, opacity: 0 }}
-                    whileInView={{ x: 0, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.35 }}
-                    className="inline-flex items-center px-5 py-2 rounded-full text-base md:text-lg font-bold
-                               shadow-md ring-1 ring-white/50
-                               bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] text-white"
-                  >
-                    {item.year}
-                  </motion.span>
-
-                  <h3 className="mt-3 text-xl font-bold text-[hsl(var(--foreground))]">{item.title}</h3>
-                  <p className="text-sm font-semibold mb-3" style={{ color: WARM_BROWN }}>{item.company}</p>
-                  <p style={{ color: WARM_BROWN }}>{item.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+      {/* ===================== UX JOURNEY (with progress fill) ===================== */}
+      <JourneySection setActiveSection={setActiveSection} />
 
       {/* ===================== PROCESS CTA (theme-matched buttons) ===================== */}
-      <section className="relative pt-12 md:pt-16 pb-8 md:pb-10 -mb-1 bg-[#FEE6D4]">
+      <motion.section
+        className="relative pt-12 md:pt-16 pb-8 md:pb-10 -mb-1 bg-[#FEE6D4]"
+        onViewportEnter={() => setActiveSection(4)}
+        viewport={{ amount: 0.5 }}
+      >
         <div className="relative overflow-hidden rounded-[28px] md:rounded-[36px] border border-[hsl(var(--border)/0.7)]">
           {/* gentle radial glow */}
           <div
@@ -415,7 +445,10 @@ const AboutPage = () => {
                                bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
                                hover:brightness-[1.08] hover:shadow-[0_12px_30px_rgba(0,0,0,.18)] transition">
                     <Link to="/process">
-                      View My UX Process <ArrowRight className="ml-1.5 h-4 w-4" />
+                      View My UX Process{' '}
+                      <motion.span whileHover={{ rotate: 8 }} transition={{ type: 'spring', stiffness: 300, damping: 12 }}>
+                        <ArrowRight className="ml-1.5 h-4 w-4" />
+                      </motion.span>
                     </Link>
                   </Button>
                   {!prefersReducedMotion && (
@@ -423,7 +456,7 @@ const AboutPage = () => {
                       className="pointer-events-none absolute inset-0 opacity-30"
                       initial={{ x: '-110%' }}
                       animate={{ x: btnHover.d ? '110%' : '-110%' }}
-                      transition={{ duration: 1.8, ease: 'easeInOut' }}
+                      transition={{ duration: 1.4, ease: 'easeInOut' }}
                       style={{ background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent)' }}
                     />
                   )}
@@ -446,8 +479,84 @@ const AboutPage = () => {
         <svg className="absolute -bottom-1 left-0 right-0 w-full text-[#0B0F1A]" viewBox="0 0 1440 20" preserveAspectRatio="none" aria-hidden="true">
           <path d="M0,0 L1440,20 L0,20 Z" fill="currentColor" />
         </svg>
-      </section>
+      </motion.section>
     </div>
+  );
+};
+
+/* ---------- Journey Section extracted for scroll progress fill ---------- */
+const JourneySection = ({ setActiveSection }) => {
+  const railRef = useRef(null);
+  const { scrollYProgress: railProg } = useScroll({ target: railRef, offset: ['start 75%','end 25%'] });
+  const fillScale = useTransform(railProg, [0,1], [0,1]);
+
+  return (
+    <motion.section
+      className="py-20 sm:py-24"
+      onViewportEnter={() => setActiveSection(3)}
+      viewport={{ amount: 0.5 }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.h2 {...fadeIn} className="text-4xl md:text-5xl font-bold text-[hsl(var(--foreground))] mb-12">
+          My UX Journey
+        </motion.h2>
+
+        <div ref={railRef} className="relative space-y-12">
+          {/* static outer rail */}
+          <div className="absolute left-1.5 md:left-2 top-0 bottom-0 w-1 rounded-full bg-[linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.12))]" />
+          {/* animated inner rail */}
+          <motion.div
+            className="absolute left-[9px] md:left-[13px] top-0 w-0.5 origin-top
+                       bg-[linear-gradient(180deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] opacity-80"
+            style={{ scaleY: fillScale, height: '100%' }}
+          />
+
+          {journey.map((item, idx) => (
+            <motion.div
+              key={`${item.year}-${item.title}`}
+              initial={{ opacity: 0, x: -10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.35, delay: idx * 0.04 }}
+              className="relative pl-10 md:pl-14"
+            >
+              {/* pin (gentle pulse once) */}
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: [0.8,1.04,1], opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, times: [0,0.6,1] }}
+                className="absolute left-0 top-2 w-4 h-4 md:w-5 md:h-5 rounded-full
+                           bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
+                           ring-4 ring-white/80 shadow-[0_6px_18px_rgba(0,0,0,.18)]"
+              />
+
+              <motion.div
+                whileHover={{ y: -2 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                className="rounded-2xl p-6 bg-[hsl(var(--card))] border border-[hsl(var(--border)/0.7)] shadow-md hover:shadow-lg transition-shadow"
+              >
+                <motion.span
+                  initial={{ x: -6, opacity: 0 }}
+                  whileInView={{ x: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.35 }}
+                  className="inline-flex items-center px-5 py-2 rounded-full text-base md:text-lg font-bold
+                             shadow-md ring-1 ring-white/50
+                             bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] text-white"
+                >
+                  {item.year}
+                </motion.span>
+
+                <h3 className="mt-3 text-xl font-bold text-[hsl(var(--foreground))]">{item.title}</h3>
+                <p className="text-sm font-semibold mb-3" style={{ color: WARM_BROWN }}>{item.company}</p>
+                <p style={{ color: WARM_BROWN }}>{item.description}</p>
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </motion.section>
   );
 };
 
