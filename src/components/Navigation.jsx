@@ -10,28 +10,25 @@ const Navigation = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Pills: Home, About, Clients (Blog removed)
   const navItems = [
     { path: '/', label: 'Home' },
     { path: '/about', label: 'About' },
-    { path: '/blog', label: 'Blog' },
+    { path: '/clients', label: 'Clients' },
   ];
 
-  const NAVY = '#0B0F1A';
-  const NAVY_TRANS = 'rgba(11,15,26,.92)';
+  const WARM_BROWN = 'var(--warm-brown-hex)';
 
   const isRouteActive = (path) =>
     path === '/'
       ? location.pathname === '/'
       : location.pathname === path || location.pathname.startsWith(path + '/');
-
-  const isClientsActive =
-    location.pathname === '/clients' || location.pathname.startsWith('/clients/');
 
   // sparkle hotspot helper
   const setMouseVars = (e) => {
@@ -45,41 +42,38 @@ const Navigation = () => {
 
   return (
     <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.45, ease: 'easeOut' }}
       className="fixed top-0 left-0 right-0 z-50"
       role="navigation"
       aria-label="Primary"
       style={{
-        background: scrolled ? NAVY_TRANS : NAVY,
-        WebkitBackdropFilter: 'blur(10px)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(255,255,255,.08)',
-        boxShadow: scrolled
-          ? '0 16px 40px rgba(0,0,0,.35)'
-          : '0 12px 28px rgba(0,0,0,.28)',
-        transition: 'background .25s ease, box-shadow .25s ease',
+        background: 'transparent',
+        WebkitBackdropFilter: scrolled ? 'blur(10px)' : 'blur(0px)',
+        backdropFilter: scrolled ? 'blur(10px)' : 'blur(0px)',
+        borderBottom: scrolled ? '1px solid rgba(0,0,0,.06)' : '1px solid transparent',
+        boxShadow: scrolled ? '0 8px 24px rgba(0,0,0,.10)' : 'none',
+        transition: 'all .25s ease',
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Brand */}
+          {/* Brand / Wordmark */}
           <Link
             to="/"
-            className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-md"
+            className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(0,0,0,.18)] rounded-md"
             aria-label="Jessabel.Art — Home"
           >
             <motion.span
               key="wordmark"
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-              className="text-3xl md:text-4xl font-bold tracking-tight select-none"
+              initial={{ y: -12, opacity: 0, rotateX: 10 }}
+              animate={{ y: 0, opacity: 1, rotateX: 0 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+              className="text-3xl md:text-4xl font-extrabold tracking-[-0.01em] select-none"
               style={{
-                color: '#fff',
-                textShadow: '0 2px 0 rgba(0,0,0,.25), 0 10px 24px rgba(0,0,0,.35)',
-                letterSpacing: '-0.02em',
+                color: WARM_BROWN,
+                textShadow: '0 1px 0 rgba(255,255,255,.25)',
                 fontFamily: "'Playfair Display', serif",
               }}
             >
@@ -87,8 +81,8 @@ const Navigation = () => {
             </motion.span>
           </Link>
 
-          {/* Desktop links + CTAs all together */}
-          <div className="hidden md:flex items-center space-x-6">
+          {/* Desktop navigation */}
+          <div className="hidden md:flex items-center space-x-3">
             {navItems.map((item) => {
               const active = isRouteActive(item.path);
               return (
@@ -96,16 +90,20 @@ const Navigation = () => {
                   key={item.path}
                   to={item.path}
                   onMouseMove={setMouseVars}
-                  className={`group relative font-semibold transition-all duration-300 ${
-                    active ? 'text-white' : 'text-white/80 hover:text-white'
-                  }`}
+                  className={`group relative inline-flex items-center gap-1.5 rounded-full px-4 h-10 font-semibold transition-all`}
+                  style={{
+                    color: active ? '#0B0F1A' : WARM_BROWN,
+                    background: active ? 'rgba(255,255,255,.85)' : 'transparent',
+                    border: '1px solid rgba(0,0,0,.10)',
+                  }}
                 >
                   <span className="relative z-10 flex items-center gap-1.5">
                     {item.label}
                     <Sparkles className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </span>
+                  {/* subtle hover glow */}
                   <span
-                    className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    className="pointer-events-none absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     style={{
                       background:
                         'radial-gradient(18px 18px at var(--mx,50%) var(--my,50%), rgba(255,255,255,.5), transparent 60%)',
@@ -116,30 +114,7 @@ const Navigation = () => {
               );
             })}
 
-            {/* Clients button */}
-            <Button
-              asChild
-              variant="outline"
-              className={`rounded-full h-11 px-6 font-semibold transition-all relative overflow-hidden ${
-                isClientsActive
-                  ? 'text-white'
-                  : 'text-white border-white/25 bg-white/10 hover:bg-white/16'
-              }`}
-              style={{
-                background: isClientsActive
-                  ? 'linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))'
-                  : undefined,
-              }}
-            >
-              <Link to="/clients" onMouseMove={setMouseVars} className="group relative">
-                <span className="relative z-10 flex items-center gap-2">
-                  Clients
-                  <Sparkles className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </span>
-              </Link>
-            </Button>
-
-            {/* Contact button */}
+            {/* Contact button (unchanged) */}
             <Button
               asChild
               className="btn-primary rounded-full h-11 px-6 relative overflow-hidden"
@@ -162,7 +137,8 @@ const Navigation = () => {
               aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isOpen}
               aria-pressed={isOpen}
-              className="text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/60"
+              className="hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-[rgba(0,0,0,.18)]"
+              style={{ color: WARM_BROWN }}
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </Button>
@@ -174,7 +150,7 @@ const Navigation = () => {
           initial={false}
           animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}
           className="md:hidden overflow-hidden"
-          style={{ background: 'rgba(255,255,255,0.02)' }}
+          style={{ background: 'rgba(255,255,255,0.6)', borderRadius: 12, border: '1px solid rgba(0,0,0,.08)' }}
         >
           <div className="py-4 space-y-2 px-2">
             {navItems.map((item) => {
@@ -185,9 +161,12 @@ const Navigation = () => {
                   to={item.path}
                   onClick={() => setIsOpen(false)}
                   onMouseMove={setMouseVars}
-                  className={`group relative flex items-center justify-between px-4 py-3 font-semibold transition-all duration-300 ${
-                    active ? 'text-white' : 'text-white/80 hover:text-white'
-                  }`}
+                  className={`group relative flex items-center justify-between px-4 h-11 rounded-full font-semibold transition-all`}
+                  style={{
+                    color: active ? '#0B0F1A' : WARM_BROWN,
+                    background: active ? 'rgba(255,255,255,.9)' : 'transparent',
+                    border: '1px solid rgba(0,0,0,.10)',
+                  }}
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     {item.label}
@@ -197,30 +176,7 @@ const Navigation = () => {
               );
             })}
 
-            {/* Clients button */}
-            <Button
-              asChild
-              variant="outline"
-              className={`w-full rounded-full h-11 px-6 font-semibold relative overflow-hidden ${
-                isClientsActive
-                  ? 'text-white'
-                  : 'text-white border-white/25 bg-white/10 hover:bg-white/16'
-              }`}
-              style={{
-                background: isClientsActive
-                  ? 'linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))'
-                  : undefined,
-              }}
-            >
-              <Link to="/clients" onClick={() => setIsOpen(false)} className="group relative">
-                <span className="relative z-10 flex items-center gap-2">
-                  Clients
-                  <Sparkles className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </span>
-              </Link>
-            </Button>
-
-            {/* Contact button */}
+            {/* Contact button (unchanged) */}
             <Button
               asChild
               className="w-full btn-primary rounded-full h-11 px-6 relative overflow-hidden"
@@ -240,4 +196,3 @@ const Navigation = () => {
 };
 
 export default Navigation;
-

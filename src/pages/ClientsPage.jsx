@@ -6,6 +6,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
 
+/* ---------------- THEME (matches site) ---------------- */
+const THEME = {
+  peachBg: '#FEE6D4',
+  warmInk: 'var(--warm-brown-hex)', // already used on About
+  citrus1: '#FFE574',
+  citrus2: '#FEC200',
+  citrus3: '#FA8A00',
+  citrus4: '#D74708',
+  rose:    '#F05D5D',
+};
+
+// Primary button / accent gradient
+const GRAD_PRIMARY = `linear-gradient(135deg, ${THEME.citrus1}, ${THEME.citrus3})`;
+// Alt gradient used for tracks/fills
+const GRAD_TRACK = `linear-gradient(90deg, ${THEME.citrus1}, ${THEME.citrus2}, ${THEME.citrus3}, ${THEME.citrus4})`;
+// Secondary (outline-hover fill)
+const ACCENT_BG = THEME.citrus2;
+
 /**
  * Add clients here.
  * Optional: stage (defaults to 'Intake'), canChange (defaults to false)
@@ -20,7 +38,7 @@ const CLIENTS = [
 // Notion: open as a new tab via CTA (no iframe)
 const NOTION_URL = 'https://apple-month-55e.notion.site/246ec2233e6f802a93aae01cf20205f3?pvs=105';
 
-/* ---------------- Sparkle utilities (local for now) ---------------- */
+/* ---------------- Sparkle utilities ---------------- */
 const SparkleOverlay = ({ active }) => {
   const prefersReducedMotion = useReducedMotion();
   if (prefersReducedMotion) return null;
@@ -55,35 +73,35 @@ const shakeVariants = {
   shake: { x: [0, -8, 8, -6, 6, -3, 3, 0], transition: { duration: 0.4, ease: 'easeInOut' } },
 };
 
-/* ---------------- Buttons ---------------- */
+/* ---------------- Buttons (rethemed) ---------------- */
 const btnPrimary =
   'relative overflow-hidden text-white font-semibold shadow-lg border-0 ' +
-  'bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff))] ' +
+  `bg-[${GRAD_PRIMARY}] ` +
   'hover:brightness-[1.08] hover:shadow-[0_12px_30px_rgba(0,0,0,.18)] transition';
 
 const btnGhost =
-  'border border-[hsl(var(--border))] bg-transparent ' +
-  'hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition';
+  'border border-[hsl(var(--border))] bg-white/30 backdrop-blur ' + // lighter for peach bg
+  `hover:bg-[${ACCENT_BG}] hover:text-[hsl(var(--accent-foreground))] transition`;
 
 const btnMuted =
-  'cursor-not-allowed border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.25] ' +
+  'cursor-not-allowed border border-[hsl(var(--border))] bg-white/50 ' +
   'text-[hsl(var(--foreground))] shadow-sm opacity-100';
 
-/* ---------------- Steps & timeline ---------------- */
+/* ---------------- Steps & timeline (rethemed) ---------------- */
 const STEPS = ['Intake', 'Discovery', 'Design', 'Build', 'Review', 'Handoff'];
 
 const trackBase = 'bg-[hsl(var(--foreground)/0.14)]';
-const trackFill =
-  'bg-[linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff),var(--btn-teal,#00c2b2))] ' +
-  'shadow-[inset_0_0_0_2px_rgba(255,255,255,.35),0_6px_18px_rgba(0,0,0,.18)]';
+const trackFill = `shadow-[inset_0_0_0_2px_rgba(255,255,255,.35),0_6px_18px_rgba(0,0,0,.18)]`;
 const nodeInactive =
-  'bg-white text-[hsl(var(--foreground)/0.8)] border border-[hsl(var(--foreground)/0.18)] ' +
-  'shadow-[0_2px_10px_rgba(0,0,0,.08)]';
+  'bg-white/80 text-[hsl(var(--foreground)/0.85)] border border-[hsl(var(--foreground)/0.18)] ' +
+  'shadow-[0_2px_10px_rgba(0,0,0,.08)] backdrop-blur';
 const nodeActive =
-  'text-white bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] ' +
+  'text-white ' +
+  `bg-[${GRAD_PRIMARY}] ` +
   'shadow-[0_8px_20px_rgba(0,0,0,.22)] ring-2 ring-white/60';
 const nodeCompleted =
-  'text-white bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] ' +
+  'text-white ' +
+  `bg-[${GRAD_PRIMARY}] ` +
   'shadow-[0_6px_16px_rgba(0,0,0,.18)] opacity-[0.95]';
 
 const ClientsPage = () => {
@@ -218,10 +236,11 @@ const ClientsPage = () => {
                   <div className="relative flex-1 mx-3">
                     <div className={`h-1.5 rounded-full ${trackBase}`} />
                     <div
-                      className={`absolute inset-y-0 left-0 h-1.5 rounded-full overflow-hidden ${
-                        isDone ? trackFill : 'opacity-0'
-                      }`}
-                      style={{ width: isDone ? '100%' : 0 }}
+                      className="absolute inset-y-0 left-0 h-1.5 rounded-full overflow-hidden"
+                      style={{
+                        width: isDone ? '100%' : 0,
+                        background: isDone ? GRAD_TRACK : 'transparent',
+                      }}
                       aria-hidden="true"
                     />
                   </div>
@@ -233,7 +252,8 @@ const ClientsPage = () => {
 
         <div className={`relative h-2 rounded-full overflow-hidden ${trackBase}`}>
           <motion.div
-            className={`absolute left-0 top-0 h-full ${trackFill}`}
+            className="absolute left-0 top-0 h-full"
+            style={{ background: GRAD_TRACK }}
             initial={{ width: 0 }}
             animate={{ width: `${pct}%` }}
             transition={{ type: 'spring', stiffness: 120, damping: 20 }}
@@ -241,7 +261,9 @@ const ClientsPage = () => {
         </div>
 
         <div className="mt-3 text-sm flex justify-between items-center">
-          <span className="font-semibold text-[hsl(var(--foreground))]">{STEPS[Math.max(0, idx)]}</span>
+          <span className="font-semibold" style={{ color: THEME.warmInk }}>
+            {STEPS[Math.max(0, idx)]}
+          </span>
           <span className="text-[hsl(var(--foreground)/0.7)]">
             {Math.max(0, idx) + 1} / {STEPS.length}
           </span>
@@ -264,10 +286,13 @@ const ClientsPage = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <form onSubmit={handleSubmit} className="glass p-8 rounded-2xl shadow-lg space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="p-8 rounded-2xl shadow-lg space-y-6 border border-white/50 bg-white/40 backdrop-blur-xl"
+        >
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-foreground">Client Portal</h1>
-            <p id="pin-help" className="text-muted-foreground mt-2">
+            <h1 className="text-3xl font-bold" style={{ color: THEME.warmInk }}>Client Portal</h1>
+            <p id="pin-help" className="mt-2 text-[hsl(var(--foreground)/0.7)]">
               Enter the 4‑digit code we shared with you{' '}
               <Link to="/contact" className="relative underline underline-offset-4">
                 (Don’t have a code?)
@@ -276,7 +301,7 @@ const ClientsPage = () => {
           </div>
 
           <div className="space-y-3">
-            <Label className="text-muted-foreground" htmlFor="pin-box">
+            <Label className="text-[hsl(var(--foreground)/0.8)]" htmlFor="pin-box">
               Enter your 4‑digit PIN
             </Label>
 
@@ -305,13 +330,21 @@ const ClientsPage = () => {
                 onKeyDown={handleKeyDown}
                 onDrop={(e) => e.preventDefault()}
                 placeholder="1234"
-                className="h-14 text-2xl tracking-[0.6em] text-center focus:ring-2 focus:ring-[hsl(var(--accent))] focus:border-[hsl(var(--accent))]"
+                className="h-14 text-2xl tracking-[0.6em] text-center
+                           focus:ring-2 focus:ring-offset-0
+                           border-[hsl(var(--border))] focus:border-transparent"
+                style={{
+                  // Focus ring in brand accent
+                  boxShadow: `0 0 0 2px ${THEME.citrus2} inset`,
+                }}
+                onFocus={(e) => (e.currentTarget.style.boxShadow = `0 0 0 2px ${THEME.citrus2} inset`)}
+                onBlur={(e) => (e.currentTarget.style.boxShadow = 'none')}
               />
             </motion.div>
           </div>
 
           {error && (
-            <p className="text-sm text-destructive font-semibold text-center" role="alert" aria-live="assertive">
+            <p className="text-sm font-semibold text-center" style={{ color: THEME.citrus4 }} role="alert" aria-live="assertive">
               {error}
             </p>
           )}
@@ -322,7 +355,7 @@ const ClientsPage = () => {
               onMouseEnter={() => setHoverUnlock(true)}
               onMouseLeave={() => setHoverUnlock(false)}
             >
-              <Button type="submit" size="lg" className={btnPrimary}>
+              <Button type="submit" size="lg" className={btnPrimary} style={{ backgroundImage: GRAD_PRIMARY }}>
                 Unlock Portal
               </Button>
               {/* gradient sweep + sparkle */}
@@ -331,7 +364,7 @@ const ClientsPage = () => {
                   className="pointer-events-none absolute inset-0 opacity-30"
                   initial={{ x: '-110%' }}
                   animate={{ x: hoverUnlock ? '110%' : '-110%' }}
-                  transition={{ duration: 1.8, ease: 'easeInOut' }}
+                  transition={{ duration: 1.4, ease: 'easeInOut' }}
                   style={{ background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent)' }}
                 />
               )}
@@ -377,17 +410,21 @@ const ClientsPage = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-4xl"
       >
-        <div className="glass p-8 rounded-2xl shadow-lg space-y-8">
+        <div className="p-8 rounded-2xl shadow-lg space-y-8 border border-white/55 bg-white/45 backdrop-blur-xl">
           <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold text-foreground">Welcome, {client?.name}!</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-3xl font-bold" style={{ color: THEME.warmInk }}>
+              Welcome, {client?.name}!
+            </h1>
+            <p className="text-[hsl(var(--foreground)/0.75)]">
               Use the actions below to send files and complete your project intake.
             </p>
           </div>
 
           {/* Project Status Tracker */}
           <section aria-label="Project status">
-            <Label className="block mb-3 text-foreground font-semibold">Project Status</Label>
+            <Label className="block mb-3 font-semibold" style={{ color: THEME.warmInk }}>
+              Project Status
+            </Label>
             <Stepper current={currentStage} />
             <div className="flex flex-wrap gap-2 mt-4">
               {STEPS.map((s) => {
@@ -397,6 +434,7 @@ const ClientsPage = () => {
                     key={s}
                     size="sm"
                     className={isCurrent ? btnPrimary : btnGhost}
+                    style={isCurrent ? { backgroundImage: GRAD_PRIMARY } : {}}
                     onClick={() => setCurrentStage(s)}
                     aria-pressed={isCurrent}
                   >
@@ -409,6 +447,7 @@ const ClientsPage = () => {
                     disabled
                     aria-disabled="true"
                     className={isCurrent ? btnPrimary : btnMuted}
+                    style={isCurrent ? { backgroundImage: GRAD_PRIMARY } : {}}
                     title="Status is managed by Jessabel"
                   >
                     {s}
@@ -425,7 +464,7 @@ const ClientsPage = () => {
               onMouseEnter={() => setHoverUpload(true)}
               onMouseLeave={() => setHoverUpload(false)}
             >
-              <Button size="lg" onClick={openUploadWidget} className={btnPrimary}>
+              <Button size="lg" onClick={openUploadWidget} className={btnPrimary} style={{ backgroundImage: GRAD_PRIMARY }}>
                 Upload files securely
               </Button>
               {!prefersReducedMotion && (
@@ -433,16 +472,38 @@ const ClientsPage = () => {
                   className="pointer-events-none absolute inset-0 opacity-30"
                   initial={{ x: '-110%' }}
                   animate={{ x: hoverUpload ? '110%' : '-110%' }}
-                  transition={{ duration: 1.8, ease: 'easeInOut' }}
+                  transition={{ duration: 1.4, ease: 'easeInOut' }}
                   style={{ background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent)' }}
                 />
               )}
               <SparkleOverlay active={hoverUpload} />
             </span>
 
-            <a href={NOTION_URL} target="_blank" rel="noreferrer" className="relative inline-block"
-               onMouseEnter={() => setHoverIntake(true)} onMouseLeave={() => setHoverIntake(false)}>
-              <Button size="lg" variant="outline" className="font-semibold transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]">
+            <a
+              href={NOTION_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="relative inline-block"
+              onMouseEnter={() => setHoverIntake(true)}
+              onMouseLeave={() => setHoverIntake(false)}
+            >
+              <Button
+                size="lg"
+                variant="outline"
+                className="font-semibold transition"
+                style={{
+                  borderColor: THEME.citrus3,
+                  color: THEME.citrus4,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = ACCENT_BG;
+                  e.currentTarget.style.color = 'hsl(var(--accent-foreground))';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = THEME.citrus4;
+                }}
+              >
                 UX/UI Project Intake
               </Button>
               <SparkleOverlay active={hoverIntake} />
@@ -465,7 +526,21 @@ const ClientsPage = () => {
   };
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center py-20 px-4 bg-[#FAFAF7]">
+    <div
+      className="min-h-[70vh] flex items-center justify-center py-20 px-4"
+      style={{
+        background: THEME.peachBg,
+        position: 'relative',
+      }}
+    >
+      {/* soft radial glow to match About page vibes */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -inset-10"
+        style={{
+          background: `radial-gradient(600px circle at 50% 0%, rgba(255,206,158,.28), transparent 60%)`,
+        }}
+      />
       <Helmet>
         <title>Client Portal - Jessabel.Art</title>
         <meta name="description" content="Secure client portal for project access." />
