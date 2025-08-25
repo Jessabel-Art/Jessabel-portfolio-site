@@ -34,7 +34,7 @@ const Navigation = () => {
   return (
     <>
       {/* spacer so content doesn't slide under the fixed nav */}
-      <div aria-hidden className="h-20" />
+      <div aria-hidden className="h-20" style={{ background: '#FEE6D4' }} />
 
       <motion.nav
         initial={{ y: -80, opacity: 0 }}
