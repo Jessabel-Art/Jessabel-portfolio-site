@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Menu, X, ArrowRight, Sparkles } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Navigation = () => {
@@ -16,7 +16,7 @@ const Navigation = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Pills: Home, About, Clients (Blog removed)
+  // Only these three (Blog hidden)
   const navItems = [
     { path: '/', label: 'Home' },
     { path: '/about', label: 'About' },
@@ -29,16 +29,6 @@ const Navigation = () => {
     path === '/'
       ? location.pathname === '/'
       : location.pathname === path || location.pathname.startsWith(path + '/');
-
-  // sparkle hotspot helper
-  const setMouseVars = (e) => {
-    const el = e.currentTarget;
-    const rect = el.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    el.style.setProperty('--mx', `${x}px`);
-    el.style.setProperty('--my', `${y}px`);
-  };
 
   return (
     <motion.nav
@@ -53,73 +43,71 @@ const Navigation = () => {
         WebkitBackdropFilter: scrolled ? 'blur(10px)' : 'blur(0px)',
         backdropFilter: scrolled ? 'blur(10px)' : 'blur(0px)',
         borderBottom: scrolled ? '1px solid rgba(0,0,0,.06)' : '1px solid transparent',
-        boxShadow: scrolled ? '0 8px 24px rgba(0,0,0,.10)' : 'none',
+        boxShadow: scrolled ? '0 8px 24px rgba(0,0,0,.08)' : 'none',
         transition: 'all .25s ease',
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Brand / Wordmark */}
+          {/* Left: Brand in a soft pill */}
           <Link
             to="/"
-            className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(0,0,0,.18)] rounded-md"
+            className="group flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(0,0,0,.18)] rounded-full"
             aria-label="Jessabel.Art — Home"
           >
-            <motion.span
-              key="wordmark"
+            <motion.div
               initial={{ y: -12, opacity: 0, rotateX: 10 }}
               animate={{ y: 0, opacity: 1, rotateX: 0 }}
               transition={{ type: 'spring', stiffness: 380, damping: 26 }}
-              className="text-3xl md:text-4xl font-extrabold tracking-[-0.01em] select-none"
-              style={{
-                color: WARM_BROWN,
-                textShadow: '0 1px 0 rgba(255,255,255,.25)',
-                fontFamily: "'Playfair Display', serif",
-              }}
+              className="px-4 py-2.5 rounded-full border border-[rgba(0,0,0,.08)] bg-white/80 backdrop-blur"
             >
-              Jessabel<span>.Art</span>
-            </motion.span>
+              <span
+                className="text-2xl md:text-3xl font-extrabold tracking-[-0.01em] select-none"
+                style={{
+                  color: WARM_BROWN,
+                  textShadow: '0 1px 0 rgba(255,255,255,.25)',
+                  fontFamily: "'Playfair Display', serif",
+                }}
+              >
+                Jessabel<span>.Art</span>
+              </span>
+            </motion.div>
           </Link>
 
-          {/* Desktop navigation */}
-          <div className="hidden md:flex items-center space-x-3">
-            {navItems.map((item) => {
-              const active = isRouteActive(item.path);
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onMouseMove={setMouseVars}
-                  className={`group relative inline-flex items-center gap-1.5 rounded-full px-4 h-10 font-semibold transition-all`}
-                  style={{
-                    color: active ? '#0B0F1A' : WARM_BROWN,
-                    background: active ? 'rgba(255,255,255,.85)' : 'transparent',
-                    border: '1px solid rgba(0,0,0,.10)',
-                  }}
-                >
-                  <span className="relative z-10 flex items-center gap-1.5">
-                    {item.label}
-                    <Sparkles className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  </span>
-                  {/* subtle hover glow */}
-                  <span
-                    className="pointer-events-none absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    style={{
-                      background:
-                        'radial-gradient(18px 18px at var(--mx,50%) var(--my,50%), rgba(255,255,255,.5), transparent 60%)',
-                      mixBlendMode: 'screen',
-                    }}
-                  />
-                </Link>
-              );
-            })}
-
-            {/* Contact button (unchanged) */}
-            <Button
-              asChild
-              className="btn-primary rounded-full h-11 px-6 relative overflow-hidden"
+          {/* Desktop: segmented pills + contact */}
+          <div className="hidden md:flex items-center gap-3">
+            {/* Segmented group */}
+            <div
+              className="inline-flex items-stretch rounded-full border border-[rgba(0,0,0,.10)] bg-white/85 backdrop-blur overflow-hidden"
+              role="tablist"
+              aria-label="Site sections"
             >
-              <Link to="/contact" onMouseMove={setMouseVars} className="group relative">
+              {navItems.map((item, i) => {
+                const active = isRouteActive(item.path);
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    role="tab"
+                    aria-selected={active}
+                    className={[
+                      'px-5 h-11 inline-flex items-center font-semibold transition-colors',
+                      i !== 0 ? 'border-l border-[rgba(0,0,0,.08)]' : '',
+                      active
+                        ? 'bg-white text-[#0B0F1A]'
+                        : 'text-[color:var(--warm-brown-hex)] hover:bg-white/70',
+                    ].join(' ')}
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Contact button — unchanged */}
+            <Button asChild className="btn-primary rounded-full h-11 px-6 relative overflow-hidden">
+              <Link to="/contact">
                 <span className="relative z-10 flex items-center">
                   Contact Me
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -137,7 +125,7 @@ const Navigation = () => {
               aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isOpen}
               aria-pressed={isOpen}
-              className="hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-[rgba(0,0,0,.18)]"
+              className="hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-[rgba(0,0,0,.18)] rounded-full"
               style={{ color: WARM_BROWN }}
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -150,44 +138,46 @@ const Navigation = () => {
           initial={false}
           animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}
           className="md:hidden overflow-hidden"
-          style={{ background: 'rgba(255,255,255,0.6)', borderRadius: 12, border: '1px solid rgba(0,0,0,.08)' }}
+          style={{
+            background: 'rgba(255,255,255,0.8)',
+            borderRadius: 16,
+            border: '1px solid rgba(0,0,0,.08)',
+            backdropFilter: 'blur(10px)',
+          }}
         >
-          <div className="py-4 space-y-2 px-2">
-            {navItems.map((item) => {
-              const active = isRouteActive(item.path);
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setIsOpen(false)}
-                  onMouseMove={setMouseVars}
-                  className={`group relative flex items-center justify-between px-4 h-11 rounded-full font-semibold transition-all`}
-                  style={{
-                    color: active ? '#0B0F1A' : WARM_BROWN,
-                    background: active ? 'rgba(255,255,255,.9)' : 'transparent',
-                    border: '1px solid rgba(0,0,0,.10)',
-                  }}
-                >
-                  <span className="relative z-10 flex items-center gap-2">
+          <div className="py-3 px-2">
+            <div className="flex flex-col">
+              {navItems.map((item, i) => {
+                const active = isRouteActive(item.path);
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setIsOpen(false)}
+                    className={[
+                      'w-full h-11 px-4 rounded-full font-semibold flex items-center justify-between transition-colors',
+                      i !== 0 ? 'mt-2' : '',
+                      active
+                        ? 'bg-white text-[#0B0F1A]'
+                        : 'bg-white/70 text-[color:var(--warm-brown-hex)] hover:bg-white',
+                    ].join(' ')}
+                  >
                     {item.label}
-                    <Sparkles className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </Link>
+                );
+              })}
+              <Button
+                asChild
+                className="w-full btn-primary rounded-full h-11 px-6 mt-3 relative overflow-hidden"
+              >
+                <Link to="/contact" onClick={() => setIsOpen(false)}>
+                  <span className="relative z-10 flex items-center">
+                    Contact Me
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </span>
                 </Link>
-              );
-            })}
-
-            {/* Contact button (unchanged) */}
-            <Button
-              asChild
-              className="w-full btn-primary rounded-full h-11 px-6 relative overflow-hidden"
-            >
-              <Link to="/contact" onClick={() => setIsOpen(false)} className="group relative">
-                <span className="relative z-10 flex items-center">
-                  Contact Me
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </span>
-              </Link>
-            </Button>
+              </Button>
+            </div>
           </div>
         </motion.div>
       </div>
