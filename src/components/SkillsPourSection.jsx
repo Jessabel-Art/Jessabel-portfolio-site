@@ -1,222 +1,217 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { motion, useReducedMotion, useInView } from 'framer-motion';
+import React, { useMemo, useRef } from 'react';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 
 /**
  * SkillsPourSection
- * - Animated "glass half full" that pours skill circles which then align into a grid.
- *
  * Props:
- *  - skills: string[]  (defaults included below)
- *  - title?: string
- *  - subtitle?: string
+ *  - title: string
+ *  - subtitle: string
+ *  - skills: string[]
  */
 const SkillsPourSection = ({
-  skills = [
-    'UX Research','Usability Testing','Information Architecture','Wireframing',
-    'Prototyping','Design Systems','Accessibility (WCAG)','UI Design',
-    'Analytics','Heuristic Review','Figma','Interaction Design'
-  ],
   title = 'What I bring to every project',
-  subtitle = 'A blend of research, structure, and craft that pours into outcomes.'
+  subtitle = 'A blend of research, structure, and craft that pours into outcomes.',
+  skills = [],
 }) => {
   const prefersReducedMotion = useReducedMotion();
-  const ref = useRef(null);
-  const inView = useInView(ref, { margin: '-20% 0px -20% 0px', amount: 0.4, once: true });
+  const rootRef = useRef(null);
+  const inView = useInView(rootRef, { amount: 0.35, once: true });
 
-  // Layout controls
-  const GRID_COLS = 4; // grid on the right
-  const GRID_GAP = 14; // px
-  const CIRCLE = 68; // diameter px (responsive min)
+  // Layout config
+  const CUP_LEFT = 14;        // % from left
+  const CUP_TOP = 16;         // % from top
+  const GRID_LEFT = 58;       // % from left where bubbles line up
+  const GRID_TOP = 14;        // % from top where bubbles line up
+  const COLS = 4;
+  const GAP = 3.2;            // % gap between targets (relative to section width)
+  const SIZE = 96;            // px diameter for chips
 
-  // Precompute grid coords so we can animate-to exact positions
-  const gridTargets = useMemo(() => {
-    const items = skills.length;
-    return Array.from({ length: items }).map((_, i) => {
-      const col = i % GRID_COLS;
-      const row = Math.floor(i / GRID_COLS);
-      return {
-        x: col * (CIRCLE + GRID_GAP),
-        y: row * (CIRCLE + GRID_GAP),
-      };
-    });
-  }, [skills.length]);
-
-  // Cup “spawn” positions (inside the glass). We randomize slightly so circles don’t overlap perfectly.
-  const cupSeeds = useMemo(() => {
-    return skills.map((s, i) => {
-      const r = CIRCLE / 2;
-      // spawn in a wedge (lower half of cup)
-      const baseX = 70 + (i % 4) * (r * 0.9);
-      const baseY = 80 + Math.floor(i / 4) * (r * 0.8);
-      return {
-        x: baseX + rand(-8, 8),
-        y: baseY + rand(-6, 6),
-        rot: rand(-12, 12),
-        delay: i * 0.045 + (i % 3) * 0.05,
-      };
-    });
-  }, [skills.length]);
-
-  const sectionTitle = (
-    <header className="mb-6">
-      <h2 className="text-3xl md:text-4xl font-extrabold text-[hsl(var(--foreground))]">
-        {title}
-      </h2>
-      <p className="mt-2 text-lg" style={{ color: 'var(--warm-brown-hex)' }}>
-        {subtitle}
-      </p>
-    </header>
-  );
+  // Precompute “landing” positions as percentages
+  const targets = useMemo(() => {
+    const arr = [];
+    const rows = Math.ceil(skills.length / COLS);
+    for (let i = 0; i < skills.length; i++) {
+      const r = Math.floor(i / COLS);
+      const c = i % COLS;
+      arr.push({
+        xPct: GRID_LEFT + c * GAP * 3.2, // spread out a touch more horizontally
+        yPct: GRID_TOP + r * 18,          // nice vertical rhythm
+      });
+    }
+    return arr;
+  }, [skills]);
 
   return (
-    <section ref={ref} className="py-16 sm:py-20 bg-[#FEE6D4]">
+    <section
+      ref={rootRef}
+      className="relative py-16 md:py-20 bg-[#FEE6D4]"
+      aria-label="Skills pour animation"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {sectionTitle}
+        {/* Heading */}
+        <div className="text-left space-y-3 sm:space-y-4 mb-8">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground">
+            {title}
+          </h2>
+          <p className="text-[15px] sm:text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-3xl">
+            {subtitle}
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
-          {/* LEFT: The “glass” */}
-          <div className="relative h-[420px] md:h-[460px]">
-            <GlassSVG />
+        {/* Stage */}
+        <div className="relative h-[540px] sm:h-[560px] md:h-[600px]">
+          {/* Glass (subtle, “invisible” look) */}
+          <GlassSVG
+            style={{
+              left: `${CUP_LEFT}%`,
+              top: `${CUP_TOP}%`,
+              width: '32%',
+              height: '74%',
+            }}
+          />
 
-            {/* falling tokens (positioned relative to the glass box) */}
-            <div className="absolute left-10 top-6 w-[280px] h-[360px] md:left-14 md:top-6 md:w-[320px] md:h-[380px]">
-              {!prefersReducedMotion && skills.map((label, i) => (
-                <SkillToken
-                  key={label + i}
-                  label={label}
-                  start={cupSeeds[i]}
-                  // “Drop out” distance and curve
-                  dropY={120 + (i % 4) * 6}
-                  dropX={rand(-16, 18)}
-                  delay={cupSeeds[i].delay}
-                  size={CIRCLE}
-                />
-              ))}
+          {/* Ground shadow for glass */}
+          <div
+            aria-hidden="true"
+            className="absolute rounded-full"
+            style={{
+              left: `${CUP_LEFT + 6}%`,
+              right: 'auto',
+              bottom: '5%',
+              width: '24%',
+              height: '20px',
+              background: 'radial-gradient(60% 60% at 50% 50%, rgba(0,0,0,.12), transparent 70%)',
+              opacity: 0.35,
+              filter: 'blur(2px)',
+            }}
+          />
 
-              {/* reduced motion: render static cup content only */}
-              {prefersReducedMotion && (
-                <StaticCupCloud skills={skills} size={CIRCLE} />
-              )}
-            </div>
-          </div>
+          {/* Bubbles */}
+          {skills.map((label, i) => {
+            // start near the glass rim, each with small random x offset
+            const startX = CUP_LEFT + (Math.random() * 6 - 3);
+            const startY = CUP_TOP - 6 + (Math.random() * 2 - 1);
 
-          {/* RIGHT: The final aligned grid (our tokens animate-to these coordinates) */}
-          <div className="relative min-h-[320px]">
-            <div
-              className="relative"
-              style={{
-                height: rowsNeeded(skills.length, GRID_COLS) * (CIRCLE + GRID_GAP) - GRID_GAP,
-              }}
-            >
-              {skills.map((label, i) => {
-                const tgt = gridTargets[i];
-                return (
-                  <motion.div
-                    key={'grid-' + label + i}
-                    className="absolute will-change-transform"
-                    initial={prefersReducedMotion ? { x: tgt.x, y: tgt.y } : { x: tgt.x, y: tgt.y, opacity: 0 }}
-                    animate={inView && !prefersReducedMotion
-                      ? { opacity: 1 }
-                      : { opacity: 1 }}
-                    transition={{ duration: 0.4, ease: 'easeOut', delay: 0.4 + i * 0.03 }}
-                    style={{ transform: `translate(${tgt.x}px, ${tgt.y}px)` }}
+            const target = targets[i] || { xPct: GRID_LEFT, yPct: GRID_TOP };
+            const delay = 0.12 * i;
+
+            // Two-phase animation: drop, then slide to target (spring)
+            const animate = prefersReducedMotion
+              ? { left: `${target.xPct}%`, top: `${target.yPct}%`, opacity: 1 }
+              : inView
+                ? {
+                    left: [`${startX}%`, `${startX + (Math.random() * 6 - 3)}%`, `${target.xPct}%`],
+                    top: [`${startY}%`, `${startY + 22 + Math.random() * 16}%`, `${target.yPct}%`],
+                    opacity: [0, 1, 1],
+                  }
+                : { left: `${startX}%`, top: `${startY}%`, opacity: 0 };
+
+            const transition = prefersReducedMotion
+              ? { duration: 0 }
+              : inView
+                ? [
+                    { duration: 0.45, ease: 'easeIn', delay }, // drop
+                    { duration: 0.55, ease: 'easeOut' },        // overshoot settle
+                    { type: 'spring', stiffness: 200, damping: 18 }, // final spring
+                  ]
+                : { duration: 0.4 };
+
+            return (
+              <motion.button
+                key={label}
+                type="button"
+                className="absolute grid place-items-center select-none will-change-transform"
+                style={{
+                  width: SIZE,
+                  height: SIZE,
+                  borderRadius: 9999,
+                  left: `${startX}%`,
+                  top: `${startY}%`,
+                }}
+                initial={{ opacity: 0 }}
+                animate={animate}
+                transition={transition}
+                title={label}
+                aria-label={label}
+              >
+                {/* chip */}
+                <span
+                  className={[
+                    'w-full h-full rounded-full border-2 font-bold text-center leading-tight',
+                    'transition-colors duration-300',
+                    'text-[hsl(var(--foreground))] hover:text-white',
+                    'backdrop-blur-[2px]',
+                    'chip-sheen',
+                  ].join(' ')}
+                  style={{
+                    borderColor: 'var(--btn-pink, #ff3ea5)',
+                    background:
+                      'linear-gradient(180deg, rgba(255,62,165,0) 0%, rgba(255,62,165,0.04) 100%)',
+                  }}
+                >
+                  <span
+                    className="grid place-items-center w-full h-full px-3 text-sm sm:text-base"
+                    // prettier-ignore
+                    style={{
+                      // hover fill (deeper pink tone)
+                      '--chip-fill':
+                        'linear-gradient(135deg, #ff3ea5 0%, #d61a82 100%)',
+                    }}
                   >
-                    <Token label={label} size={CIRCLE} active />
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
+                    {label}
+                  </span>
+                </span>
+                <style>{`
+                  .chip-sheen:hover {
+                    background: var(--chip-fill);
+                    box-shadow: 0 18px 38px rgba(0,0,0,.18);
+                  }
+                `}</style>
+              </motion.button>
+            );
+          })}
         </div>
       </div>
     </section>
   );
 };
 
-/* ------------------- Pieces ------------------- */
+export default SkillsPourSection;
 
-const Token = ({ label, size = 64, active = false }) => (
-  <div
-    className={`rounded-full select-none border text-sm font-semibold flex items-center justify-center shadow-sm ${
-      active ? 'bg-[hsl(var(--accent))] text-[#0B0F1A] border-[hsl(var(--border))]'
-             : 'bg-white/70 text-[hsl(var(--foreground))] border-[hsl(var(--border)/0.6)]'
-    }`}
-    style={{ width: size, height: size, padding: 8, lineHeight: 1.1 }}
-    title={label}
-  >
-    <span className="px-2 text-center">{label}</span>
-  </div>
-);
-
-// The animated “pour” token
-const SkillToken = ({ label, start, dropY = 120, dropX = 0, delay = 0, size = 64 }) => {
-  const [poured, setPoured] = useState(false);
-
-  return (
-    <motion.div
-      className="absolute will-change-transform"
-      initial={{ x: start.x, y: start.y, rotate: start.rot, opacity: 1 }}
-      animate={
-        poured
-          ? { y: start.y + dropY, x: start.x + dropX, rotate: start.rot + rand(-12, 12), opacity: 0 }
-          : { x: start.x, y: start.y, rotate: start.rot }
-      }
-      transition={{ duration: 0.7, ease: 'easeIn', delay }}
-      onAnimationComplete={() => setPoured(true)}
-      // aria-hidden because we’ll read the final grid tokens
-      aria-hidden="true"
-    >
-      <Token label={label} size={size} />
-    </motion.div>
-  );
-};
-
-// For reduced‑motion users, show a simple clustered set in the cup
-const StaticCupCloud = ({ skills, size }) => (
-  <div className="flex flex-wrap gap-2">
-    {skills.slice(0, 6).map((s, i) => (
-      <div key={s + i} style={{ transform: `translate(${(i % 3) * (size * 0.6)}px, ${Math.floor(i / 3) * (size * 0.6)}px)` }}>
-        <Token label={s} size={size * 0.7} />
-      </div>
-    ))}
-  </div>
-);
-
-// “Invisible glass” outline with frosted fill (no image needed)
-const GlassSVG = () => (
+/* ----------------------------- */
+/* Glass outline as an SVG       */
+/* ----------------------------- */
+const GlassSVG = ({ style }) => (
   <svg
-    className="absolute left-6 top-0 w-[340px] h-[420px] md:left-10 md:w-[380px] md:h-[460px]"
-    viewBox="0 0 380 460"
+    viewBox="0 0 520 720"
+    className="absolute"
+    style={style}
     aria-hidden="true"
   >
     <defs>
-      <linearGradient id="frost" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.22" />
-        <stop offset="70%" stopColor="#FFFFFF" stopOpacity="0.06" />
-        <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.02" />
+      <linearGradient id="glassStroke" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="rgba(255,255,255,.85)" />
+        <stop offset="1" stopColor="rgba(255,255,255,.65)" />
       </linearGradient>
     </defs>
-    {/* cup body */}
+    {/* cup */}
     <path
-      d="M40 30 H340 L300 390 Q295 430 190 430 Q85 430 80 390 Z"
-      fill="url(#frost)"
-      stroke="rgba(255,255,255,0.6)"
-      strokeWidth="2"
+      d="M110 80 L70 520 C60 620 180 660 260 660 C340 660 460 620 450 520 L410 80"
+      fill="none"
+      stroke="url(#glassStroke)"
+      strokeWidth="10"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      opacity="0.85"
     />
-    {/* rim highlight */}
-    <path d="M40 30 H340" stroke="rgba(255,255,255,0.8)" strokeWidth="3" />
-    {/* subtle shadow */}
-    <ellipse cx="190" cy="448" rx="120" ry="10" fill="rgba(0,0,0,0.06)" />
+    {/* rim */}
+    <path
+      d="M120 84 Q260 62 400 84"
+      fill="none"
+      stroke="url(#glassStroke)"
+      strokeWidth="10"
+      strokeLinecap="round"
+      opacity="0.8"
+    />
   </svg>
 );
-
-/* ------------------- helpers ------------------- */
-
-function rand(min, max) {
-  return Math.random() * (max - min) + min;
-}
-function rowsNeeded(n, cols) {
-  return Math.ceil(n / cols);
-}
-
-export default SkillsPourSection;
