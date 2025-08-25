@@ -129,14 +129,15 @@ const RevealWords = ({ text, className }) => {
     <span className={className}>
       {words.map((w, i) => (
         <motion.span
-          key={i}
+          key={`${w}-${i}`}
           initial={{ y: '0.6em', opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true, amount: 0.6 }}
           transition={{ duration: 0.45, delay: i * 0.04, ease: 'easeOut' }}
-          className="inline-block will-change-transform"
+          // NOTE: inline-block is needed for the Y animation; margin-right creates the visible “space”
+          className="inline-block will-change-transform mr-[0.25em] tracking-[0em]"
         >
-          {w}{i < words.length - 1 ? ' ' : ''}
+          {w}
         </motion.span>
       ))}
     </span>
@@ -212,12 +213,11 @@ const AboutPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
             <motion.div {...fadeIn} className="lg:col-span-3 space-y-7 max-w-3xl">
-              <h1
-                className="font-hero font-extrabold tracking-tight text-4xl md:text-5xl lg:text-6xl leading-[1.12]
-                           bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff),var(--btn-teal,#00c2b2))]
-                           bg-clip-text text-transparent"
-                style={{ textShadow: '0 6px 22px rgba(0,0,0,0.22)' }}
-              >
+              <h1 className="font-hero font-extrabold text-4xl md:text-5xl lg:text-6xl leading-[1.08]
+                tracking-[-0.005em]
+                bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff),var(--btn-teal,#00c2b2))]
+                bg-clip-text text-transparent"
+                  style={{ textShadow: '0 6px 22px rgba(0,0,0,0.22)' }}>
                 <RevealWords text="I turn complex ideas into intuitive, human-centered experiences." />
               </h1>
 

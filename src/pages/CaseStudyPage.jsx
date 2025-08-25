@@ -1,6 +1,6 @@
-import React from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState, useRef } from 'react';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet';
 import { ExternalLink, CheckCircle, ArrowLeft, ArrowRight, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,9 +16,57 @@ const keyFromProject = (p = {}) =>
   (p.slug || p.id || p.title || '').toString().toLowerCase().replace(/\s+/g, '-');
 const placeholder = (i = 1) => `https://picsum.photos/seed/cs-${i}/1600/1000`;
 
+/* ---------------- Sketchbook Open Pieces ---------------- */
+const spineGradient =
+  'linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.1) 30%, rgba(255,255,255,.22) 50%, rgba(0,0,0,.1) 70%, rgba(0,0,0,.22))';
+
+const OpeningCover = ({ show = true, onDone }) => {
+  // A left-hinged “cover” that flips away on first mount
+  if (!show) return null;
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ rotateY: 0, x: 0, opacity: 1 }}
+        animate={{ rotateY: -140, x: -20, opacity: 0 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.85, ease: [0.2, 0.8, 0.2, 1] }}
+        style={{
+          transformOrigin: 'left center',
+          perspective: 1400,
+        }}
+        className="pointer-events-none absolute inset-y-0 left-0 w-[min(920px,95vw)] rounded-r-3xl z-20
+                   shadow-[20px_0_60px_rgba(0,0,0,.35)]
+                   bg-[linear-gradient(135deg,#fff,#f5f5f5)] border-r border-black/10"
+        onAnimationComplete={onDone}
+        aria-hidden="true"
+      >
+        {/* Cover texture accents */}
+        <div className="absolute inset-0 rounded-r-3xl"
+             style={{ background: 'radial-gradient(800px 300px at 30% 20%, rgba(0,0,0,.08), transparent 60%)' }} />
+        {/* Cover label stripe (subtle) */}
+        <div className="absolute left-6 top-8 h-6 w-40 rounded bg-black/8" />
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+const PageSpine = () => (
+  <div className="absolute inset-y-0 left-0 w-3 z-10" style={{ background: spineGradient }} aria-hidden="true" />
+);
+
+const PageShadow = () => (
+  <div
+    className="absolute inset-y-0 left-0 w-40 pointer-events-none z-0"
+    style={{ background: 'linear-gradient(90deg, rgba(0,0,0,.22), transparent 60%)' }}
+    aria-hidden="true"
+  />
+);
+/* ------------------------------------------------------- */
+
 const CaseStudyPage = ({ projects = [] }) => {
   const { projectId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Support either `id` OR `slug` in your data
   const projectIndex = projects.findIndex(
@@ -82,16 +130,34 @@ const CaseStudyPage = ({ projects = [] }) => {
     project.shortDescription ||
     'A UX/UI and branding case study by Jessabel Santos.';
 
+  /* ----- Sketchbook open on mount (optional via route state) ----- */
+  const [showCover, setShowCover] = useState(() =>
+    location.state?.sketchOpen === false ? false : true
+  );
+  useEffect(() => {
+    // Safety: auto-hide after 1.2s even if animation callback missed
+    if (!showCover) return;
+    const t = setTimeout(() => setShowCover(false), 1200);
+    return () => clearTimeout(t);
+  }, [showCover]);
+
   return (
-    <div>
+    <div className="relative">
       <Helmet>
         <title>{title} - Case Study</title>
         <meta name="description" content={desc} />
         {project.heroImage && <meta property="og:image" content={project.heroImage} />}
       </Helmet>
 
-      {/* Hero */}
+      {/* Sketchbook spine + page shadow (behind content but above hero image) */}
+      <PageSpine />
+      <PageShadow />
+
+      {/* Hero (sits like the first open spread) */}
       <section className="relative min-h-[60vh] flex items-center justify-center text-center overflow-clip">
+        {/* Opening cover animation */}
+        <OpeningCover show={showCover} onDone={() => setShowCover(false)} />
+
         <figure className="absolute inset-0 z-0">
           {hasVideo ? (
             <video
@@ -120,10 +186,11 @@ const CaseStudyPage = ({ projects = [] }) => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/35 to-black/60" aria-hidden="true" />
         </figure>
 
+        {/* Title block subtly “settles” like a page opening */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, y: 16, rotateX: 8 }}
+          animate={{ opacity: 1, y: 0, rotateX: 0 }}
+          transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
           className="relative z-10 space-y-4 px-4"
         >
           <h1 className="text-4xl md:text-6xl font-bold text-white">{title}</h1>
@@ -139,11 +206,13 @@ const CaseStudyPage = ({ projects = [] }) => {
           <Button
             onClick={handleLiveDemoClick}
             size="lg"
-            className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center"
+            className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center group"
             aria-label={project.liveUrl ? 'View live demo in a new tab' : 'Live demo not available'}
           >
             {project.liveUrl ? 'View Live Demo' : 'Live Demo'}
-            <ExternalLink className="ml-2 h-5 w-5 inline-block" />
+            <motion.span whileHover={{ rotate: 10 }} className="inline-flex">
+              <ExternalLink className="ml-2 h-5 w-5 inline-block" />
+            </motion.span>
           </Button>
 
           {project.pdfUrl && (
@@ -186,20 +255,25 @@ const CaseStudyPage = ({ projects = [] }) => {
               </motion.section>
             )}
 
-            {/* Process */}
+            {/* Process (adds a subtle timeline rail) */}
             {Array.isArray(project.process) && project.process.length > 0 && (
               <motion.section {...fadeIn}>
                 <h2 className="text-3xl font-bold gradient-text mb-6">Process</h2>
                 <div className="relative space-y-8">
                   <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-[hsl(var(--border))] rounded-full" />
                   {project.process.map((step, index) => (
-                    <div key={index} className="pl-12 relative">
+                    <motion.div key={index} className="pl-12 relative"
+                      initial={{ opacity: 0, x: -8 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true, amount: 0.3 }}
+                      transition={{ duration: 0.35, delay: index * 0.02 }}
+                    >
                       <div className="absolute left-0 top-0 w-8 h-8 rounded-full bg-[hsl(var(--secondary))] flex items-center justify-center font-bold text-white">
                         {index + 1}
                       </div>
                       <h3 className="text-xl font-bold text-[hsl(var(--foreground))] mb-1">{step.title}</h3>
                       <p className="text-[hsl(var(--muted-foreground))]">{step.description}</p>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </motion.section>
@@ -213,10 +287,15 @@ const CaseStudyPage = ({ projects = [] }) => {
                 <h3 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-4">Impact</h3>
                 <ul className="grid grid-cols-2 gap-3">
                   {project.metrics.map((m, i) => (
-                    <li key={i} className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 text-center">
+                    <motion.li
+                      key={i}
+                      whileHover={{ y: -3 }}
+                      transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                      className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 text-center"
+                    >
                       <p className="text-3xl font-extrabold text-[hsl(var(--foreground))] leading-none">{m.value}</p>
                       <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">{m.label}</p>
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
               </div>
@@ -286,7 +365,12 @@ const CaseStudyPage = ({ projects = [] }) => {
               {project.gallery.map((asset, index) => {
                 const isVid = typeof asset === 'string' && /\.(mp4|webm|mov)(\?.*)?$/i.test(asset);
                 return (
-                  <motion.figure key={index} whileHover={{ scale: 1.03 }} className="aspect-square rounded-lg overflow-hidden">
+                  <motion.figure
+                    key={index}
+                    whileHover={{ scale: 1.03 }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+                    className="aspect-square rounded-lg overflow-hidden"
+                  >
                     {isVid ? (
                       <video
                         src={asset}
@@ -327,10 +411,12 @@ const CaseStudyPage = ({ projects = [] }) => {
           {nextExists && (
             <Button
               onClick={() => navigate(`/portfolio/${nextProjectKey}`)}
-              className="btn-primary inline-flex items-center"
+              className="btn-primary inline-flex items-center group"
             >
               View Next Project
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <motion.span whileHover={{ x: 2 }} className="inline-flex">
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </motion.span>
             </Button>
           )}
         </motion.section>
