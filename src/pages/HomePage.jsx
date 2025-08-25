@@ -7,22 +7,13 @@ import {
   useTransform,
 } from 'framer-motion';
 import { Helmet } from 'react-helmet';
-import {
-  ArrowRight,
-  LayoutGrid,
-  Lightbulb,
-  Users,
-  PenTool,
-  BarChart3,
-  Briefcase,
-  Star,
-  Pause,
-  Play,
-  Sparkles,
-} from 'lucide-react';
+import { ArrowRight, Star, Pause, Play, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
+
+// NEW: pour section
+import SkillsPourSection from '@/components/SkillsPourSection';
 
 // Local hero image
 import heroBg from '@/assets/images/hero-bg.jpg';
@@ -104,98 +95,14 @@ const HomePage = () => {
     setBurst(Date.now()); // trigger confetti
   };
 
-  // Skills data with tags for filtering
-  const expertise = [
-    {
-      icon: LayoutGrid,
-      title: 'UX/UI Design',
-      description: 'Intuitive, accessible, visually engaging interfaces.',
-      tags: ['UI', 'Systems'],
-    },
-    {
-      icon: Lightbulb,
-      title: 'Prototyping',
-      description: 'Interactive mockups for rapid iteration and clarity.',
-      tags: ['UI', 'Systems'],
-    },
-    {
-      icon: Users,
-      title: 'User Research',
-      description: 'Testing, surveys, and observation for real insights.',
-      tags: ['Research'],
-    },
-    {
-      icon: PenTool,
-      title: 'Branding',
-      description: 'Cohesive, memorable systems that scale.',
-      tags: ['Brand'],
-    },
-    {
-      icon: BarChart3,
-      title: 'UX Strategy',
-      description: 'Business goals aligned to user expectations.',
-      tags: ['Systems', 'Biz'],
-    },
-    {
-      icon: Briefcase,
-      title: 'Career & Biz Support',
-      description: 'Roadmaps, positioning, and GTM ops that work.',
-      tags: ['Biz'],
-    },
-  ];
-
   const reviews = [
-    {
-      name: 'Alicia M., Founder',
-      quote:
-        'Jess turned our messy idea into a clear, lovable product flow.',
-    },
-    {
-      name: 'Derrick P., Product Lead',
-      quote:
-        'Stakeholders finally understood the vision after her prototype.',
-    },
-    {
-      name: 'Lena R., Marketing Director',
-      quote:
-        'Brand system feels bold yet usable across all channels.',
-    },
-    {
-      name: 'Mateo S., Engineering Manager',
-      quote:
-        'Design handoff was a dream—clean files and thoughtful states.',
-    },
-    {
-      name: 'Priya K., Startup CEO',
-      quote:
-        'Customers stopped getting lost. Time-to-value went way up.',
-    },
-    {
-      name: 'Nora T., Ops Lead',
-      quote:
-        'Workshops were focused, friendly, and actually productive.',
-    },
+    { name: 'Alicia M., Founder', quote: 'Jess turned our messy idea into a clear, lovable product flow.' },
+    { name: 'Derrick P., Product Lead', quote: 'Stakeholders finally understood the vision after her prototype.' },
+    { name: 'Lena R., Marketing Director', quote: 'Brand system feels bold yet usable across all channels.' },
+    { name: 'Mateo S., Engineering Manager', quote: 'Design handoff was a dream—clean files and thoughtful states.' },
+    { name: 'Priya K., Startup CEO', quote: 'Customers stopped getting lost. Time-to-value went way up.' },
+    { name: 'Nora T., Ops Lead', quote: 'Workshops were focused, friendly, and actually productive.' },
   ];
-
-  const ACCENTS = [
-    { top: 'from-[#22d3ee] to-[#a78bfa]', chip: 'bg-[#22d3ee]', text: 'text-[#22d3ee]' },
-    { top: 'from-[#a78bfa] to-[#f59e0b]', chip: 'bg-[#a78bfa]', text: 'text-[#a78bfa]' },
-    { top: 'from-[#f59e0b] to-[#fb7185]', chip: 'bg-[#f59e0b]', text: 'text-[#f59e0b]' },
-    { top: 'from-[#fb7185] to-[#34d399]', chip: 'bg-[#fb7185]', text: 'text-[#fb7185]' },
-    { top: 'from-[#34d399] to-[#60a5fa]', chip: 'bg-[#34d399]', text: 'text-[#34d399]' },
-    { top: 'from-[#60a5fa] to-[#22d3ee]', chip: 'bg-[#60a5fa]', text: 'text-[#60a5fa]' },
-  ];
-
-  /* ----------------------------
-     Filter chips state
-  -----------------------------*/
-  const ALL_CHIPS = ['All', 'Research', 'UI', 'Systems', 'Brand', 'Biz'];
-  const [activeChip, setActiveChip] = useState('All');
-
-  const filteredExpertise = useMemo(() => {
-    if (activeChip === 'All') return expertise;
-    return expertise.filter((e) => e.tags.includes(activeChip));
-  }, [activeChip, expertise]);
 
   /* ----------------------------
      Scroll progress
@@ -257,8 +164,7 @@ const HomePage = () => {
   /* ==============================================================
      Render
   ============================================================== */
-  const HEADLINE =
-    'I design seamless, human-centered digital experiences.';
+  const HEADLINE = 'I design seamless, human-centered digital experiences.';
   const headlineWords = useMemo(() => HEADLINE.split(' '), []);
 
   return (
@@ -390,7 +296,6 @@ const HomePage = () => {
                   <Link to="/contact" aria-label="Start a project">
                     Start a Project
                     <ArrowRight className="ml-2 h-5 w-5" />
-                    {/* Gradient sweep */}
                     {!prefersReducedMotion && (
                       <motion.span
                         aria-hidden="true"
@@ -434,143 +339,25 @@ const HomePage = () => {
         </svg>
       </section>
 
-      {/* ===================== WHAT I BRING ===================== */}
-      <section className="relative z-10 -mt-4 md:-mt-8 py-12 sm:py-14 md:py-20 bg-[#FEE6D4] rounded-t-[24px] md:rounded-t-[28px] shadow-2xl">
-        {/* Soft top shadow */}
-        <div className="pointer-events-none absolute -top-10 inset-x-0 h-10 shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-left space-y-3 sm:space-y-4 mb-5 sm:mb-7 md:mb-8">
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground">
-              What I Bring to Every Project
-            </h2>
-            <div className="relative h-1 w-36 sm:w-40 rounded overflow-hidden">
-              {/* shimmer line */}
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]" />
-              {!prefersReducedMotion && (
-                <motion.span
-                  className="absolute inset-y-0 w-1/3 bg-white/40"
-                  initial={{ x: '-40%' }}
-                  animate={{ x: ['-40%', '110%'] }}
-                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                />
-              )}
-            </div>
-            <p className="text-[15px] sm:text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-3xl">
-              Strategy, taste, and rigorous usability—delivered through a clear, collaborative process.
-            </p>
-          </div>
-
-          {/* Filter chips (with gradient shimmer when active) */}
-          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 mb-6 sm:mb-8 overflow-x-auto whitespace-nowrap sm:whitespace-normal no-scrollbar">
-            <div className="flex gap-2 sm:flex-wrap">
-              {ALL_CHIPS.map((chip) => {
-                const active = chip === activeChip;
-                return (
-                  <button
-                    key={chip}
-                    onClick={() => setActiveChip(chip)}
-                    className={`relative rounded-full px-4 py-2 text-sm font-semibold transition shrink-0
-                      ${
-                        active
-                          ? 'text-white shadow-md bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]'
-                          : 'border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-foreground hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]'
-                      }`}
-                    aria-pressed={active}
-                  >
-                    {chip}
-                    {/* active shimmer */}
-                    {active && !prefersReducedMotion && (
-                      <motion.span
-                        className="pointer-events-none absolute inset-0 rounded-full"
-                        initial={{ backgroundPosition: '0% 50%' }}
-                        animate={{ backgroundPosition: ['0% 50%', '100% 50%'] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                        style={{
-                          background:
-                            'linear-gradient(120deg, rgba(255,255,255,.25), transparent 40%, rgba(255,255,255,.25))',
-                          backgroundSize: '200% 200%',
-                        }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Cards */}
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-stretch gap-5 sm:gap-6"
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
-          >
-            <AnimatePresence mode="popLayout">
-              {filteredExpertise.map((s, index) => {
-                const Icon = s.icon;
-                const accent = ACCENTS[index % ACCENTS.length];
-                const slug = s.title.toLowerCase().replace(/\s+/g, '-');
-                return (
-                  <motion.div
-                    key={s.title}
-                    layout
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 18 }}
-                    variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
-                    transition={{ duration: 0.35 }}
-                    whileHover={
-                      prefersReducedMotion
-                        ? undefined
-                        : { y: -6, rotate: -0.2, boxShadow: '0 30px 50px -25px rgba(0,0,0,.2)' }
-                    }
-                    className="relative group rounded-2xl overflow-hidden h-full"
-                  >
-                    <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accent.top}`} />
-                    <div className="relative h-full rounded-2xl border border-[hsl(var(--border))] bg-white/95 backdrop-blur-sm transition-all p-5 sm:p-7 flex flex-col">
-                      {/* icon with pop glow */}
-                      <motion.div
-                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl ${accent.chip} bg-opacity-20 flex items-center justify-center mb-3 sm:mb-4`}
-                        whileHover={
-                          prefersReducedMotion
-                            ? undefined
-                            : { scale: 1.06, x: 2, y: -2, boxShadow: '0 10px 25px rgba(0,0,0,.08)' }
-                        }
-                        transition={{ type: 'spring', stiffness: 220, damping: 14 }}
-                      >
-                        <Icon className={`${accent.text}`} size={22} />
-                      </motion.div>
-
-                      <h3 className="text-lg sm:text-2xl font-bold text-foreground">{s.title}</h3>
-                      <p className="mt-1.5 sm:mt-2 text-[hsl(var(--muted-foreground))]">
-                        {s.description}
-                      </p>
-
-                      {/* Learn more reveal */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 6 }}
-                        whileHover={{ opacity: 1, y: 0 }}
-                        className="mt-4"
-                      >
-                        <Link
-                          to={`/portfolio#${slug}`}
-                          className="inline-flex items-center text-sm font-semibold text-[hsl(var(--accent-foreground))] hover:underline"
-                        >
-                          Learn more →
-                        </Link>
-                      </motion.div>
-
-                      <div className="mt-auto pt-2" />
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </motion.div>
-        </div>
-      </section>
+      {/* ===================== WHAT I BRING (POUR ANIMATION) ===================== */}
+      <SkillsPourSection
+        title="What I bring to every project"
+        subtitle="A blend of research, structure, and craft that pours into outcomes."
+        skills={[
+          'UX Research',
+          'Usability Testing',
+          'Information Architecture',
+          'Wireframing',
+          'Prototyping',
+          'Design Systems',
+          'Accessibility (WCAG)',
+          'UI Design',
+          'Analytics',
+          'Heuristic Review',
+          'Figma',
+          'Interaction Design',
+        ]}
+      />
 
       {/* ===================== TESTIMONIALS ===================== */}
       <section className="relative py-14 sm:py-16 md:py-24 overflow-hidden bg-[linear-gradient(180deg,#FFFDF7_0%,#FFEFD9_100%)]">
@@ -746,7 +533,6 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 overflow-hidden border border-[hsl(var(--border))] bg-white/90 backdrop-blur"
           >
-            {/* Morphing gradient blob */}
             {!prefersReducedMotion && (
               <motion.svg
                 viewBox="0 0 600 600"
@@ -775,7 +561,6 @@ const HomePage = () => {
               </motion.svg>
             )}
 
-            {/* radial glow behind */}
             <div
               className="pointer-events-none absolute -inset-16"
               aria-hidden="true"
@@ -786,11 +571,7 @@ const HomePage = () => {
             />
 
             <motion.h2
-              animate={
-                prefersReducedMotion
-                  ? undefined
-                  : { y: [0, -2, 0] }
-              }
+              animate={prefersReducedMotion ? undefined : { y: [0, -2, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
               className="relative text-2xl sm:text-4xl md:text-5xl font-bold text-foreground"
             >
@@ -801,13 +582,11 @@ const HomePage = () => {
               Let’s collaborate and bring your vision to life with thoughtful UX, clean UI, and systems that scale.
             </p>
 
-            {/* Buttons + bigger/slower sparkles */}
             <motion.div
               className="relative mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4"
               whileHover={prefersReducedMotion ? undefined : 'hovered'}
               initial="idle"
             >
-              {/* Sparkles */}
               {!prefersReducedMotion && (
                 <AnimatePresence>
                   <motion.span
@@ -845,7 +624,6 @@ const HomePage = () => {
                 <Link to="/contact">
                   Start a Project
                   <ArrowRight className="ml-2 h-5 w-5" />
-                  {/* ripple sweep */}
                   {!prefersReducedMotion && (
                     <motion.span
                       aria-hidden="true"
@@ -878,4 +656,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
