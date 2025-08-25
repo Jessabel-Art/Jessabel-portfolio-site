@@ -1,473 +1,254 @@
 import React, { useRef, useState } from 'react';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, BarChart3, Sparkles, ArrowRight } from 'lucide-react';
+import { CheckCircle, ArrowRight, Sparkles } from 'lucide-react';
 
-// Local assets
+// Local assets (adjust paths if yours differ)
 import artistPortrait from '@/assets/about/artist-portrait.png';
 import toolsStatsBg from '@/assets/about/tools-stats-bg-strip.jpg';
 
-const WARM_BROWN = 'var(--warm-brown-hex)';
+/**
+ * ABOUT PAGE — “My Story in Color”
+ * Goals:
+ *  - Keep your existing content structure but add a color-story background that changes per section
+ *  - Respect reduced motion and stay performant (no giant videos, mostly CSS + lightweight motion)
+ *  - Small, meaningful micro-interactions on hover/whileInView
+ */
 
-/* ---------- Shared animation presets ---------- */
+// Your brand color story — tweak freely
+const COLOR_STOPS = [
+  { name: 'Sunrise', from: '#ffe574', to: '#fa8a00' },
+  { name: 'Citrus', from: '#fec200', to: '#ff9f1a' },
+  { name: 'Copper', from: '#fa8a00', to: '#d74708' },
+  { name: 'Rose', from: '#ff8f8f', to: '#f05d5d' },
+  { name: 'Berry', from: '#f05d5d', to: '#b23b6b' },
+];
+
+// Shared animation presets
 const fadeIn = {
-  initial: { opacity: 0, y: 30 },
+  initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
   transition: { duration: 0.6, ease: 'easeOut' },
-  viewport: { once: true, amount: 0.3 },
+  viewport: { once: true, amount: 0.25 },
 };
 
-const skills = [
-  'UX Research','UI Design','Prototyping','Design Systems',
-  'Figma','Information Architecture','Heuristic Evaluation',
-  'Usability Testing','Brand Systems','Accessibility (WCAG)',
-  'React/Tailwind','Analytics'
-];
-
-const journey = [
-  { year: '2022–Present', title: 'UX/UI Designer & Consultant', company: 'Creative & Tech Sector',
-    description: 'Partnering with startups and small businesses on research, UI, and design systems.' },
-  { year: '2018–2022', title: 'Systems Implementation Lead', company: 'Healthcare SaaS',
-    description: 'Rolled out an internal platform; focused on usability, accessibility, and adoption.' },
-  { year: '2015–2018', title: 'Platform Usability Contributor', company: 'Fintech / Insurance',
-    description: 'Helped define features, ran studies, and improved cross-team workflow efficiency.' },
-  { year: '2014', title: 'The Spark', company: 'Independent',
-    description: 'Built early websites and learned SEO; realized design could be both art and utility.' },
-  { year: '2011', title: 'Design Intern — NUA on the Move', company: 'New Urban Arts',
-    description: 'Mapped studio zones, supported build-out decisions, and showed my first public work.' }
-];
-
-const education = [
-  { school: 'Western Governors University', degree: 'MBA (in progress)', year: '2025' },
-  { school: 'Western Governors University', degree: 'B.S. Business Administration, Management', year: '2024' },
-  { school: 'Full Sail University', degree: 'Certificate in User Experience', year: '2024' },
-  { school: 'Community College of Rhode Island', degree: 'A.S. Business Administration', year: '2022' },
-];
-
-/* ---------- Tiny sparkle overlay for links/buttons ---------- */
-const SparkleOverlay = ({ active }) => {
-  const prefersReducedMotion = useReducedMotion();
-  if (prefersReducedMotion) return null;
+function ColorBackdrop({ activeIdx, prefersReduced }) {
+  // Single fixed element behind content that we recolor per-section
+  const a = COLOR_STOPS[activeIdx] ?? COLOR_STOPS[0];
   return (
-    <motion.span
-      initial={{ opacity: 0 }}
-      animate={{ opacity: active ? 1 : 0 }}
-      className="pointer-events-none absolute inset-0"
-    >
-      {[...Array(6)].map((_, i) => {
-        const x = (i * 17 + 8) % 100;
-        const y = (i * 29 + 12) % 100;
-        const delay = (i * 0.12) % 1.4;
-        return (
-          <motion.span
+    <motion.div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 -z-10"
+      // Avoid heavy paints: use a simple linear-gradient + subtle noise overlay via background-image stack
+      style={{
+        backgroundImage: `linear-gradient(120deg, ${a.from}, ${a.to}), radial-gradient(1200px 600px at 20% 10%, rgba(255,255,255,0.18), transparent 60%)`,
+        filter: 'saturate(1.05)',
+      }}
+      animate={prefersReduced ? {} : { opacity: 1, scale: [1.01, 1.02, 1.01] }}
+      transition={prefersReduced ? {} : { duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+    />
+  );
+}
+
+function Chapter({ idx, title, years, bullets, onEnter, onLeave }) {
+  return (
+    <section className="relative py-20 md:py-28">
+      {/* Color label chip */}
+      <motion.div
+        {...fadeIn}
+        className="mb-6 inline-flex items-center gap-2 rounded-full bg-black/10 px-4 py-1 text-xs font-semibold tracking-wide text-black/80 backdrop-blur-sm dark:bg-white/10 dark:text-white/90"
+      >
+        <span className="inline-flex size-2.5 rounded-full" style={{ background: COLOR_STOPS[idx % COLOR_STOPS.length].to }} />
+        {COLOR_STOPS[idx % COLOR_STOPS.length].name.toUpperCase()}
+      </motion.div>
+
+      <motion.h3 {...fadeIn} className="text-2xl md:text-3xl font-extrabold leading-tight">
+        {title}
+        <span className="ml-3 align-middle text-sm font-semibold opacity-70">{years}</span>
+      </motion.h3>
+
+      <motion.ul
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.3 }}
+        className="mt-6 grid gap-3"
+      >
+        {bullets.map((b, i) => (
+          <motion.li
             key={i}
-            className="absolute"
-            style={{ left: `${x}%`, top: `${y}%` }}
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: [0, 1, 0], scale: [0.6, 1.1, 0.6] }}
-            transition={{ duration: 1.4, repeat: Infinity, delay, ease: 'easeInOut' }}
+            variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { delay: i * 0.05 } } }}
+            className="flex items-start gap-3 text-base leading-relaxed text-black/80 dark:text-white/80"
           >
-            <Sparkles className="w-4 h-4 text-[hsl(var(--primary))]" />
-          </motion.span>
-        );
-      })}
-    </motion.span>
+            <CheckCircle className="mt-1 size-5 flex-none opacity-80" />
+            <span>{b}</span>
+          </motion.li>
+        ))}
+      </motion.ul>
+
+      {/* Viewport enter/leave hooks to update background color */}
+      <motion.div
+        onViewportEnter={() => onEnter?.(idx)}
+        onViewportLeave={() => onLeave?.(idx)}
+        className="absolute inset-x-0 bottom-0 h-1"
+      />
+    </section>
   );
-};
+}
 
-/* Inline link with sparkle (use for any text links if needed) */
-const LinkWithSparkle = ({ to, href, children, className = '' }) => {
-  const [hover, setHover] = useState(false);
-  const common =
-    "relative inline-flex items-center gap-1.5 font-semibold underline decoration-transparent hover:decoration-current transition";
-  if (to) {
-    return (
-      <span className="relative" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-        <Link to={to} className={`${common} ${className}`}>{children}</Link>
-        <SparkleOverlay active={hover} />
-      </span>
-    );
-  }
-  return (
-    <span className="relative" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-      <a href={href} className={`${common} ${className}`}>{children}</a>
-      <SparkleOverlay active={hover} />
-    </span>
-  );
-};
-
-const AboutPage = () => {
-  const prefersReducedMotion = useReducedMotion();
-
-  /* ---------- SEO ---------- */
-  const personLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Jessabel',
-    jobTitle: 'UX Designer',
-    url: 'https://jessabel.art/about',
-    sameAs: ['https://www.linkedin.com/', 'https://www.behance.net/'],
-    knowsAbout: [
-      'User Experience','User Interface','User Research','Usability Testing',
-      'Design Systems','Figma','Accessibility','Information Architecture'
-    ]
-  };
-
-  /* ---------- Portrait parallax + spotlight ---------- */
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start','end start'] });
-  const portraitY = useTransform(scrollYProgress, [0,1], ['0%','-8%']);
-  const [cursor, setCursor] = useState({ x: 60, y: 40 });
-  const onHoverMove = (e) => {
-    if (prefersReducedMotion) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    setCursor({ x: ((e.clientX - r.left)/r.width)*100, y: ((e.clientY - r.top)/r.height)*100 });
-  };
-
-  /* hover state for button sparkles */
-  const [btnHover, setBtnHover] = useState({ a:false, b:false, c:false, d:false });
+export default function AboutPage() {
+  const prefersReduced = useReducedMotion();
+  const [activeIdx, setActiveIdx] = useState(0);
+  const pageRef = useRef(null);
 
   return (
-    <div className="bg-[#FEE6D4]">
+    <div ref={pageRef} className="relative">
       <Helmet>
-        <title>Jessabel — UX Designer | About</title>
-        <meta
-          name="description"
-          content="Jessabel — UX Designer focused on human-centered, data-informed product design. View case studies, resume, and process."
-        />
-        <script type="application/ld+json">{JSON.stringify(personLd)}</script>
+        <title>About — My Story in Color | Jessabel.Art</title>
+        <meta name="description" content="UX/UI designer crafting interfaces with story-driven color and motion. Explore the journey, tools, and case studies." />
       </Helmet>
 
-      {/* ===================== HERO ===================== */}
-      <section ref={heroRef} className="pt-20 pb-16 sm:pb-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
-            <motion.div {...fadeIn} className="lg:col-span-3 space-y-7 max-w-3xl">
-              <h1
-                className="font-hero font-extrabold tracking-tight text-4xl md:text-5xl lg:text-6xl leading-[1.12]
-                           bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-violet,#6a5cff),var(--btn-teal,#00c2b2))]
-                           bg-clip-text text-transparent"
-                style={{ textShadow: '0 6px 22px rgba(0,0,0,0.22)' }}
-              >
-                I turn complex ideas into intuitive, human-centered experiences.
-              </h1>
+      <ColorBackdrop activeIdx={activeIdx} prefersReduced={prefersReduced} />
 
-              <p className="text-lg md:text-xl leading-relaxed max-w-prose" style={{ color: WARM_BROWN }}>
-                I bridge <strong>business strategy</strong>, <strong>user research</strong>, and
-                <strong> design systems</strong> to ship products that are beautiful, usable, and measurable.
-                My background across business and ops means I design for both <em>people</em> and
-                <em> outcomes</em>.
-              </p>
+      {/* HERO */}
+      <header className="relative mx-auto max-w-6xl px-4 pt-24 md:pt-28">
+        <motion.div {...fadeIn} className="mb-6 inline-block rounded-full bg-white/40 px-4 py-2 text-xs font-bold uppercase tracking-wider text-black/80 shadow-sm backdrop-blur-sm dark:bg-black/30 dark:text-white/90">
+          My Story in Color
+        </motion.div>
+        <motion.h1 {...fadeIn} className="text-4xl md:text-6xl font-extrabold leading-[1.1]">
+          I map <em className="not-italic underline decoration-4 underline-offset-4">ideas</em> onto screens.
+        </motion.h1>
+        <motion.p {...fadeIn} className="mt-4 max-w-2xl text-lg text-black/75 dark:text-white/80">
+          I build clear, accessible interfaces—and add emotion through purposeful motion. Below is the journey that shaped my design lens.
+        </motion.p>
 
-              {/* Proof chips */}
-              <ul className="grid sm:grid-cols-3 gap-3">
-                <ProofChip icon={<CheckCircle size={18} />} label="Human-centered" sub="Clear, inclusive flows" />
-                <ProofChip icon={<BarChart3 size={18} />} label="Data-informed" sub="Decisions & metrics" />
-                <ProofChip icon={<Sparkles size={18} />} label="Systems + UI" sub="Design systems & craft" />
-              </ul>
+        {/* Portrait with parallax float */}
+        <motion.figure
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          animate={prefersReduced ? {} : { y: [0, -6, 0] }}
+          transition={prefersReduced ? {} : { duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+          className="mt-10"
+        >
+          <img
+            src={artistPortrait}
+            alt="Illustrative portrait: a UX designer amidst color swatches and interface sketches"
+            className="mx-auto w-full max-w-xl rounded-3xl shadow-xl ring-1 ring-black/10"
+          />
+          <figcaption className="mt-3 text-center text-sm opacity-70">Color is the narrative thread binding research to UI.</figcaption>
+        </motion.figure>
+      </header>
 
-              {/* CTAs with sparkle + color-shift on hover */}
-              <div className="flex flex-wrap gap-3 pt-2">
-                <span className="relative" onMouseEnter={()=>setBtnHover(s=>({...s,a:true}))} onMouseLeave={()=>setBtnHover(s=>({...s,a:false}))}>
-                  <Button
-                    asChild size="lg"
-                    className="relative overflow-hidden h-11 font-semibold text-white shadow-lg
-                               bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
-                               hover:brightness-[1.08] hover:shadow-[0_12px_30px_rgba(0,0,0,.18)]
-                               transition focus:outline-none focus:ring-2 focus:ring-white/70"
-                  >
-                    <Link to="/portfolio">View Case Studies</Link>
-                  </Button>
-                  {/* gradient sweep */}
-                  {!prefersReducedMotion && (
-                    <motion.span
-                      className="pointer-events-none absolute inset-0 opacity-30"
-                      initial={{ x: '-110%' }}
-                      animate={{ x: btnHover.a ? '110%' : '-110%' }}
-                      transition={{ duration: 1.8, ease: 'easeInOut' }}
-                      style={{ background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent)' }}
-                    />
-                  )}
-                  <SparkleOverlay active={btnHover.a} />
-                </span>
+      {/* CONTENT SECTIONS */}
+      <main className="mx-auto max-w-5xl px-4">
+        <Chapter
+          idx={0}
+          title="UX/UI Designer & Consultant"
+          years="2022 — Present"
+          bullets={[
+            'Lead end‑to‑end product discovery to polished handoff in Figma.',
+            'Design systems with semantic tokens and component-driven UI.',
+            'Partner with founders to align business goals with UX outcomes.',
+          ]}
+          onEnter={setActiveIdx}
+        />
 
-                <span className="relative" onMouseEnter={()=>setBtnHover(s=>({...s,b:true}))} onMouseLeave={()=>setBtnHover(s=>({...s,b:false}))}>
-                  <Button asChild size="lg" variant="outline"
-                    className="h-11 transition border-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]
-                               hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]">
-                    <Link to="/contact">Contact Me</Link>
-                  </Button>
-                  <SparkleOverlay active={btnHover.b} />
-                </span>
+        <Chapter
+          idx={1}
+          title="Systems Implementation Lead"
+          years="2018 — 2022"
+          bullets={[
+            'Drove platform rollouts; translated complex workflows into simple UIs.',
+            'Built analytics views; coached teams on adoption and process QA.',
+            'Aligned stakeholders across Ops, HR, and Compliance.',
+          ]}
+          onEnter={setActiveIdx}
+        />
 
-                <span className="relative" onMouseEnter={()=>setBtnHover(s=>({...s,c:true}))} onMouseLeave={()=>setBtnHover(s=>({...s,c:false}))}>
-                  <Button asChild size="lg" variant="outline"
-                    className="h-11 transition border-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]
-                               hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]">
-                    <a href="/resume.pdf" target="_blank" rel="noreferrer">Download Resume</a>
-                  </Button>
-                  <SparkleOverlay active={btnHover.c} />
-                </span>
-              </div>
-            </motion.div>
+        <Chapter
+          idx={2}
+          title="Platform Usability Contributor"
+          years="2015 — 2018"
+          bullets={[
+            'Audited interfaces with heuristic evaluations and quick wins.',
+            'Introduced lightweight prototyping for faster iteration.',
+            'Documented patterns that later became components.',
+          ]}
+          onEnter={setActiveIdx}
+        />
 
-            {/* Portrait with parallax + spotlight */}
-            <motion.div
-              {...fadeIn}
-              transition={{ ...fadeIn.transition, delay: 0.1 }}
-              className="lg:col-span-2 relative"
-              onMouseMove={onHoverMove}
-            >
-              {!prefersReducedMotion && (
-                <div
-                  className="absolute inset-0 pointer-events-none mix-blend-soft-light"
-                  style={{
-                    background: `radial-gradient(480px circle at ${cursor.x}% ${cursor.y}%, rgba(255,255,255,0.18), transparent 60%)`,
-                  }}
-                  aria-hidden="true"
-                />
-              )}
+        <Chapter
+          idx={3}
+          title="The Spark"
+          years="2014"
+          bullets={[
+            'First freelance projects: identity + landing pages for local businesses.',
+            'Fell in love with turning messy ideas into clear flows.',
+          ]}
+          onEnter={setActiveIdx}
+        />
 
-              <motion.img
-                style={{ y: prefersReducedMotion ? 0 : portraitY }}
-                className="w-full h-auto object-cover rounded-3xl shadow-[0_18px_40px_rgba(0,0,0,.18)]
-                           border border-[hsl(var(--border)/0.7)] ring-1 ring-white/40 bg-[hsl(var(--muted))/0.2]"
-                alt="Jessabel — portrait"
-                src={artistPortrait}
-                width={860}
-                height={1080}
-                loading="lazy"
-                decoding="async"
-              />
-            </motion.div>
-          </div>
-        </div>
-      </section>
+        <Chapter
+          idx={4}
+          title="Design Foundations"
+          years="2011 — 2013"
+          bullets={[
+            'Hands-on practice in layout, color theory, and typography.',
+            'Learned to critique and iterate without ego.',
+          ]}
+          onEnter={setActiveIdx}
+        />
 
-      {/* ===================== STORY + EDUCATION ===================== */}
-      <section className="pb-20 sm:pb-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            <motion.div {...fadeIn} className="space-y-5">
-              <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))]">A practical path into UX</h2>
-              <p className="text-lg leading-relaxed max-w-prose" style={{ color: WARM_BROWN }}>
-                I started in business and people operations, where I saw how clunky tools waste time.
-                That led me to UX—combining <strong>analytical problem-solving</strong> with
-                <strong> creative design</strong>. Today, I run projects end-to-end: from research and
-                information architecture to prototyping and visual design.
-              </p>
-              <p className="text-lg leading-relaxed max-w-prose" style={{ color: WARM_BROWN }}>
-                I’ve shipped client portals, onboarding flows, and internal tools that reduce friction
-                for non-technical teams. I care about evidence, inclusivity, and craft—because details
-                are how we earn trust.
-              </p>
-              {/* Example inline link with sparkle (use anywhere) */}
-              <p className="text-lg" style={{ color: WARM_BROWN }}>
-                See my <LinkWithSparkle to="/portfolio" className="text-[hsl(var(--accent-foreground))]">case studies</LinkWithSparkle> for outcomes and process.
-              </p>
-            </motion.div>
-
-            {/* Education */}
-            <motion.div {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.1 }}>
-              <h3 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-3">Education</h3>
-              <ul className="divide-y divide-[hsl(var(--border)/0.7)] border-t border-b border-[hsl(var(--border)/0.7)]">
-                {education.map((e) => (
-                  <li key={`${e.school}-${e.year}`} className="grid grid-cols-[1fr_auto] gap-4 py-3">
-                    <span className="font-semibold text-[hsl(var(--foreground))]">{e.school}</span>
-                    <span className="text-right" style={{ color: WARM_BROWN }}>
-                      {e.degree} <span className="opacity-80">({e.year})</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===================== SKILLS (glass panel) ===================== */}
-      <section className="relative py-16 bg-cover bg-center" style={{ backgroundImage: `url(${toolsStatsBg})` }}>
-        <div className="pointer-events-none absolute inset-0 [background:radial-gradient(900px_400px_at_15%_20%,rgba(0,0,0,.14),transparent_60%),radial-gradient(900px_400px_at_85%_60%,rgba(0,0,0,.14),transparent_60%)]" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            {...fadeIn}
-            className="mx-auto w-full md:w-[92%] lg:w-[88%] rounded-[22px] md:rounded-[26px]
-                       border border-white/45 bg-white/18 backdrop-blur-lg shadow-[0_24px_60px_rgba(0,0,0,.22)]
-                       px-5 sm:px-8 py-8 sm:py-10"
-            aria-label="Skill toolkit"
-          >
-            {/* Header: bold white */}
-            <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-7 md:mb-8 text-white">
-              What I work with
-            </h2>
-
-            {/* Pills: with pink dot icon */}
-            <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-3.5">
-              {skills.map((s, i) => (
-                <motion.li
-                  key={s}
-                  initial={{ opacity: 0, y: 8 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.2 }}
-                  transition={{ duration: 0.25, delay: i * 0.02 }}
-                  className="flex"
-                >
-                  <span
-                    className="relative inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold
-                               bg-[hsl(var(--accent))] text-[#0B0F1A] shadow-sm overflow-hidden"
-                  >
-                    {/* pink dot icon */}
-                    <span className="inline-block w-2.5 h-2.5 rounded-full bg-[var(--btn-pink,#ff3ea5)]" />
-                    {s}
-                  </span>
-                </motion.li>
-              ))}
-            </ul>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ===================== UX JOURNEY ===================== */}
-      <section className="py-20 sm:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 {...fadeIn} className="text-4xl md:text-5xl font-bold text-[hsl(var(--foreground))] mb-12">
-            My UX Journey
-          </motion.h2>
-
-          <motion.div {...fadeIn} className="relative space-y-12">
-            {/* rails */}
-            <div className="absolute left-1.5 md:left-2 top-0 bottom-0 w-1 rounded-full bg-[linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.12))]" />
-            <div className="absolute left-[9px] md:left-[13px] top-0 bottom-0 w-0.5 bg-[linear-gradient(180deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] opacity-60" />
-
-            {journey.map((item, idx) => (
+        {/* Tools & Stats strip */}
+        <section className="relative my-16 overflow-hidden rounded-3xl ring-1 ring-black/10">
+          <img
+            src={toolsStatsBg}
+            alt="Colorful strip background with tools & stats motif"
+            className="absolute inset-0 -z-10 h-full w-full object-cover opacity-60"
+            loading="lazy"
+          />
+          <div className="relative grid grid-cols-1 gap-8 p-8 sm:grid-cols-3 md:p-12">
+            {[
+              { label: 'Years in CX/UX', value: '10+' },
+              { label: 'Figma components shipped', value: '400+' },
+              { label: 'Projects delivered', value: '60+' },
+            ].map((item, i) => (
               <motion.div
-                key={`${item.year}-${item.title}`}
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.35, delay: idx * 0.04 }}
-                className="relative pl-10 md:pl-14"
+                key={item.label}
+                whileHover={{ y: -2 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+                className="rounded-2xl bg-white/70 p-6 text-center shadow-md backdrop-blur-sm dark:bg-black/40"
               >
-                {/* pin */}
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  whileInView={{ scale: 1, opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.3, delay: 0.08 + idx * 0.04 }}
-                  className="absolute left-0 top-2 w-4 h-4 md:w-5 md:h-5 rounded-full
-                             bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
-                             ring-4 ring-white/80 shadow-[0_6px_18px_rgba(0,0,0,.18)]"
-                />
-
-                <div className="rounded-2xl p-6 bg-[hsl(var(--card))] border border-[hsl(var(--border)/0.7)] shadow-md hover:shadow-lg transition-shadow">
-                  <motion.span
-                    initial={{ x: -6, opacity: 0 }}
-                    whileInView={{ x: 0, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.35 }}
-                    className="inline-flex items-center px-5 py-2 rounded-full text-base md:text-lg font-bold
-                               shadow-md ring-1 ring-white/50
-                               bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))] text-white"
-                  >
-                    {item.year}
-                  </motion.span>
-
-                  <h3 className="mt-3 text-xl font-bold text-[hsl(var(--foreground))]">{item.title}</h3>
-                  <p className="text-sm font-semibold mb-3" style={{ color: WARM_BROWN }}>{item.company}</p>
-                  <p style={{ color: WARM_BROWN }}>{item.description}</p>
-                </div>
+                <div className="text-3xl font-extrabold leading-none tracking-tight">{item.value}</div>
+                <div className="mt-1 text-sm font-semibold opacity-70">{item.label}</div>
               </motion.div>
             ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ===================== PROCESS CTA (theme-matched buttons) ===================== */}
-      <section className="relative pt-12 md:pt-16 pb-8 md:pb-10 -mb-1 bg-[#FEE6D4]">
-        <div className="relative overflow-hidden rounded-[28px] md:rounded-[36px] border border-[hsl(var(--border)/0.7)]">
-          {/* gentle radial glow */}
-          <div
-            className="pointer-events-none absolute -inset-10"
-            style={{ background: 'radial-gradient(600px circle at 50% 0%, rgba(255,206,158,.25), transparent 60%)' }}
-            aria-hidden="true"
-          />
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-12 md:py-16">
-            <motion.div {...fadeIn} className="mx-auto max-w-3xl">
-              <h2
-                className="text-4xl md:text-5xl font-extrabold
-                           bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
-                           bg-clip-text text-transparent"
-              >
-                Curious about my process?
-              </h2>
-
-              <p className="mt-3 text-xl md:text-2xl text-[hsl(var(--foreground))]">
-                See how I approach projects from discovery to launch.
-              </p>
-
-              <div className="mt-6 flex items-center justify-center gap-3">
-                {/* Primary: theme gradient + hover light-up */}
-                <span className="relative" onMouseEnter={()=>setBtnHover(s=>({...s,d:true}))} onMouseLeave={()=>setBtnHover(s=>({...s,d:false}))}>
-                  <Button asChild size="lg"
-                    className="relative overflow-hidden rounded-full px-6 h-11 font-semibold text-white
-                               bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]
-                               hover:brightness-[1.08] hover:shadow-[0_12px_30px_rgba(0,0,0,.18)] transition">
-                    <Link to="/process">
-                      View My UX Process <ArrowRight className="ml-1.5 h-4 w-4" />
-                    </Link>
-                  </Button>
-                  {!prefersReducedMotion && (
-                    <motion.span
-                      className="pointer-events-none absolute inset-0 opacity-30"
-                      initial={{ x: '-110%' }}
-                      animate={{ x: btnHover.d ? '110%' : '-110%' }}
-                      transition={{ duration: 1.8, ease: 'easeInOut' }}
-                      style={{ background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent)' }}
-                    />
-                  )}
-                  <SparkleOverlay active={btnHover.d} />
-                </span>
-
-                {/* Secondary: outline that fills with accent on hover */}
-                <Button asChild size="lg" variant="outline"
-                  className="rounded-full px-6 h-11 transition border-[hsl(var(--accent))]
-                             text-[hsl(var(--accent-foreground))]
-                             hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]">
-                  <Link to="/portfolio">See Case Studies</Link>
-                </Button>
-              </div>
-            </motion.div>
           </div>
-        </div>
+        </section>
 
-        {/* bottom separator into footer */}
-        <svg className="absolute -bottom-1 left-0 right-0 w-full text-[#0B0F1A]" viewBox="0 0 1440 20" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M0,0 L1440,20 L0,20 Z" fill="currentColor" />
-        </svg>
-      </section>
+        {/* CTA */}
+        <section className="mb-24 text-center">
+          <motion.p {...fadeIn} className="mx-auto max-w-2xl text-lg text-black/80 dark:text-white/80">
+            Want the longer version? Dive into a case study—see how research translates into clean UI and gentle motion.
+          </motion.p>
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <Button asChild className="group rounded-full px-6 py-6 text-base font-semibold">
+              <Link to="/projects">
+                View Case Studies
+                <ArrowRight className="ml-2 inline size-5 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </Button>
+            <Button variant="secondary" asChild className="group rounded-full px-6 py-6 text-base font-semibold">
+              <Link to="/contact">
+                Work Together
+                <Sparkles className="ml-2 inline size-5 transition-transform group-hover:-translate-y-0.5" />
+              </Link>
+            </Button>
+          </div>
+        </section>
+      </main>
     </div>
   );
-};
-
-/* ---------- Small components ---------- */
-
-const ProofChip = ({ icon, label, sub }) => (
-  <motion.li
-    initial={{ opacity: 0, y: 8 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, amount: 0.4 }}
-    transition={{ duration: 0.25 }}
-    className="rounded-xl px-4 py-3 border border-[hsl(var(--border)/0.6)] bg-[hsl(var(--card))]
-               shadow-sm flex items-start gap-3 hover:shadow-md transition"
-  >
-    <span className="mt-0.5 text-[hsl(var(--primary))]">{icon}</span>
-    <div>
-      <p className="text-sm font-semibold text-[hsl(var(--foreground))]">{label}</p>
-      <p className="text-xs text-[hsl(var(--muted-foreground)/0.9)]">{sub}</p>
-    </div>
-  </motion.li>
-);
-
-export default AboutPage;
+}
