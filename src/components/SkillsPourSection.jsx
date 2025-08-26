@@ -3,8 +3,9 @@ import { motion, useInView, useReducedMotion } from 'framer-motion';
 
 /**
  * SkillsPourSection
- *  - Bubbles start inside the cup, rise to the rim, spill over, then snap into a grid.
- *  - Outline + text use your warm-brown; hover fill is pink.
+ * - Bubbles start inside the cup, rise to the rim, spill over, then snap into a grid.
+ * - Outline + text use your warm-brown; hover fill is pink.
+ * - Includes a subtle animated “liquid” fill inside the glass for extra storytelling.
  */
 const SkillsPourSection = ({
   title = 'What I bring to every project',
@@ -28,25 +29,27 @@ const SkillsPourSection = ({
   const rootRef = useRef(null);
   const inView = useInView(rootRef, { once: true, amount: 0.35 });
 
-  // --- Layout knobs (percentages are relative to the section box) ---
+  /* ---------------- Layout (percentages relative to section) ---------------- */
   // Cup bounding box (roughly matches the SVG path below)
-  const CUP_LEFT = 10;   // %
-  const CUP_TOP = 10;    // %
-  const CUP_W = 34;      // %
-  const CUP_H = 78;      // %
+  const CUP_LEFT = 10; // %
+  const CUP_TOP = 10; // %
+  const CUP_W = 34; // %
+  const CUP_H = 78; // %
   const RIM_Y = CUP_TOP + 6; // % y-position of rim for animation keyframe
 
   // Grid (landing) area to the right of the cup
   const GRID_LEFT = CUP_LEFT + CUP_W + 6; // %
-  const GRID_TOP = CUP_TOP + 4;           // %
-  const COLS = 4;                         // 3-4 rows depending on count
-  const ROW_GAP = 18;                     // % vertical spacing between rows
-  const COL_GAP = 11;                     // % horizontal spacing between columns
-  const SIZE = 104;                       // px diameter for chips
+  const GRID_TOP = CUP_TOP + 4; // %
+  const COLS = 4; // 3-4 rows depending on count
+  const ROW_GAP = 18; // % vertical spacing between rows
+  const COL_GAP = 11; // % horizontal spacing between columns
+
+  // Chip size (slightly larger for legibility)
+  const SIZE = 112; // px diameter for chips
 
   const WARM_BROWN = 'var(--warm-brown-hex, #5a3e34)'; // fallback just in case
 
-  // Landing positions for bubbles
+  // Landing positions for bubbles (neat grid)
   const targets = useMemo(() => {
     return skills.map((_, i) => {
       const r = Math.floor(i / COLS);
@@ -76,7 +79,7 @@ const SkillsPourSection = ({
 
         {/* Stage */}
         <div className="relative h-[560px] md:h-[620px]">
-          {/* Glass */}
+          {/* Glass (with animated fill) */}
           <GlassSVG
             style={{
               left: `${CUP_LEFT}%`,
@@ -84,6 +87,7 @@ const SkillsPourSection = ({
               width: `${CUP_W}%`,
               height: `${CUP_H}%`,
             }}
+            animateFill={inView && !prefersReducedMotion}
           />
 
           {/* Ground shadow */}
@@ -104,10 +108,8 @@ const SkillsPourSection = ({
           {/* Bubbles */}
           {skills.map((label, i) => {
             // Start from a random point INSIDE the cup body
-            const startX =
-              CUP_LEFT + 7 + rand(0, CUP_W - 14) * 0.7; // bias toward middle
-            const startY =
-              CUP_TOP + 28 + rand(0, CUP_H * 0.45); // deeper inside cup
+            const startX = CUP_LEFT + 7 + rand(0, (CUP_W - 14) * 0.7); // bias toward middle
+            const startY = CUP_TOP + 28 + rand(0, CUP_H * 0.45); // deeper inside cup
 
             // A small random lateral shimmy as it rises
             const shimmy = rand(-2.5, 2.5);
@@ -128,9 +130,9 @@ const SkillsPourSection = ({
                   ],
                   top: [
                     `${startY}%`,
-                    `${RIM_Y}%`,
-                    `${RIM_Y + 6}%`, // just outside rim
-                    `${t.yPct}%`,
+                    `${RIM_Y}%`, // rise to rim
+                    `${RIM_Y + 6}%`, // spill just outside rim
+                    `${t.yPct}%`, // snap to grid
                   ],
                   opacity: [0, 1, 1, 1],
                   scale: [0.95, 1, 1, 1],
@@ -179,7 +181,7 @@ const Chip = ({ label, warmBrown }) => {
   return (
     <button
       type="button"
-      className="group grid place-items-center w-full h-full rounded-full font-bold text-center leading-tight transition-colors duration-300 backdrop-blur-[2px]"
+      className="relative group grid place-items-center w-full h-full rounded-full font-bold text-center leading-tight transition-transform duration-300 will-change-transform"
       style={{
         color: warmBrown,
         border: `2px solid ${warmBrown}`,
@@ -189,36 +191,70 @@ const Chip = ({ label, warmBrown }) => {
       title={label}
       aria-label={label}
     >
-      <span className="px-3 text-sm sm:text-base">{label}</span>
+      {/* text layer */}
+      <span className="px-4 text-sm sm:text-base z-[2] transition-colors duration-300 group-hover:text-white">
+        {label}
+      </span>
 
-      {/* Hover fill (deeper pink) */}
+      {/* hover fill */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        className="pointer-events-none absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-[1]"
         style={{
-          background:
-            'linear-gradient(135deg, #ff3ea5 0%, #d61a82 100%)',
+          background: 'linear-gradient(135deg, #ff3ea5 0%, #d61a82 100%)',
           boxShadow: '0 18px 38px rgba(0,0,0,.18) inset',
           mixBlendMode: 'normal',
         }}
       />
-      {/* Lift text above the fill and switch to white on hover */}
-      <span className="absolute inset-0 grid place-items-center rounded-full pointer-events-none transition-colors duration-300 group-hover:text-white" />
+
+      {/* subtle wobble */}
+      <span className="absolute inset-0 rounded-full group-hover:scale-[1.03] transition-transform duration-300" />
     </button>
   );
 };
 
 /* ----------------------------- */
-/* Glass outline (SVG)           */
+/* Glass outline + animated fill */
 /* ----------------------------- */
-const GlassSVG = ({ style }) => (
+const GlassSVG = ({ style, animateFill = false }) => (
   <svg viewBox="0 0 520 720" className="absolute" style={style} aria-hidden="true">
     <defs>
+      {/* Stroke gradient */}
       <linearGradient id="glassStroke" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stopColor="rgba(255,255,255,.9)" />
         <stop offset="1" stopColor="rgba(255,255,255,.7)" />
       </linearGradient>
+
+      {/* Cup mask (closed shape for the fill) */}
+      <mask id="cupMask" maskUnits="userSpaceOnUse">
+        <path
+          d="M115 90 L75 520 Q260 700 445 520 L405 90 Q260 72 115 90 Z"
+          fill="white"
+          stroke="none"
+        />
+      </mask>
+
+      {/* Liquid gradient */}
+      <linearGradient id="cupFillGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="rgba(255,62,165,0.18)" />
+        <stop offset="1" stopColor="rgba(255,62,165,0.05)" />
+      </linearGradient>
     </defs>
+
+    {/* Animated liquid fill (masked to cup) */}
+    <motion.rect
+      x="60"
+      width="400"
+      height="560"
+      rx="40"
+      fill="url(#cupFillGrad)"
+      mask="url(#cupMask)"
+      initial={{ y: 560 }}
+      animate={animateFill ? { y: 320 } : { y: 560 }}
+      transition={{ duration: 1.4, ease: 'easeOut' }}
+      opacity="0.7"
+    />
+
     {/* cup body */}
     <path
       d="M115 90 L75 520 C63 630 185 672 260 672 C335 672 457 630 445 520 L405 90"
