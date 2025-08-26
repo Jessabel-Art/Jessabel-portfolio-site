@@ -6,23 +6,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
 
-/* ---------------- THEME (matches site) ---------------- */
+/* ---------------- THEME ---------------- */
 const THEME = {
   peachBg: '#FEE6D4',
-  warmInk: 'var(--warm-brown-hex)', // already used on About
-  citrus1: '#FFE574',
-  citrus2: '#FEC200',
-  citrus3: '#FA8A00',
-  citrus4: '#D74708',
-  rose:    '#F05D5D',
+  warmInk: 'var(--warm-brown-hex)',
+
+  // Brand gradient colors (pink → blue)
+  pink: '#ff3ea5',
+  blue: '#6a5cff',
+  teal: '#00c2b2', // optional accent used in subtle places
 };
 
-// Primary button / accent gradient
-const GRAD_PRIMARY = `linear-gradient(135deg, ${THEME.citrus1}, ${THEME.citrus3})`;
-// Alt gradient used for tracks/fills
-const GRAD_TRACK = `linear-gradient(90deg, ${THEME.citrus1}, ${THEME.citrus2}, ${THEME.citrus3}, ${THEME.citrus4})`;
-// Secondary (outline-hover fill)
-const ACCENT_BG = THEME.citrus2;
+// Primary gradient & track gradient
+const GRAD_PRIMARY = `linear-gradient(135deg, var(--btn-pink, ${THEME.pink}), var(--btn-violet, ${THEME.blue}))`;
+const GRAD_TRACK = `linear-gradient(90deg, var(--btn-pink, ${THEME.pink}), var(--btn-violet, ${THEME.blue}))`;
 
 /**
  * Add clients here.
@@ -73,37 +70,46 @@ const shakeVariants = {
   shake: { x: [0, -8, 8, -6, 6, -3, 3, 0], transition: { duration: 0.4, ease: 'easeInOut' } },
 };
 
-/* ---------------- Buttons (rethemed) ---------------- */
+/* ---------------- Buttons (brand gradient) ---------------- */
 const btnPrimary =
   'relative overflow-hidden text-white font-semibold shadow-lg border-0 ' +
-  `bg-[${GRAD_PRIMARY}] ` +
   'hover:brightness-[1.08] hover:shadow-[0_12px_30px_rgba(0,0,0,.18)] transition';
 
 const btnGhost =
-  'border border-[hsl(var(--border))] bg-white/30 backdrop-blur ' + // lighter for peach bg
-  `hover:bg-[${ACCENT_BG}] hover:text-[hsl(var(--accent-foreground))] transition`;
+  'border border-[hsl(var(--border))] bg-white/40 backdrop-blur ' +
+  'hover:bg-white/60 hover:text-[hsl(var(--foreground))] transition';
 
 const btnMuted =
-  'cursor-not-allowed border border-[hsl(var(--border))] bg-white/50 ' +
+  'cursor-not-allowed border border-[hsl(var(--border))] bg-white/60 ' +
   'text-[hsl(var(--foreground))] shadow-sm opacity-100';
 
-/* ---------------- Steps & timeline (rethemed) ---------------- */
+/* ---------------- Steps & timeline ---------------- */
 const STEPS = ['Intake', 'Discovery', 'Design', 'Build', 'Review', 'Handoff'];
 
-const trackBase = 'bg-[hsl(var(--foreground)/0.14)]';
-const trackFill = `shadow-[inset_0_0_0_2px_rgba(255,255,255,.35),0_6px_18px_rgba(0,0,0,.18)]`;
-const nodeInactive =
-  'bg-white/80 text-[hsl(var(--foreground)/0.85)] border border-[hsl(var(--foreground)/0.18)] ' +
-  'shadow-[0_2px_10px_rgba(0,0,0,.08)] backdrop-blur';
-const nodeActive =
-  'text-white ' +
-  `bg-[${GRAD_PRIMARY}] ` +
-  'shadow-[0_8px_20px_rgba(0,0,0,.22)] ring-2 ring-white/60';
-const nodeCompleted =
-  'text-white ' +
-  `bg-[${GRAD_PRIMARY}] ` +
-  'shadow-[0_6px_16px_rgba(0,0,0,.18)] opacity-[0.95]';
+const trackBase = 'bg-[hsl(var(--foreground)/0.15)]';
 
+/* Node styles:
+   - Bigger circles (48px) for visibility
+   - Inactive: dark warm ink text on white
+   - Active/completed: brand gradient with white text + subtle shadow
+*/
+const nodeBase =
+  'rounded-full flex items-center justify-center select-none backdrop-blur ' +
+  'transition-colors duration-200';
+const nodeInactive =
+  `${nodeBase} w-12 h-12 text-[15px] font-extrabold ` +
+  'bg-white text-[hsl(var(--foreground))] ' +
+  'border-2 border-[hsl(var(--foreground)/0.2)] shadow-[0_2px_10px_rgba(0,0,0,.06)]';
+const nodeActive =
+  `${nodeBase} w-12 h-12 text-[15px] font-extrabold text-white ` +
+  'shadow-[0_8px_20px_rgba(0,0,0,.22)] ring-2 ring-white/70';
+const nodeCompleted =
+  `${nodeBase} w-12 h-12 text-[15px] font-extrabold text-white ` +
+  'shadow-[0_6px_16px_rgba(0,0,0,.18)] opacity-[0.98]';
+
+/* =========================================================
+   Component
+========================================================= */
 const ClientsPage = () => {
   const prefersReducedMotion = useReducedMotion();
 
@@ -117,7 +123,6 @@ const ClientsPage = () => {
   const [currentStage, setCurrentStage] = useState('Intake');
 
   const inputRef = useRef(null);
-
   const sanitizedPin = useMemo(() => pinValue.replace(/\D/g, '').slice(0, 4), [pinValue]);
 
   const attemptVerify = (candidatePin) => {
@@ -205,10 +210,9 @@ const ClientsPage = () => {
     setTimeout(() => inputRef.current && inputRef.current.focus(), 0);
   };
 
-  /** Whether this client is allowed to change status (off by default). */
   const canChangeStatus = Boolean(client?.canChange);
 
-  // ---- Stepper ----
+  /* ---------------- Stepper ---------------- */
   const Stepper = ({ current }) => {
     const idx = STEPS.indexOf(current);
     const pct = Math.max(0, (idx / (STEPS.length - 1)) * 100);
@@ -223,12 +227,13 @@ const ClientsPage = () => {
               <div key={label} className="flex-1 flex items-center">
                 <motion.div
                   whileHover={canChangeStatus ? { y: -2 } : {}}
-                  className={[
-                    'w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold select-none',
-                    isActive ? nodeActive : isDone ? nodeCompleted : nodeInactive,
-                  ].join(' ')}
+                  className={isActive ? nodeActive : isDone ? nodeCompleted : nodeInactive}
                   aria-current={isActive ? 'step' : undefined}
                   title={label}
+                  style={{
+                    backgroundImage: isActive || isDone ? GRAD_PRIMARY : undefined,
+                    textShadow: isActive || isDone ? '0 1px 0 rgba(0,0,0,.25)' : 'none',
+                  }}
                 >
                   {i + 1}
                 </motion.div>
@@ -250,6 +255,7 @@ const ClientsPage = () => {
           })}
         </div>
 
+        {/* Progress bar */}
         <div className={`relative h-2 rounded-full overflow-hidden ${trackBase}`}>
           <motion.div
             className="absolute left-0 top-0 h-full"
@@ -272,7 +278,7 @@ const ClientsPage = () => {
     );
   };
 
-  // ---- Views ----
+  /* ---------------- Views ---------------- */
   const PinForm = () => {
     const [hoverUnlock, setHoverUnlock] = useState(false);
     const [hoverClear, setHoverClear] = useState(false);
@@ -288,12 +294,12 @@ const ClientsPage = () => {
       >
         <form
           onSubmit={handleSubmit}
-          className="p-8 rounded-2xl shadow-lg space-y-6 border border-white/50 bg-white/40 backdrop-blur-xl"
+          className="p-8 rounded-2xl shadow-lg space-y-6 border border-white/55 bg-white/45 backdrop-blur-xl"
         >
           <div className="text-center">
             <h1 className="text-3xl font-bold" style={{ color: THEME.warmInk }}>Client Portal</h1>
-            <p id="pin-help" className="mt-2 text-[hsl(var(--foreground)/0.7)]">
-              Enter the 4‑digit code we shared with you{' '}
+            <p id="pin-help" className="mt-2 text-[hsl(var(--foreground)/0.75)]">
+              Enter the 4-digit code we shared with you{' '}
               <Link to="/contact" className="relative underline underline-offset-4">
                 (Don’t have a code?)
               </Link>
@@ -302,7 +308,7 @@ const ClientsPage = () => {
 
           <div className="space-y-3">
             <Label className="text-[hsl(var(--foreground)/0.8)]" htmlFor="pin-box">
-              Enter your 4‑digit PIN
+              Enter your 4-digit PIN
             </Label>
 
             <motion.div
@@ -333,18 +339,15 @@ const ClientsPage = () => {
                 className="h-14 text-2xl tracking-[0.6em] text-center
                            focus:ring-2 focus:ring-offset-0
                            border-[hsl(var(--border))] focus:border-transparent"
-                style={{
-                  // Focus ring in brand accent
-                  boxShadow: `0 0 0 2px ${THEME.citrus2} inset`,
-                }}
-                onFocus={(e) => (e.currentTarget.style.boxShadow = `0 0 0 2px ${THEME.citrus2} inset`)}
+                style={{ boxShadow: `0 0 0 2px ${THEME.blue} inset` }}
+                onFocus={(e) => (e.currentTarget.style.boxShadow = `0 0 0 2px ${THEME.blue} inset`)}
                 onBlur={(e) => (e.currentTarget.style.boxShadow = 'none')}
               />
             </motion.div>
           </div>
 
           {error && (
-            <p className="text-sm font-semibold text-center" style={{ color: THEME.citrus4 }} role="alert" aria-live="assertive">
+            <p className="text-sm font-semibold text-center text-[#d74708]" role="alert" aria-live="assertive">
               {error}
             </p>
           )}
@@ -358,7 +361,6 @@ const ClientsPage = () => {
               <Button type="submit" size="lg" className={btnPrimary} style={{ backgroundImage: GRAD_PRIMARY }}>
                 Unlock Portal
               </Button>
-              {/* gradient sweep + sparkle */}
               {!prefersReducedMotion && (
                 <motion.span
                   className="pointer-events-none absolute inset-0 opacity-30"
@@ -490,18 +492,16 @@ const ClientsPage = () => {
               <Button
                 size="lg"
                 variant="outline"
-                className="font-semibold transition"
+                className="font-semibold transition border-2"
                 style={{
-                  borderColor: THEME.citrus3,
-                  color: THEME.citrus4,
+                  borderColor: THEME.blue,
+                  color: THEME.blue,
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = ACCENT_BG;
-                  e.currentTarget.style.color = 'hsl(var(--accent-foreground))';
+                  e.currentTarget.style.background = 'white';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = THEME.citrus4;
                 }}
               >
                 UX/UI Project Intake
@@ -533,7 +533,7 @@ const ClientsPage = () => {
         position: 'relative',
       }}
     >
-      {/* soft radial glow to match About page vibes */}
+      {/* soft radial glow */}
       <div
         aria-hidden
         className="pointer-events-none absolute -inset-10"
