@@ -19,6 +19,7 @@ import CaseStudyPage from '@/pages/CaseStudyPage';
 import FullSailCaseStudyPage from '@/pages/FullSailCaseStudyPage';
 import { projects } from '@/data/projects';
 import { posts } from '@/data/blog';
+import ClientUploadPage from '@/pages/ClientUploadPage';
 
 function PageLayout({ children }) {
   const location = useLocation();
@@ -66,6 +67,9 @@ function AnimatedRoutes() {
         <Route path="/privacy" element={<PageLayout><PrivacyPage /></PageLayout>} />
         <Route path="/terms" element={<PageLayout><TermsPage /></PageLayout>} />
         <Route path="/clients" element={<PageLayout><ClientsPage /></PageLayout>} />
+
+         {/* ⬇️ New upload route lives INSIDE Routes and uses the same PageLayout */}
+        <Route path="/upload" element={<PageLayout><ClientUploadPage /></PageLayout>} />
 
         {/* Optional: catch-all */}
         {/* <Route path="*" element={<PageLayout><HomePage /></PageLayout>} /> */}
