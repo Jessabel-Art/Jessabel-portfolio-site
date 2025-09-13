@@ -20,6 +20,7 @@ import FullSailCaseStudyPage from '@/pages/FullSailCaseStudyPage';
 import { projects } from '@/data/projects';
 import { posts } from '@/data/blog';
 import ClientUploadPage from '@/pages/ClientUploadPage';
+import visual from '@/pages/visual';
 
 function PageLayout({ children }) {
   const location = useLocation();
