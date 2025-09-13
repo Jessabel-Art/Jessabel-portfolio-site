@@ -1,7 +1,8 @@
+// HorizonPreviewPage.jsx
 import React from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet';
-import { ArrowRight, Sparkles, Star, DraftingCompass, Fingerprint, SearchCheck, Layers, BarChart2, TestTube2, Group } from 'lucide-react';
+import { ArrowRight, Sparkles, Star, PencilRuler, Fingerprint, SearchCheck, Layers, BarChart3, FlaskConical, Component } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { projects } from '@/data/projects';
@@ -9,7 +10,7 @@ import { useInView } from 'react-intersection-observer';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
 const AnimatedHeadline = ({ text }) => {
-  const words = text.split(" ");
+  const words = text.split(' ');
   const container = {
     hidden: { opacity: 0 },
     visible: (i = 1) => ({
@@ -17,26 +18,9 @@ const AnimatedHeadline = ({ text }) => {
       transition: { staggerChildren: 0.12, delayChildren: 0.5 * i },
     }),
   };
-
   const child = {
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        damping: 12,
-        stiffness: 100,
-      },
-    },
-    hidden: {
-      opacity: 0,
-      y: 20,
-      transition: {
-        type: "spring",
-        damping: 12,
-        stiffness: 100,
-      },
-    },
+    visible: { opacity: 1, y: 0, transition: { type: 'spring', damping: 12, stiffness: 100 } },
+    hidden:  { opacity: 0, y: 20, transition: { type: 'spring', damping: 12, stiffness: 100 } },
   };
 
   return (
@@ -44,27 +28,15 @@ const AnimatedHeadline = ({ text }) => {
       variants={container}
       initial="hidden"
       animate="visible"
-      className="text-5xl md:text-7xl font-serif font-extrabold text-foreground leading-tight"
+      className="text-5xl md:text-7xl font-serif font-extrabold leading-tight text-foreground"
     >
       {words.map((word, index) => (
-        <motion.span
-          key={index}
-          variants={child}
-          className="mr-3 inline-block"
-        >
-          {word === "usability" || word === "design." ? (
-            <span className="relative inline-block">
-              <span className="gradient-text">{word}</span>
-              <motion.span
-                className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-r from-accent to-secondary animated-gradient"
-                style={{ WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', textFillColor: 'transparent' }}
-                animate={{ backgroundPosition: ['200% 50%', '0% 50%'] }}
-                transition={{ duration: 2, ease: "easeInOut", delay: 1 + index * 0.1, repeat: Infinity, repeatType: 'reverse' }}
-              />
+        <motion.span key={index} variants={child} className="mr-3 inline-block">
+          {(word === 'usability' || word === 'design.') ? (
+            <span className="bg-gradient-to-r from-[#FEE9A6] via-[#FA8A00] to-[#FEC200] bg-clip-text text-transparent">
+              {word}
             </span>
-          ) : (
-            word
-          )}
+          ) : word}
         </motion.span>
       ))}
     </motion.h1>
@@ -72,13 +44,13 @@ const AnimatedHeadline = ({ text }) => {
 };
 
 const skills = [
-  { icon: DraftingCompass, label: "Wireframing" },
-  { icon: Fingerprint, label: "Prototyping" },
-  { icon: SearchCheck, label: "Accessibility" },
-  { icon: Layers, label: "Info. Architecture" },
-  { icon: BarChart2, label: "Analytics" },
-  { icon: Group, label: "Design Systems" },
-  { icon: TestTube2, label: "Usability Testing" },
+  { icon: PencilRuler,   label: 'Wireframing' },
+  { icon: Fingerprint,   label: 'Prototyping' },
+  { icon: SearchCheck,   label: 'Accessibility' },
+  { icon: Layers,        label: 'Info. Architecture' },
+  { icon: BarChart3,     label: 'Analytics' },
+  { icon: Component,     label: 'Design Systems' },
+  { icon: FlaskConical,  label: 'Usability Testing' },
 ];
 
 const PouringCupAnimation = () => {
@@ -90,7 +62,7 @@ const PouringCupAnimation = () => {
         <h3 className="text-xl font-bold mb-4 text-center">My Skills</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {skills.map((skill, i) => (
-             <motion.div
+            <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -116,39 +88,28 @@ const PouringCupAnimation = () => {
         <svg viewBox="0 0 100 100" className="fill-current text-foreground/80 drop-shadow-lg">
           <path d="M10 90 Q 50 100 90 90 L 95 20 Q 50 10 5 20 Z" />
           <path d="M10 90 Q 50 80 90 90" fill="hsl(var(--accent)/0.3)" />
-           <motion.ellipse cx="50" cy="20" rx="45" ry="8"
+          <motion.ellipse cx="50" cy="20" rx="45" ry="8"
             className="fill-current text-background"
-             animate={{ scaleY: [1, 1.05, 1] }}
-             transition={{ duration: 4, ease: 'easeInOut', repeat: Infinity }}
+            animate={{ scaleY: [1, 1.05, 1] }}
+            transition={{ duration: 4, ease: 'easeInOut', repeat: Infinity }}
           />
         </svg>
       </motion.div>
+
       <AnimatePresence>
         {skills.map((skill, i) => (
           <motion.div
             key={i}
             className="absolute"
-            initial={{
-              x: '50vw',
-              y: '80vh',
-              scale: 0,
-            }}
+            initial={{ x: '50vw', y: '80vh', scale: 0 }}
             animate={{
               x: ['50vw', `calc(50vw + ${Math.random() * 300 - 150}px)`, `calc(50vw + ${((i % 4) - 1.5) * 120}px)`],
               y: ['80vh', `calc(40vh + ${Math.random() * 100 - 50}px)`, `calc(50vh + ${Math.floor(i / 4) * 100}px)`],
               scale: [0, 1.2, 1],
               rotate: [Math.random() * 360, 0],
             }}
-            transition={{
-              duration: 6,
-              ease: 'circOut',
-              delay: 1 + i * 0.3,
-              times: [0, 0.6, 1],
-            }}
-            style={{
-              left: 0,
-              top: 0
-            }}
+            transition={{ duration: 6, ease: 'circOut', delay: 1 + i * 0.3, times: [0, 0.6, 1] }}
+            style={{ left: 0, top: 0 }}
           >
             <div className="flex flex-col items-center justify-center p-4 bg-card/80 backdrop-blur-sm rounded-2xl border shadow-lg pointer-events-auto">
               <skill.icon className="w-8 h-8 text-primary mb-2" />
@@ -161,13 +122,8 @@ const PouringCupAnimation = () => {
   );
 };
 
-
 const Section = ({ children }) => {
-  const { ref, inView } = useInView({
-    triggerOnce: true,
-    threshold: 0.2,
-  });
-
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.2 });
   return (
     <motion.section
       ref={ref}
@@ -180,7 +136,7 @@ const Section = ({ children }) => {
   );
 };
 
-const HomePage = () => {
+const HorizonPreviewPage = () => {
   const featuredProjects = projects.slice(0, 3);
   const { scrollYProgress } = useScroll();
   const parallaxY = useTransform(scrollYProgress, [0, 0.3], [0, -50]);
@@ -189,11 +145,11 @@ const HomePage = () => {
   return (
     <div className="space-y-24 md:space-y-32 pb-24 overflow-x-hidden">
       <Helmet>
-        <title>Jessabel Santos · UX/UI Designer & Storyteller</title>
-        <meta name="description" content="Jessabel Santos is a UX/UI designer crafting digital experiences where usability meets beautiful design." />
+        <title>Horizon Preview · Jessabel.Art</title>
+        <meta name="description" content="Preview of the animated homepage concept generated by Horizon." />
       </Helmet>
 
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="relative min-h-[90vh] md:min-h-screen flex items-center justify-center text-center overflow-hidden pt-24">
         <motion.div
           style={!isReducedMotion ? { y: parallaxY } : {}}
@@ -211,9 +167,9 @@ const HomePage = () => {
             I’m Jessabel, a UX/UI designer blending business, branding, and problem-solving to create interfaces people actually enjoy using.
           </motion.p>
           <motion.div
-             initial={{ opacity: 0, y: 10 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.5, delay: 2.7 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 2.7 }}
             className="flex items-center justify-center gap-4"
           >
             <Button asChild size="lg" className="btn-primary text-lg relative overflow-hidden group">
@@ -248,15 +204,11 @@ const HomePage = () => {
                   className="bg-card rounded-2xl overflow-hidden border shadow-sm h-full flex flex-col group relative"
                 >
                   <div className="aspect-video overflow-hidden">
-                    <motion.div
-                      variants={{ rest: { scale: 1 }, hover: { scale: 1.04 } }}
-                      transition={{ duration: 0.4, ease: 'easeOut' }}
-                      className="w-full h-full"
-                    >
+                    <motion.div variants={{ rest: { scale: 1 }, hover: { scale: 1.04 } }} transition={{ duration: 0.4, ease: 'easeOut' }} className="w-full h-full">
                       <img
                         className="w-full h-full object-cover"
                         alt={project.title}
-                        src="https://images.unsplash.com/photo-1680016661694-1cd3faf31c3a" 
+                        src="https://images.unsplash.com/photo-1680016661694-1cd3faf31c3a"
                         loading="lazy"
                       />
                     </motion.div>
@@ -265,19 +217,12 @@ const HomePage = () => {
                     <h3 className="text-2xl font-bold mb-2">{project.title}</h3>
                     <p className="text-muted-foreground mb-4 flex-grow">{project.shortDescription}</p>
                     <motion.div
-                      variants={{
-                        rest: { opacity: 0, y: 10 },
-                        hover: { opacity: 1, y: 0 },
-                      }}
+                      variants={{ rest: { opacity: 0, y: 10 }, hover: { opacity: 1, y: 0 } }}
                       transition={{ staggerChildren: 0.05, delayChildren: 0.1 }}
                       className="flex flex-wrap gap-2 mt-auto"
                     >
-                      {project.tags.map(tag => (
-                        <motion.span
-                          key={tag}
-                          variants={{ rest: { y: 10, opacity: 0 }, hover: { y: 0, opacity: 1 } }}
-                          className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary"
-                        >
+                      {project.tags.map((tag) => (
+                        <motion.span key={tag} variants={{ rest: { y: 10, opacity: 0 }, hover: { y: 0, opacity: 1 } }} className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
                           {tag}
                         </motion.span>
                       ))}
@@ -309,4 +254,5 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default HorizonPreviewPage;
+// HorizonPreviewPage.jsx

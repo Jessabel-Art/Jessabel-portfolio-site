@@ -20,7 +20,7 @@ import FullSailCaseStudyPage from '@/pages/FullSailCaseStudyPage';
 import { projects } from '@/data/projects';
 import { posts } from '@/data/blog';
 import ClientUploadPage from '@/pages/ClientUploadPage';
-import visual from '@/pages/visual';
+import HorizonPreviewPage from '@/pages/HorizonPreviewPage';
 
 function PageLayout({ children }) {
   const location = useLocation();
@@ -74,6 +74,8 @@ function AnimatedRoutes() {
 
         {/* Optional: catch-all */}
         {/* <Route path="*" element={<PageLayout><HomePage /></PageLayout>} /> */}
+
+        <Route path="/horizon-preview" element={<HorizonPreviewPage />} />
       </Routes>
     </AnimatePresence>
   );
