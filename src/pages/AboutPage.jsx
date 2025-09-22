@@ -7,7 +7,7 @@ import { CheckCircle, BarChart3, Sparkles, ArrowRight } from 'lucide-react';
 
 // Local assets
 import artistPortrait from '@/assets/about/artist-portrait.png';
-import toolsStatsBg from '@/assets/about/tools-stats-bg-strip.jpg';
+import toolsStatsBg from '@/assets/about/tools-stats-bg-strip.jpeg';
 
 const WARM_BROWN = 'var(--warm-brown-hex)';
 

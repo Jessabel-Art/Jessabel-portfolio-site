@@ -16,7 +16,7 @@ import { toast } from '@/components/ui/use-toast';
 import SkillsPourSection from '@/components/SkillsPourSection';
 
 // Local hero image
-import heroBg from '@/assets/images/hero-bg.jpg';
+import heroBg from '@/assets/images/hero-bg.jpeg';
 
 /* ------------------------------------------------
    Helpers
