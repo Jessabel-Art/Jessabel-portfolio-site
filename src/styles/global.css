@@ -1,0 +1,52 @@
+:root{
+  --navy-900:#070D1D;
+  --navy-800:#0B1426;
+  --cyan-400:#18E1FF;     /* primary contrast */
+  --blue-300:#6EC8FF;     /* secondary contrast */
+  --ink:#C7E9FF;          /* text (no pure white) */
+
+  --glow-cyan: 0 0 24px rgba(24,225,255,.35);
+}
+
+html,body,#root{ height:100%; }
+body{ margin:0; background:var(--navy-900); color:var(--ink); font-family: system-ui, Inter, ui-sans-serif; }
+
+.hero{
+  position:relative; height:100vh; overflow:hidden; background:var(--navy-900);
+}
+.hero .bg{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.95;
+}
+.hero .cyl{
+  position:absolute; left:50%; bottom:6vh; transform:translateX(-50%);
+  width:min(26vw, 360px);
+  filter: drop-shadow(0 6px 20px rgba(0,0,0,.45));
+}
+.hero .mascot{
+  position:absolute; left:50%; top:14vh; transform:translateX(-50%);
+  width:min(38vw, 520px);
+  filter: drop-shadow(var(--glow-cyan));
+}
+.hero .icons{
+  position:absolute; inset:0; pointer-events:none;
+}
+.hero .icons img{
+  position:absolute; width:48px;
+}
+/* quick placements (adjust later) */
+.hero .icons img:nth-child(1){ left:18%; top:32%; }
+.hero .icons img:nth-child(2){ right:18%; top:28%; }
+.hero .icons img:nth-child(3){ left:24%; bottom:22%; }
+.hero .icons img:nth-child(4){ right:22%; bottom:18%; }
+
+.hero .copy{
+  position:absolute; left:50%; bottom:12vh; transform:translateX(-50%);
+  text-align:center; max-width:800px; padding:0 1rem;
+}
+.hero .copy h1{ margin:0 0 .4rem 0; font-size:clamp(30px, 5vw, 56px); color:var(--blue-300); }
+.hero .copy p{ margin:0; font-size:clamp(14px, 2.2vw, 20px); color:var(--ink); opacity:.9; }
+
+/* Ensure section anchors aren't hidden behind nav */
+section[id] {
+  scroll-margin-top: 5.25rem; /* matches pt-20 spacing */
+}
