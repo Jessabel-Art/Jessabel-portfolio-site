@@ -15,10 +15,8 @@ import s from "./welcome.module.css";
 const DEV = import.meta.env.MODE !== "production";
 
 /* Auto-load every *-icon.svg/png in /assets/icons */
-const iconModules = import.meta.glob("@/assets/icons/*-icon.{svg,png}", {
-  eager: true,
-  as: "url",
-});
+const iconModules = import.meta.glob("@/assets/icons/*-icon.{svg,png}", { query: "?url", import: "default" });
+// (removed erroneous closing brace and parenthesis)
 const iconUrls = Object.values(iconModules).sort();
 
 /* ---------- Lightweight WebAudio toolkit (memoized) ---------- */
