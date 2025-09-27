@@ -335,6 +335,21 @@
   pointer-events:none;
 }
 
+/* ---- HOLD-TO-ENTER progress ring ---- */
+.holdSvg{
+  position:absolute; inset:-6px;
+  width: auto; height: calc(100% + 12px);
+  pointer-events:none;
+  opacity:0; transition: opacity .1s ease;
+}
+.holdTrack{ fill:none; stroke:rgba(0,255,255,.18); stroke-width:3; }
+.holdProg{  fill:none; stroke:rgba(0,255,255,.9);  stroke-width:3; stroke-linecap:round;
+            stroke-dasharray: 100; stroke-dashoffset: 100; filter: drop-shadow(0 0 8px rgba(0,255,255,.6)); }
+
+.holding .holdSvg{ opacity:1; }
+@keyframes holdProgress { to { stroke-dashoffset: 0; } }
+.holding .holdProg{ animation: holdProgress .6s linear forwards; }
+
 /* Button states */
 .enterBtn:hover{
   transform: translateY(-3px) scale(1.02);
@@ -431,6 +446,46 @@
 @keyframes fallStar{
   from { opacity:1; transform: translate(-50%, -50%) scale(1); }
   to   { opacity:0; transform: translate(-50%, calc(-50% + var(--dy))) scale(.8); }
+}
+
+/* ===== Puff cloud (double-click) ====================================== */
+.puff{
+  position: absolute;
+  left: 0; top: 0;
+  width: 14px; height: 14px;
+  transform: translate(-50%, -50%) scale(.35);
+  border-radius: 999px;
+  background: radial-gradient(circle,
+    rgba(255,255,255,.95) 0%,
+    rgba(255,255,255,.55) 40%,
+    rgba(255,255,255,0) 70%);
+  filter: blur(1.5px);
+  mix-blend-mode: screen;
+  opacity: .8;
+  pointer-events: none;
+  animation: puffExpand .7s ease-out forwards;
+}
+@keyframes puffExpand{
+  0%   { transform: translate(-50%, -50%) scale(.35); opacity:.8; }
+  60%  { opacity:.45; }
+  100% { transform: translate(-50%, -50%) scale(7.5); opacity:0; }
+}
+.puffBit{
+  position: absolute;
+  left: 0; top: 0;
+  width: 8px; height: 8px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255,255,255,.8) 0%, rgba(255,255,255,.25) 60%, rgba(255,255,255,0) 100%);
+  filter: blur(1.2px);
+  mix-blend-mode: screen;
+  opacity: .85;
+  pointer-events: none;
+  animation: puffBit var(--dur, .7s) ease-out forwards;
+}
+@keyframes puffBit{
+  from { transform: translate(calc(-50% + 0px), calc(-50% + 0px)) scale(1); opacity:.85; }
+  to   { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.7); opacity:0; }
 }
 
 /* ===== Mascot bubble ===================================================== */

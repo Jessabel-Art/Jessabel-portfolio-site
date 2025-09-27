@@ -1,3 +1,4 @@
+// Welcome.jsx
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
@@ -14,14 +15,12 @@ import s from "./welcome.module.css";
 
 const DEV = import.meta.env.MODE !== "production";
 
-/* Auto-load every *-icon.svg/png in /assets/icons
-   Use eager + ?url so Vite emits real URLs in prod. */
+/* Auto-load every *-icon.svg/png in /assets/icons — eager + ?url so prod emits real URLs */
 const iconModules = import.meta.glob("@/assets/icons/*-icon.{svg,png}", {
   eager: true,
   query: "?url",
   import: "default",
 });
-// keep a stable, deterministic order
 const iconUrls = Object.entries(iconModules)
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([, url]) => url);
@@ -124,11 +123,13 @@ export default function Welcome() {
 
   // XP charge + lock
   const [xp, setXp] = useState(0);
+  const xpBaselineRef = useRef(0);
+  const unlockedRef = useRef(false);
   const [unlocked, setUnlocked] = useState(false);
+  useEffect(() => { unlockedRef.current = unlocked; }, [unlocked]);
 
   // Bubble visibility (one-time per session)
   const [showBubble, setShowBubble] = useState(() => !sessionStorage.getItem("welc-bubble-dismissed"));
-
   const dismissBubble = () => {
     setShowBubble(false);
     sessionStorage.setItem("welc-bubble-dismissed", "1");
@@ -143,6 +144,8 @@ export default function Welcome() {
   const spotRef      = useRef(null);
   const sunSweepRef  = useRef(null);
   const fxLayerRef   = useRef(null);
+  const enterBtnRef  = useRef(null);
+  const watermarkRef = useRef(null);
 
   // Stable refs for audio calls inside effects
   const blipRef   = useRef(null);
@@ -156,6 +159,19 @@ export default function Welcome() {
   const { blip, whoosh, chord } = useAudio(muted);
   useEffect(() => { blipRef.current = blip; }, [blip]);
   useEffect(() => { chordRef.current = chord; }, [chord]);
+
+  const vibrate = useCallback((pattern) => {
+    try { if (navigator && "vibrate" in navigator) navigator.vibrate(pattern); } catch {}
+  }, []);
+
+  /* Return-visitor fast pass baseline + mark seen */
+  useEffect(() => {
+    const seen = localStorage.getItem("welc-seen") === "1";
+    xpBaselineRef.current = seen ? 70 : 0;
+    if (seen) setXp((v) => Math.max(v, 70));
+    // mark as seen for next visit
+    localStorage.setItem("welc-seen", "1");
+  }, []);
 
   /* Preload critical images, then flip ready after two RAFs */
   useEffect(() => {
@@ -179,26 +195,41 @@ export default function Welcome() {
     localStorage.setItem("welcome-muted", muted ? "1" : "0");
   }, [muted]);
 
-  /* XP charge (8s) + unlock chord — depends ONLY on ready/unlocked */
+  /* XP charge (~8s) — respects baseline + never fights manual gains */
   useEffect(() => {
-    if (!ready || unlocked) return;
+    if (!ready || unlockedRef.current) return;
     let raf;
     const start = performance.now();
     const DURATION = 8000;
+    const base = xpBaselineRef.current;
 
     const tick = (t) => {
       const p = Math.min(1, (t - start) / DURATION);
-      setXp(Math.round(p * 100));
-      if (p < 1) {
+      const target = Math.round(base + p * (100 - base));
+      setXp((prev) => Math.max(prev, target));
+      if (p < 1 && !unlockedRef.current) {
         raf = requestAnimationFrame(tick);
-      } else {
+      } else if (target >= 100 && !unlockedRef.current) {
         setUnlocked(true);
         chordRef.current?.(523.25, 0.06, 0.24);
       }
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [ready, unlocked]);
+  }, [ready]);
+
+  /* Helpers to award XP and unlock cleanly */
+  const awardXp = useCallback((delta) => {
+    setXp((prev) => {
+      const next = Math.min(100, prev + delta);
+      if (next >= 100 && !unlockedRef.current) {
+        setUnlocked(true);
+        chordRef.current?.(523.25, 0.06, 0.24);
+        vibrate([10, 30, 10]);
+      }
+      return next;
+    });
+  }, [vibrate]);
 
   /* Parallax + cursor + CRT hotspot + click sparkles */
   useEffect(() => {
@@ -237,7 +268,59 @@ export default function Welcome() {
     return () => cleanups.forEach((fn) => fn && fn());
   }, [ready, prefersReduced]);
 
-  /* Dome orbit + cursor magnet + falling stars + icon beeps */
+  /* Puff burst on double-click / double-tap (CSS-driven) */
+  useEffect(() => {
+    if (!ready || !sceneRef.current) return;
+    const root = sceneRef.current;
+    const lastTapRef = { t: 0 };
+
+    const spawnPuff = (x, y) => {
+      if (!fxLayerRef.current) return;
+      // main cloud
+      const cloud = document.createElement("span");
+      cloud.className = s.puff;
+      cloud.style.left = `${x}px`;
+      cloud.style.top  = `${y}px`;
+      fxLayerRef.current.appendChild(cloud);
+      cloud.addEventListener("animationend", () => cloud.remove());
+
+      // drifting bits
+      const N = 16;
+      for (let i = 0; i < N; i++) {
+        const el = document.createElement("span");
+        el.className = s.puffBit;
+        el.style.left = `${x}px`;
+        el.style.top  = `${y}px`;
+        const angle = (i / N) * Math.PI * 2 + (Math.random() * 0.6 - 0.3);
+        const radius = 40 + Math.random() * 70;
+        const dx = Math.cos(angle) * radius;
+        const dy = Math.sin(angle) * radius * 0.7;
+        el.style.setProperty("--dx", `${dx}px`);
+        el.style.setProperty("--dy", `${dy}px`);
+        el.style.setProperty("--dur", `${0.5 + Math.random() * 0.7}s`);
+        fxLayerRef.current.appendChild(el);
+        el.addEventListener("animationend", () => el.remove());
+      }
+      vibrate([8, 25, 8]);
+      blipRef.current?.(220, 0.07, "sine", 0.05);
+    };
+
+    const onDblClick = (e) => spawnPuff(e.clientX, e.clientY);
+    const onPointerDown = (e) => {
+      const now = performance.now();
+      if (now - lastTapRef.t < 350) spawnPuff(e.clientX, e.clientY);
+      lastTapRef.t = now;
+    };
+
+    root.addEventListener("dblclick", onDblClick);
+    root.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      root.removeEventListener("dblclick", onDblClick);
+      root.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [ready, vibrate]);
+
+  /* Dome orbit + cursor magnet + falling stars + icon beeps + XP + puzzle */
   useEffect(() => {
     if (!ready || !orbitWrapRef.current || prefersReduced) return;
 
@@ -279,6 +362,7 @@ export default function Welcome() {
       el.querySelector(`.${s.nudge}`).style.setProperty("--ny", "0px");
     });
 
+    // Cursor magnet
     const onMove = (e) => {
       const R = 110;
       wrappers.forEach((el) => {
@@ -298,6 +382,7 @@ export default function Welcome() {
     };
     window.addEventListener("pointermove", onMove, { passive: true });
 
+    // Hover sfx + star
     const onEnter = (ev) => {
       const r = ev.currentTarget.getBoundingClientRect();
       spawnStar(r.left + r.width/2, r.top + r.height/2);
@@ -310,18 +395,50 @@ export default function Welcome() {
     };
     wrappers.forEach((el) => el.addEventListener("mouseenter", onEnter, { passive: true }));
 
+    // Puzzle target indices (10%, 50%, 90%)
+    const n = wrappers.length || 1;
+    const target = [Math.floor(n * 0.1), Math.floor(n * 0.5), Math.floor(n * 0.9)];
+    const progressRef = { i: 0 };
+
+    // Click = XP + puzzle advance + haptics
+    const onIconClick = (ev) => {
+      const idx = Array.prototype.indexOf.call(wrappers, ev.currentTarget);
+      // progress the mini-sequence
+      if (idx === target[progressRef.i]) {
+        progressRef.i++;
+        awardXp(8); // small accelerator per tap
+        vibrate(12);
+        if (progressRef.i >= target.length) {
+          progressRef.i = 0;
+          awardXp(20); // bonus for solving the 3-tap combo
+          chordRef.current?.(659.25, 0.06, 0.32); // E5-ish sparkle
+          vibrate([10, 30, 10, 30, 12]);
+        }
+      } else {
+        // restart if this tap happens to be the first expected index
+        progressRef.i = idx === target[0] ? 1 : 0;
+        awardXp(5); // still a nudge
+        vibrate(8);
+      }
+      // little star at click
+      const r = ev.currentTarget.getBoundingClientRect();
+      spawnStar(r.left + r.width/2, r.top + r.height/2);
+    };
+    wrappers.forEach((el) => el.addEventListener("click", onIconClick));
+
     return () => {
       window.removeEventListener("pointermove", onMove);
-      wrappers.forEach((el) => el.removeEventListener("mouseenter", onEnter));
+      wrappers.forEach((el) => {
+        el.removeEventListener("mouseenter", onEnter);
+        el.removeEventListener("click", onIconClick);
+      });
       gsap.killTweensOf(wrappers);
     };
-  }, [ready, prefersReduced, orbitOffset, orbitWidth, ground, iconUrls.length]);
+  }, [ready, prefersReduced, orbitOffset, orbitWidth, ground, awardXp]);
 
   useEffect(() => {
     if (!showBubble) return;
-    const t = setTimeout(() => {
-      // noop—just ensuring initial render happened; CSS handles the entrance
-    }, 1200);
+    const t = setTimeout(() => { /* CSS handles entrance */ }, 1200);
     return () => clearTimeout(t);
   }, [showBubble]);
 
@@ -350,11 +467,13 @@ export default function Welcome() {
     return () => gsap.ticker.remove(tick);
   }, [ready, prefersReduced]);
 
-  // Mascot emotes cycle: tilt → bounce → wink (quick alt flash)
+  // Mascot emotes + small XP on click
   const emotePhase = useRef(0);
   const onMascotClick = () => {
     if (!ready) return;
     blipRef.current?.(880, 0.06, "square", 0.06);
+    awardXp(10);
+    vibrate(12);
     const wrap = document.querySelector(`.${s.mascotWrap}`); if (!wrap) return;
     const phase = emotePhase.current % 3;
     if (phase === 0) gsap.fromTo(wrap, { rotate: 0 }, { rotate: 6, yoyo: true, repeat: 1, duration: 0.12, ease: "power1.inOut" });
@@ -368,7 +487,7 @@ export default function Welcome() {
     emotePhase.current++;
   };
 
-  // FX helpers
+  // FX helpers (sparkles + falling star)
   const spawnSparkles = (x, y, n = 10) => {
     if (!fxLayerRef.current) return;
     for (let i = 0; i < n; i++) {
@@ -394,26 +513,98 @@ export default function Welcome() {
     el.addEventListener("animationend", () => el.remove());
   };
 
+  // Hold-to-enter (CSS-driven ring, 600ms)
+  useEffect(() => {
+    const btn = enterBtnRef.current;
+    if (!btn) return;
+
+    let holdTimer = null;
+    let holding = false;
+
+    const start = () => {
+      if (!unlockedRef.current) return;
+      holding = true;
+      btn.classList.add(s.holding);
+      holdTimer = setTimeout(() => {
+        if (!holding) return;
+        // center for iris origin
+        const rect = btn.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        window.dispatchEvent(new CustomEvent("start-iris", { detail: { x, y } }));
+        whoosh(0.35, 380, 1400, 0.05);
+        vibrate([10, 40, 10]);
+        navigate("/work");
+      }, 600);
+    };
+    const cancel = () => {
+      holding = false;
+      btn.classList.remove(s.holding);
+      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+    };
+
+    btn.addEventListener("pointerdown", start);
+    btn.addEventListener("pointerup", cancel);
+    btn.addEventListener("pointerleave", cancel);
+    btn.addEventListener("pointercancel", cancel);
+
+    return () => {
+      btn.removeEventListener("pointerdown", start);
+      btn.removeEventListener("pointerup", cancel);
+      btn.removeEventListener("pointerleave", cancel);
+      btn.removeEventListener("pointercancel", cancel);
+    };
+  }, [navigate, whoosh]);
+
+  // Secret long-press on watermark → fast unlock
+  useEffect(() => {
+    const el = watermarkRef.current;
+    if (!el) return;
+    let timer = null;
+    let triggered = false;
+
+    const down = () => {
+      triggered = false;
+      timer = setTimeout(() => {
+        triggered = true;
+        setXp(100);
+        setUnlocked(true);
+        chordRef.current?.(523.25, 0.08, 0.32);
+        vibrate([8, 60, 8, 60, 8]);
+      }, 900);
+    };
+    const up = (ev) => {
+      if (timer) clearTimeout(timer);
+      if (triggered) {
+        // prevent navigation if long-press triggered
+        ev.preventDefault?.();
+        ev.stopPropagation?.();
+      }
+    };
+
+    el.addEventListener("pointerdown", down, { passive: true });
+    el.addEventListener("pointerup", up, { passive: false });
+    el.addEventListener("pointerleave", up, { passive: false });
+    el.addEventListener("pointercancel", up, { passive: false });
+
+    return () => {
+      el.removeEventListener("pointerdown", down);
+      el.removeEventListener("pointerup", up);
+      el.removeEventListener("pointerleave", up);
+      el.removeEventListener("pointercancel", up);
+    };
+  }, [vibrate]);
+
   const onEnterClick = (e) => {
     if (!unlocked) { e.preventDefault(); return; }
-
     // center of the button for the iris origin
     const rect = e.currentTarget.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
-
-    // trigger the overlay
     window.dispatchEvent(new CustomEvent("start-iris", { detail: { x, y } }));
-
-    // whoosh sfx
     whoosh(0.35, 380, 1400, 0.05);
-
-    // delay route change to let the wipe play under 600ms
     e.preventDefault();
-    setTimeout(() => { 
-      // navigate to portfolio
-      navigate("/work");
-    }, 560);
+    setTimeout(() => navigate("/work"), 560);
   };
 
   return (
@@ -437,8 +628,8 @@ export default function Welcome() {
         </filter>
       </svg>
 
-      {/* Watermark — top-left */}
-      <a href="/" className={s.watermark} aria-label="Jessabel.art (home)">
+      {/* Watermark — top-left (secret long-press) */}
+      <a ref={watermarkRef} href="/" className={s.watermark} aria-label="Jessabel.art (home)">
         <span className={s.watermarkHalo} aria-hidden />
         <span className={s.watermarkText}>Jessabel.art</span>
       </a>
@@ -550,7 +741,19 @@ export default function Welcome() {
           <div className={s.xpLabel}>{xp}%</div>
         </div>
 
-        <Link to="/" className={s.enterBtn} aria-disabled={!unlocked} onClick={onEnterClick}>
+        <Link
+          ref={enterBtnRef}
+          to="/"
+          className={s.enterBtn}
+          aria-disabled={!unlocked}
+          onClick={onEnterClick}
+        >
+          {/* CSS-driven hold ring */}
+          <svg className={s.holdSvg} viewBox="0 0 44 44" aria-hidden>
+            <circle className={s.holdTrack} cx="22" cy="22" r="20" pathLength="100" />
+            <circle className={s.holdProg}  cx="22" cy="22" r="20" pathLength="100" />
+          </svg>
+
           <span className={s.enterRim}   aria-hidden />
           <span className={s.enterShine} aria-hidden />
           <span className={s.enterSheen} aria-hidden />
