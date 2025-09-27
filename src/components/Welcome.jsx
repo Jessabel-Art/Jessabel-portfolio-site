@@ -14,10 +14,17 @@ import s from "./welcome.module.css";
 
 const DEV = import.meta.env.MODE !== "production";
 
-/* Auto-load every *-icon.svg/png in /assets/icons */
-const iconModules = import.meta.glob("@/assets/icons/*-icon.{svg,png}", { query: "?url", import: "default" });
-// (removed erroneous closing brace and parenthesis)
-const iconUrls = Object.values(iconModules).sort();
+/* Auto-load every *-icon.svg/png in /assets/icons
+   Use eager + ?url so Vite emits real URLs in prod. */
+const iconModules = import.meta.glob("@/assets/icons/*-icon.{svg,png}", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
+// keep a stable, deterministic order
+const iconUrls = Object.entries(iconModules)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([, url]) => url);
 
 /* ---------- Lightweight WebAudio toolkit (memoized) ---------- */
 function useAudio(muted) {
@@ -310,13 +317,13 @@ export default function Welcome() {
     };
   }, [ready, prefersReduced, orbitOffset, orbitWidth, ground, iconUrls.length]);
 
-useEffect(() => {
-  if (!showBubble) return;
-  const t = setTimeout(() => {
-    // noop—just ensuring initial render happened; CSS handles the entrance
-  }, 1200);
-  return () => clearTimeout(t);
-}, [showBubble]);
+  useEffect(() => {
+    if (!showBubble) return;
+    const t = setTimeout(() => {
+      // noop—just ensuring initial render happened; CSS handles the entrance
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [showBubble]);
 
   /* Sun sweep (every ~12s) */
   useEffect(() => {
@@ -388,26 +395,26 @@ useEffect(() => {
   };
 
   const onEnterClick = (e) => {
-  if (!unlocked) { e.preventDefault(); return; }
+    if (!unlocked) { e.preventDefault(); return; }
 
-  // center of the button for the iris origin
-  const rect = e.currentTarget.getBoundingClientRect();
-  const x = rect.left + rect.width / 2;
-  const y = rect.top + rect.height / 2;
+    // center of the button for the iris origin
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
 
-  // trigger the overlay
-  window.dispatchEvent(new CustomEvent("start-iris", { detail: { x, y } }));
+    // trigger the overlay
+    window.dispatchEvent(new CustomEvent("start-iris", { detail: { x, y } }));
 
-  // whoosh sfx
-  whoosh(0.35, 380, 1400, 0.05);
+    // whoosh sfx
+    whoosh(0.35, 380, 1400, 0.05);
 
-  // delay route change to let the wipe play under 600ms
-  e.preventDefault();
-  setTimeout(() => { 
-    // navigate to portfolio
-    navigate("/work");
-  }, 560);
-};
+    // delay route change to let the wipe play under 600ms
+    e.preventDefault();
+    setTimeout(() => { 
+      // navigate to portfolio
+      navigate("/work");
+    }, 560);
+  };
 
   return (
     <section

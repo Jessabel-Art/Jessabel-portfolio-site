@@ -6,6 +6,7 @@
   display: grid;
   place-items: center;
   cursor: none;
+  touch-action: manipulation;
 
   /* --light is driven by JSX: 1 when not hovering, 0 on hover */
   --light: 1;
@@ -30,6 +31,12 @@
 /* Parallax fades in only when ready */
 .parallax{ position:relative; width:100%; height:100%; will-change: transform; opacity: 0; }
 .ready .parallax{ opacity: 1; transition: opacity .35s ease; }
+
+/* Hide custom cursor on touch / coarse pointers */
+@media (pointer: coarse), (hover: none){
+  .root{ cursor:auto; }
+  .cursorLayer{ display:none; }
+}
 
 /* CRT overlay + vignette boost under cursor */
 .crt::before{
@@ -194,8 +201,8 @@
 
 .orbiterWrap{
   position: absolute;
-  width: 44px !important;   /* locked size as requested */
-  height: 67px !important;  /* locked size as requested */
+  width: 44px !important;   /* desktop default */
+  height: 67px !important;
   pointer-events: auto;
 }
 .nudge{
@@ -427,18 +434,15 @@
 }
 
 /* ===== Mascot bubble ===================================================== */
-/* Position relative to mascot baseline so it scales across screens */
 .bubbleWrap{
   position:absolute;
   left:50%;
-  top: var(--ground-y);                 /* anchor: same as mascot */
-  transform: translate(-50%, -100%);    /* start at mascot head */
+  top: var(--ground-y);
+  transform: translate(-50%, -100%);
   z-index: 6;
-  pointer-events: none;                  /* bubble itself handles clicks */
-  animation: bubbleEnter .45s ease-out both 1.2s; /* slight delayed pop-in */
+  pointer-events: none;
+  animation: bubbleEnter .45s ease-out both 1.2s;
 }
-
-/* Nudge bubble to the right and above the head */
 .bubble{
   position: relative;
   left: clamp(120px, 12vw, 220px);
@@ -455,11 +459,9 @@
   box-shadow:
     0 12px 24px rgba(0,0,0,.35),
     0 0 22px rgba(0,255,255,.25);
-  pointer-events: auto;                 /* clickable */
+  pointer-events: auto;
   animation: bubbleBob 6s ease-in-out infinite;
 }
-
-/* Tail pointing back toward the mascot */
 .bubbleTail{
   position:absolute;
   left: clamp(12px, 2vw, 24px);
@@ -473,8 +475,6 @@
     10px 10px 20px rgba(0,0,0,.25),
     0 0 18px rgba(0,255,255,.25);
 }
-
-/* Close button */
 .bubbleClose{
   position:absolute; top:4px; right:6px;
   width: 22px; height: 22px; line-height: 20px;
@@ -488,12 +488,9 @@
   transition: transform .15s ease, filter .2s ease;
 }
 .bubbleClose:hover{ transform: scale(1.06); filter: drop-shadow(0 0 6px rgba(0,255,255,.6)); }
-
-/* Text + subtle arrow wiggle */
-.bubbleText{ padding-right: 20px; } /* make room for the close button */
+.bubbleText{ padding-right: 20px; }
 .wiggle{ display:inline-block; animation: wiggleX 1.6s ease-in-out infinite; }
 
-/* Motion */
 @keyframes bubbleEnter{
   from{ opacity:0; transform: translate(-50%, -100%) translateY(8px) scale(.98); }
   to  { opacity:1; transform: translate(-50%, -100%) translateY(0)    scale(1); }
@@ -507,9 +504,51 @@
   50%    { transform: translateX(3px); }
 }
 
-/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce){
   .bubbleWrap{ animation: none; }
   .bubble{ animation: none; }
   .wiggle{ animation: none; }
+}
+
+/* ===================== Responsive tuning ===================== */
+
+/* Tablet */
+@media (max-width: 1024px){
+  .root{
+    --ground-y: 86svh !important;
+    --orbit-offset-y: 60svh !important;
+    --orbit-width: 62vw !important;
+  }
+  .orbiterWrap{ width: 36px !important; height: 54px !important; }
+  .muteDock{ width:40px; height:40px; top:14px; right:14px; }
+}
+
+/* Phones */
+@media (max-width: 768px){
+  .root{
+    --ground-y: 82svh !important;
+    --orbit-offset-y: 58svh !important;
+    --orbit-width: 78vw !important;
+  }
+  .sunBand{ width: clamp(320px, 72vw, 760px); height: clamp(110px, 26vw, 220px); }
+  .spot{ width: clamp(220px, 70vw, 560px); }
+  .orbiterWrap{ width: 32px !important; height: 48px !important; }
+  .bottomUi{ bottom: clamp(16px, 6vh, 64px); }
+  .enterBtn{ min-width: 200px; padding: .95rem 2.2rem; }
+  .xpTrack{ width: clamp(180px, 70vw, 420px); }
+  .watermark{ top: 12px; left: 12px; font-size: 12px; padding: 6px 12px; }
+  .muteDock{ width:38px; height:38px; top:12px; right:12px; }
+  .bubble{ left: clamp(80px, 18vw, 180px); top: calc(-1 * clamp(60px, 18vw, 140px)); max-width: clamp(180px, 66vw, 340px); }
+}
+
+/* Small phones */
+@media (max-width: 480px){
+  .root{
+    --ground-y: 80svh !important;
+    --orbit-offset-y: 60svh !important;
+    --orbit-width: 88vw !important;
+  }
+  .orbiterWrap{ width: 28px !important; height: 42px !important; }
+  .enterBtn{ min-width: 180px; }
+  .xpTrack{ width: clamp(150px, 76vw, 360px); }
 }
