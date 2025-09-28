@@ -22,7 +22,7 @@ import PrivacyPage from "@/pages/PrivacyPage";
 import TermsPage from "@/pages/TermsPage";
 import ClientsPage from "@/pages/ClientsPage";
 import ClientUploadPage from "@/pages/ClientUploadPage";
-import UXProcess from "@/pages/UXProcess"; 
+import UxProcess from "@/pages/UxProcess";
 
 /* ---------- Scroll to top on route change ---------- */
 function ScrollToTop() {
