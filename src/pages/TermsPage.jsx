@@ -11,7 +11,6 @@ const TermsPage = () => {
 
   const effectiveDate = '2025-08-11';
 
-  // Badge if updated in last 30 days
   const isNew = useMemo(() => {
     try {
       const now = new Date();
@@ -110,7 +109,7 @@ const TermsPage = () => {
       content: [
         <>
           We strive to make the site accessible and usable. If you encounter barriers, please email{' '}
-          <a className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] rounded" href="mailto:hello@jessabel.art">
+          <a className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded" href="mailto:hello@jessabel.art">
             hello@jessabel.art
           </a>{' '}
           and we will work to provide an alternative or improve the experience.
@@ -143,10 +142,7 @@ const TermsPage = () => {
       id: 'indemnity',
       title: 'Indemnification',
       content: [
-        <>
-          You agree to indemnify and hold us harmless from claims arising out of your misuse of the site or violation of
-          these Terms, including reasonable attorneys’ fees.
-        </>,
+        <>You agree to indemnify and hold us harmless from claims arising out of your misuse of the site or violation of these Terms, including reasonable attorneys’ fees.</>,
       ],
     },
     {
@@ -155,7 +151,7 @@ const TermsPage = () => {
       content: [
         <>
           If you believe content on this site infringes your copyright, contact{' '}
-          <a className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] rounded" href="mailto:hello@jessabel.art">
+          <a className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded" href="mailto:hello@jessabel.art">
             hello@jessabel.art
           </a>{' '}
           with details of the work and the allegedly infringing material. We will review and respond appropriately.
@@ -171,46 +167,30 @@ const TermsPage = () => {
           schedules) will be defined in a separate proposal or agreement. If there is a conflict between that agreement
           and this page, the agreement governs.
         </>,
-        <>
-          Unless otherwise agreed in writing, final deliverables are transferred to the client upon receipt of full
-          payment. Working files and exploration artifacts are not included by default.
-        </>,
+        <>Unless otherwise agreed in writing, final deliverables are transferred to the client upon receipt of full payment. Working files and exploration artifacts are not included by default.</>,
       ],
     },
     {
       id: 'governing-law',
       title: 'Governing Law & Venue',
       content: [
-        <>
-          These Terms are governed by the laws of the jurisdiction where we are based, without regard to conflict of law
-          principles. Venue and jurisdiction lie in the courts of that location.
-        </>,
+        <>These Terms are governed by the laws of the jurisdiction where we are based, without regard to conflict of law principles. Venue and jurisdiction lie in the courts of that location.</>,
       ],
     },
     {
       id: 'misc',
       title: 'Miscellaneous',
       content: [
-        <>
-          <strong>Severability:</strong> if any provision is found unenforceable, the rest remain in effect.
-        </>,
-        <>
-          <strong>No waiver:</strong> failure to enforce a provision is not a waiver of our right to do so later.
-        </>,
-        <>
-          <strong>Entire agreement:</strong> these Terms constitute the entire agreement regarding site use and supersede
-          prior communications on that subject.
-        </>,
+        <><strong>Severability:</strong> if any provision is found unenforceable, the rest remain in effect.</>,
+        <><strong>No waiver:</strong> failure to enforce a provision is not a waiver of our right to do so later.</>,
+        <><strong>Entire agreement:</strong> these Terms constitute the entire agreement regarding site use and supersede prior communications on that subject.</>,
       ],
     },
     {
       id: 'changes',
       title: 'Changes to These Terms',
       content: [
-        <>
-          We may update these Terms from time to time. Material changes will be reflected on this page with an updated
-          effective date. Your continued use of the site after changes indicates acceptance.
-        </>,
+        <>We may update these Terms from time to time. Material changes will be reflected on this page with an updated effective date. Your continued use of the site after changes indicates acceptance.</>,
       ],
     },
     {
@@ -219,7 +199,7 @@ const TermsPage = () => {
       content: [
         <>
           Questions about these Terms? Email{' '}
-          <a className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] rounded" href="mailto:hello@jessabel.art">
+          <a className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded" href="mailto:hello@jessabel.art">
             hello@jessabel.art
           </a>
           .
@@ -228,40 +208,34 @@ const TermsPage = () => {
     },
   ];
 
-  // soft orange backgrounds that alternate
-  const bgByIndex = (i) => {
-    const colors = [
-      'bg-[#fee9a6]', // lightest
-      'bg-[#ffe574]',
-      'bg-[#fec200]',
-      'bg-[#fa8a00]/10', // softer with opacity
-    ];
-    return colors[i % colors.length];
+  const cardTint = (i) => {
+    const tints = ['bg-white/[0.05]', 'bg-white/[0.07]', 'bg-white/[0.06]', 'bg-white/[0.08]'];
+    return tints[i % tints.length];
   };
 
   return (
-    <div className="py-20">
+    <div className="py-20 relative">
       <Helmet>
         <title>Terms of Service — Jessabel.Art</title>
-        <meta
-          name="description"
-          content="Read the terms of service for using the Jessabel.Art website."
-        />
+        <meta name="description" content="Read the terms of service for using the Jessabel.Art website." />
       </Helmet>
 
-      {/* Header band */}
+      {/* glows */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-cyan-500/15 blur-3xl" />
+        <div className="absolute top-1/3 left-1/4 h-80 w-80 rounded-full bg-violet-500/15 blur-3xl" />
+      </div>
+
+      {/* Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
-        <div className="rounded-3xl px-6 py-10 md:px-10 md:py-14 bg-[#d74708] text-white relative overflow-hidden">
+        <div className="rounded-3xl px-6 py-10 md:px-10 md:py-14 text-white relative overflow-hidden ring-1 ring-white/10"
+             style={{ background: 'linear-gradient(135deg,#0b1530,rgba(11,21,48,0.85)),radial-gradient(1200px_500px_at_50%_120%,rgba(6,182,212,.18),transparent)', backgroundBlendMode: 'overlay' }}>
           <h1 className="text-4xl md:text-6xl font-['Playfair_Display'] italic tracking-tight">Terms of Service</h1>
           <p className="mt-3 text-sm md:text-base opacity-90">
             Effective date: <time dateTime={effectiveDate}>{effectiveDate}</time>
           </p>
           {isNew && (
-            <span
-              className="absolute top-4 right-4 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
-                         bg-white/15 ring-1 ring-white/40 backdrop-blur"
-              aria-label="Recently updated"
-            >
+            <span className="absolute top-4 right-4 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/15 ring-1 ring-white/40 backdrop-blur" aria-label="Recently updated">
               New
             </span>
           )}
@@ -269,16 +243,15 @@ const TermsPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[280px,1fr] gap-8">
-        {/* Sticky quick nav on desktop */}
+        {/* Sticky quick nav */}
         <nav className="hidden lg:block sticky top-24 self-start">
-          <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
-            <p className="text-sm font-semibold text-[hsl(var(--foreground))] mb-2">On this page</p>
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-4">
+            <p className="text-sm font-semibold text-white mb-2">On this page</p>
             <ul className="space-y-2 text-sm">
               {sections.map((s) => (
                 <li key={s.id}>
                   <a
-                    className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:underline
-                               focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] rounded"
+                    className="text-white/60 hover:text-white hover:underline focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded"
                     href={`#${s.id}`}
                   >
                     {s.title}
@@ -290,7 +263,7 @@ const TermsPage = () => {
               type="button"
               onClick={() => window.print()}
               className="mt-4 w-full text-center text-sm font-semibold text-white px-3 py-2 rounded-lg
-                         bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]"
+                         bg-gradient-to-r from-cyan-400 to-violet-500"
             >
               Print / Save PDF
             </button>
@@ -303,10 +276,10 @@ const TermsPage = () => {
             <section
               key={section.id}
               id={section.id}
-              className={`rounded-2xl border border-[hsl(var(--border))] ${bgByIndex(i)} p-6 md:p-8 shadow-sm scroll-mt-24`}
+              className={`rounded-2xl border border-white/10 ${cardTint(i)} backdrop-blur p-6 md:p-8 shadow-sm scroll-mt-24`}
             >
-              <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-4">{section.title}</h2>
-              <div className="space-y-4 text-[hsl(var(--muted-foreground))] leading-relaxed">
+              <h2 className="text-2xl font-bold text-white mb-4">{section.title}</h2>
+              <div className="space-y-4 text-white/70 leading-relaxed">
                 {section.content.map((para, idx) => (
                   <p key={idx}>{para}</p>
                 ))}
@@ -315,16 +288,12 @@ const TermsPage = () => {
           ))}
 
           {/* Contact card */}
-          <section
-            className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 md:p-8 shadow-sm text-center"
-          >
-            <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-3">Contact</h2>
-            <p className="text-[hsl(var(--muted-foreground))]">
-              For questions about these Terms, please contact me.
-            </p>
+          <section className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-6 md:p-8 shadow-sm text-center">
+            <h2 className="text-2xl font-bold text-white mb-3">Contact</h2>
+            <p className="text-white/70">For questions about these Terms, please contact me.</p>
             <a
               href="mailto:hello@jessabel.art?subject=Terms%20Question"
-              className="mt-4 inline-block font-semibold underline decoration-[hsl(var(--accent))] underline-offset-4 hover:no-underline text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-[var(--orange-600,#fa8a00)] rounded"
+              className="mt-4 inline-block font-semibold underline decoration-cyan-400 underline-offset-4 hover:no-underline text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded"
             >
               hello@jessabel.art
             </a>
@@ -332,17 +301,14 @@ const TermsPage = () => {
               <a
                 href="#acceptance"
                 className="inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold
-                           text-white bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]"
+                           text-white bg-gradient-to-r from-cyan-400 to-violet-500"
               >
                 Back to top
               </a>
             </div>
           </section>
 
-          {/* Note */}
-          <p className="text-xs text-[hsl(var(--muted-foreground))] mt-2">
-            This page is for general information and isn’t legal advice.
-          </p>
+          <p className="text-xs text-white/60 mt-2">This page is for general information and isn’t legal advice.</p>
         </motion.div>
       </div>
     </div>
@@ -350,4 +316,3 @@ const TermsPage = () => {
 };
 
 export default TermsPage;
-

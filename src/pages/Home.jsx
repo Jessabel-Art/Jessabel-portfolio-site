@@ -1,21 +1,23 @@
 // src/pages/Home.jsx
-import React from "react";
-import Hero from "@/components/sections/Hero";
+import React from 'react';
+
+// Existing sections (adjust paths/names as needed)
+import Hero from '@/components/sections/Hero';
+import About from '@/components/sections/About';
 import MyToolkit from '@/components/sections/MyToolkit';
-import About from "@/components/sections/About"; 
+// New CTA section
+import ConnectCTA from '@/components/sections/ConnectCTA';
 
 export default function Home() {
   return (
     <>
-      {/* ===== Hero (stage + mascot) ===== */}
       <Hero />
-      <MyToolkit /> {/* <= right here, below Hero */}
-      {/* ...rest of the homepage sections */}
-
-      {/* ===== About ===== */}
-      <section id="about" className="bg-[--navy-900]">
-        <About />
-      </section>
+      <MyToolkit />
+      <About />
+      {/* <Work /> */}
+      {/* <Testimonials /> */}
+      <ConnectCTA />
+      {/* <Footer /> */}
     </>
   );
 }

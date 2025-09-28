@@ -9,10 +9,8 @@ const PrivacyPage = () => {
     transition: { duration: 0.6, ease: 'easeOut' },
   };
 
-  // Update when you materially change the policy
   const effectiveDate = '2025-08-11';
 
-  // Badge if updated in the last 30 days
   const isNew = useMemo(() => {
     try {
       const now = new Date();
@@ -37,7 +35,7 @@ const PrivacyPage = () => {
         <>
           <strong>Data controller:</strong> Jessabel.Art •{' '}
           <a
-            className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] rounded"
+            className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded"
             href="mailto:hello@jessabel.art"
           >
             hello@jessabel.art
@@ -164,7 +162,7 @@ const PrivacyPage = () => {
           Depending on your location, you may have rights to access, correct, delete, or receive a copy of your personal
           data, and to object or restrict certain processing. To exercise these rights, contact{' '}
           <a
-            className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] rounded"
+            className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded"
             href="mailto:hello@jessabel.art"
           >
             hello@jessabel.art
@@ -181,12 +179,7 @@ const PrivacyPage = () => {
     {
       id: 'children',
       title: 'Children’s privacy',
-      content: [
-        <>
-          This website isn’t directed to children under 13, and we don’t knowingly collect personal information from
-          them.
-        </>,
-      ],
+      content: [<>This website isn’t directed to children under 13, and we don’t knowingly collect personal information from them.</>],
     },
     {
       id: 'changes',
@@ -205,7 +198,7 @@ const PrivacyPage = () => {
         <>
           Questions or requests? Email{' '}
           <a
-            className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] rounded"
+            className="underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded"
             href="mailto:hello@jessabel.art"
           >
             hello@jessabel.art
@@ -216,39 +209,36 @@ const PrivacyPage = () => {
     },
   ];
 
-  // soft orange backgrounds that alternate (kept, but you can swap to tokens if you prefer)
-  const bgByIndex = (i) => {
-    const colors = [
-      'bg-[#fee9a6]', // lightest
-      'bg-[#ffe574]',
-      'bg-[#fec200]',
-      'bg-[#fa8a00]/10', // softer via opacity
-    ];
-    return colors[i % colors.length];
+  // dark glass cards that alternate subtle tints
+  const cardTint = (i) => {
+    const tints = ['bg-white/[0.05]', 'bg-white/[0.07]', 'bg-white/[0.06]', 'bg-white/[0.08]'];
+    return tints[i % tints.length];
   };
 
   return (
-    <div className="py-20">
+    <div className="py-20 relative">
       <Helmet>
         <title>Privacy Policy — Jessabel.Art</title>
-        <meta
-          name="description"
-          content="Learn how Jessabel.Art handles your data with respect and transparency."
-        />
+        <meta name="description" content="Learn how Jessabel.Art handles your data with respect and transparency." />
       </Helmet>
 
-      {/* Header band (navy gradient, matches site chrome) */}
+      {/* ambient glows */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-cyan-500/15 blur-3xl" />
+        <div className="absolute top-1/3 right-1/4 h-80 w-80 rounded-full bg-violet-500/15 blur-3xl" />
+      </div>
+
+      {/* Header band */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
         <div
           className="relative overflow-hidden rounded-3xl px-6 py-10 md:px-10 md:py-14 text-white ring-1 ring-white/10"
           style={{
             background:
-              'linear-gradient(135deg, var(--navy-900), #121826 60%, #0B0F1A)',
+              'linear-gradient(135deg,#0b1530,rgba(11,21,48,0.85)),radial-gradient(1200px_500px_at_50%_120%,rgba(124,77,255,.18),transparent)',
+            backgroundBlendMode: 'overlay',
           }}
         >
-          <h1 className="text-4xl md:text-6xl font-['Playfair_Display'] italic tracking-tight">
-            Privacy Policy
-          </h1>
+          <h1 className="text-4xl md:text-6xl font-['Playfair_Display'] italic tracking-tight">Privacy Policy</h1>
           <p className="mt-3 text-sm md:text-base opacity-90">
             Effective date: <time dateTime={effectiveDate}>{effectiveDate}</time>
           </p>
@@ -265,16 +255,15 @@ const PrivacyPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[280px,1fr] gap-8">
-        {/* Sticky quick nav on desktop */}
+        {/* Sticky quick nav */}
         <nav className="hidden lg:block sticky top-24 self-start print:hidden">
-          <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
-            <p className="text-sm font-semibold text-[hsl(var(--foreground))] mb-2">On this page</p>
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-4">
+            <p className="text-sm font-semibold text-white mb-2">On this page</p>
             <ul className="space-y-2 text-sm">
               {sections.map((s) => (
                 <li key={s.id}>
                   <a
-                    className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:underline
-                               focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] rounded"
+                    className="text-white/60 hover:text-white hover:underline focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded"
                     href={`#${s.id}`}
                   >
                     {s.title}
@@ -286,24 +275,21 @@ const PrivacyPage = () => {
               type="button"
               onClick={() => window.print()}
               className="mt-4 w-full text-center text-sm font-semibold text-white px-3 py-2 rounded-lg
-                         bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]"
+                         bg-gradient-to-r from-cyan-400 to-violet-500"
             >
               Print / Save PDF
             </button>
           </div>
         </nav>
 
-        {/* Mobile quick nav (collapsible) */}
-        <details className="lg:hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 mb-2">
-          <summary className="cursor-pointer text-sm font-semibold text-[hsl(var(--foreground))]">
-            On this page
-          </summary>
+        {/* Mobile quick nav */}
+        <details className="lg:hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-4 mb-2">
+          <summary className="cursor-pointer text-sm font-semibold text-white">On this page</summary>
           <ul className="mt-3 space-y-2 text-sm">
             {sections.map((s) => (
               <li key={s.id}>
                 <a
-                  className="block py-1 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:underline
-                             focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] rounded"
+                  className="block py-1 text-white/60 hover:text-white hover:underline focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded"
                   href={`#${s.id}`}
                 >
                   {s.title}
@@ -319,10 +305,10 @@ const PrivacyPage = () => {
             <section
               key={section.id}
               id={section.id}
-              className={`rounded-2xl border border-[hsl(var(--border))] ${bgByIndex(i)} p-6 md:p-8 shadow-sm scroll-mt-24`}
+              className={`rounded-2xl border border-white/10 ${cardTint(i)} backdrop-blur p-6 md:p-8 shadow-sm scroll-mt-24`}
             >
-              <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-4">{section.title}</h2>
-              <div className="space-y-4 text-[hsl(var(--muted-foreground))] leading-relaxed">
+              <h2 className="text-2xl font-bold text-white mb-4">{section.title}</h2>
+              <div className="space-y-4 text-white/70 leading-relaxed">
                 {section.content.map((para, idx) => (
                   <p key={idx}>{para}</p>
                 ))}
@@ -331,16 +317,14 @@ const PrivacyPage = () => {
           ))}
 
           {/* Contact card */}
-          <section
-            className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 md:p-8 shadow-sm text-center"
-          >
-            <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-3">Questions?</h2>
-            <p className="text-[hsl(var(--muted-foreground))]">
+          <section className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-6 md:p-8 shadow-sm text-center">
+            <h2 className="text-2xl font-bold text-white mb-3">Questions?</h2>
+            <p className="text-white/70">
               If you have any questions about this policy, feel free to reach out.
             </p>
             <a
               href="mailto:hello@jessabel.art?subject=Privacy%20Request&body=Hi%20Jessabel%2C%0A%0AI'd%20like%20to%20ask%20about%20%5Baccess%2Fdeletion%2Fupdate%5D%20of%20my%20data.%0A%0AThanks!"
-              className="mt-4 inline-block font-semibold underline decoration-[hsl(var(--accent))] underline-offset-4 hover:no-underline text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))] rounded"
+              className="mt-4 inline-block font-semibold underline decoration-cyan-400 underline-offset-4 hover:no-underline text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded"
             >
               hello@jessabel.art
             </a>
@@ -348,7 +332,7 @@ const PrivacyPage = () => {
               <a
                 href="#overview"
                 className="inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold
-                           text-white bg-[linear-gradient(135deg,var(--btn-pink,#ff3ea5),var(--btn-teal,#00c2b2))]"
+                           text-white bg-gradient-to-r from-cyan-400 to-violet-500"
               >
                 Back to top
               </a>
@@ -357,7 +341,6 @@ const PrivacyPage = () => {
         </motion.div>
       </div>
 
-      {/* Print tweaks */}
       <style>{`
         @media print {
           html, body { background: #fff; }

@@ -6,7 +6,12 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Welcome from "@/components/Welcome";
 import Home from "@/pages/Home";
-import RouteIris from "@/components/RouteIris"; // ✨ new overlay
+import RouteIris from "@/components/RouteIris";
+
+// New pages
+import ContactPage from "@/pages/ContactPage";
+import PrivacyPage from "@/pages/PrivacyPage";
+import TermsPage from "@/pages/TermsPage";
 
 function Layout({ children }) {
   const location = useLocation();
@@ -32,8 +37,15 @@ export default function App() {
         <Routes>
           {/* Welcome is root */}
           <Route path="/" element={<Welcome />} />
+
           {/* Portfolio one-pager */}
           <Route path="/work" element={<Home />} />
+
+          {/* Contact & Legal */}
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
