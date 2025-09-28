@@ -1,7 +1,7 @@
 // src/components/sections/ConnectCTA.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Rocket, Mail } from 'lucide-react';
+import { Rocket } from 'lucide-react';
 
 const container = {
   hidden: { opacity: 0, y: 24 },
@@ -38,7 +38,10 @@ export default function ConnectCTA() {
             variants={item}
             className="text-3xl md:text-4xl font-semibold tracking-tight"
           >
-            Let’s build something users <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-400 to-violet-400">love</span>.
+            Let’s build something users{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-400 to-violet-400">
+              love
+            </span>.
           </motion.h2>
 
           <motion.p
@@ -50,9 +53,9 @@ export default function ConnectCTA() {
 
           <motion.div
             variants={item}
-            className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
+            className="mt-8 flex flex-col items-center justify-center"
           >
-            {/* Primary CTA */}
+            {/* Primary CTA only */}
             <motion.a
               href="/contact"
               whileHover={{ scale: 1.04, y: -1 }}
@@ -69,24 +72,13 @@ export default function ConnectCTA() {
               {/* shimmer */}
               <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(120px_60px_at_var(--x,50%)_0%,rgba(255,255,255,.18),transparent_60%)]" />
             </motion.a>
-
-            {/* Secondary CTA */}
-            <motion.a
-              href="/contact"
-              whileHover={{ scale: 1.03, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm md:text-base font-medium
-                        text-white/90 border border-white/20 bg-white/5 backdrop-blur
-                        hover:bg-white/10 transition-colors"
-              aria-label="Send a message"
-            >
-              <Mail className="h-4 w-4" />
-              <span>Send a Message</span>
-            </motion.a>
           </motion.div>
 
           {/* micro-trust row */}
-          <motion.div variants={item} className="mt-4 text-xs md:text-sm text-foreground/60">
+          <motion.div
+            variants={item}
+            className="mt-4 text-xs md:text-sm text-foreground/60"
+          >
             Quick reply • Clear scope • Measurable outcomes
           </motion.div>
         </motion.div>

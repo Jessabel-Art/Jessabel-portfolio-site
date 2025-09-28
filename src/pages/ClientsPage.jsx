@@ -1,39 +1,31 @@
+// src/pages/ClientsPage.jsx
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
 
-/* ---------------- THEME ---------------- */
-const THEME = {
-  peachBg: '#FEE6D4',
-  warmInk: 'var(--warm-brown-hex)',
+//theme colors (match ClientUploadPage)
+const GRAD_PRIMARY = 'var(--grad-primary)'; // define in CSS: --grad-primary: linear-gradient(135deg, var(--brand-pink), var(--brand-violet));
+const GRAD_TRACK   = 'var(--grad-track)';   // e.g. linear-gradient(90deg, var(--brand-pink), var(--brand-violet));
 
-  // Brand gradient colors (pink → blue)
-  pink: '#ff3ea5',
-  blue: '#6a5cff',
-  teal: '#00c2b2', // optional accent used in subtle places
-};
-
-// Primary gradient & track gradient
-const GRAD_PRIMARY = `linear-gradient(135deg, var(--btn-pink, ${THEME.pink}), var(--btn-violet, ${THEME.blue}))`;
-const GRAD_TRACK = `linear-gradient(90deg, var(--btn-pink, ${THEME.pink}), var(--btn-violet, ${THEME.blue}))`;
-
-/**
- * Add clients here.
- * Optional: stage (defaults to 'Intake'), canChange (defaults to false)
- */
+/* ---------------- CLIENTS ---------------- */
 const CLIENTS = [
   { name: 'ACME Corp', pin: '7431', folder: 'acme' },
   { name: 'Neoterra Inc.', pin: '8190', folder: 'neoterra' },
-  // Sanchez starts at BUILD
   { name: 'Sanchez Services', pin: '1122', folder: 'sanchez', stage: 'Build' },
 ];
+const ROOT_FOLDER = 'client_uploads';
 
-// Notion: open as a new tab via CTA (no iframe)
-const NOTION_URL = 'https://apple-month-55e.notion.site/246ec2233e6f802a93aae01cf20205f3?pvs=105';
+/* ---- Universal intake (use your Formspree id) ---- */
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_ME'; // <<<<<< set this
+const NOTION_URL_DEFAULT =
+  'https://apple-month-55e.notion.site/246ec2233e6f802a93aae01cf20205f3?pvs=105';
+const CLIENT_INTAKE_URLS = {};
 
 /* ---------------- Sparkle utilities ---------------- */
 const SparkleOverlay = ({ active }) => {
@@ -70,7 +62,7 @@ const shakeVariants = {
   shake: { x: [0, -8, 8, -6, 6, -3, 3, 0], transition: { duration: 0.4, ease: 'easeInOut' } },
 };
 
-/* ---------------- Buttons (brand gradient) ---------------- */
+/* ---------------- Buttons ---------------- */
 const btnPrimary =
   'relative overflow-hidden text-white font-semibold shadow-lg border-0 ' +
   'hover:brightness-[1.08] hover:shadow-[0_12px_30px_rgba(0,0,0,.18)] transition';
@@ -85,14 +77,8 @@ const btnMuted =
 
 /* ---------------- Steps & timeline ---------------- */
 const STEPS = ['Intake', 'Discovery', 'Design', 'Build', 'Review', 'Handoff'];
-
 const trackBase = 'bg-[hsl(var(--foreground)/0.15)]';
 
-/* Node styles:
-   - Bigger circles (48px) for visibility
-   - Inactive: dark warm ink text on white
-   - Active/completed: brand gradient with white text + subtle shadow
-*/
 const nodeBase =
   'rounded-full flex items-center justify-center select-none backdrop-blur ' +
   'transition-colors duration-200';
@@ -107,13 +93,174 @@ const nodeCompleted =
   `${nodeBase} w-12 h-12 text-[15px] font-extrabold text-white ` +
   'shadow-[0_6px_16px_rgba(0,0,0,.18)] opacity-[0.98]';
 
+/* ---------------- Utilities ---------------- */
+const storageKeyFor = (client) => (client ? `ja:portal:${client.folder}:stage` : null);
+
+async function ensureCloudinary() {
+  if (window.cloudinary?.createUploadWidget) return true;
+  return new Promise((resolve) => {
+    const existing = document.querySelector('script[data-cloudinary-widget]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(true));
+      existing.addEventListener('error', () => resolve(false));
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = 'https://widget.cloudinary.com/v2.0/global/all.js';
+    s.async = true;
+    s.dataset.cloudinaryWidget = 'true';
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.head.appendChild(s);
+  });
+}
+
+/* ---------------- Embedded universal intake form ---------------- */
+const EmbeddedIntakeForm = ({ client, currentStage }) => {
+  const { toast } = useToast();
+  const [submitting, setSubmitting] = useState(false);
+  const [okMsg, setOkMsg] = useState('');
+  const [errMsg, setErrMsg] = useState('');
+
+  // simple local fields; tailor as you wish
+  const [form, setForm] = useState({
+    contactName: '',
+    contactEmail: '',
+    projectSummary: '',
+    timeline: '',
+    budget: '',
+    honey: '', // honeypot
+  });
+
+  const onChange = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    setOkMsg('');
+    setErrMsg('');
+
+    if (form.honey) return; // bot
+
+    try {
+      setSubmitting(true);
+      const payload = {
+        ...form,
+        __clientName: client?.name || '',
+        __clientFolder: client?.folder || '',
+        __stage: currentStage || '',
+        __site: 'Jessabel.Art',
+      };
+
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error('Failed to submit form');
+      setOkMsg('Thanks! Your intake has been received.');
+      setForm({ contactName: '', contactEmail: '', projectSummary: '', timeline: '', budget: '', honey: '' });
+
+      toast?.({
+        title: 'Intake received',
+        description: `${client?.name || 'Client'} • We emailed you a confirmation (Formspree).`,
+      });
+    } catch (err) {
+      setErrMsg('Could not submit right now. Please try again in a moment.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <section className="mt-10" aria-label="Project intake">
+      <div className="mb-3">
+        <Label className="font-semibold" style={{ color: THEME.warmInk }}>
+          Universal Intake Form
+        </Label>
+        <p className="text-sm text-[hsl(var(--foreground)/0.75)]">
+          Fill this out here — it’s the same form we email. You’ll get a confirmation.
+        </p>
+      </div>
+
+      <form
+        onSubmit={onSubmit}
+        className="p-6 rounded-2xl border border-white/55 bg-white/60 backdrop-blur space-y-4"
+      >
+        {/* Honeypot */}
+        <input
+          type="text"
+          name="website"
+          value={form.honey}
+          onChange={onChange('honey')}
+          className="hidden"
+          tabIndex={-1}
+          autoComplete="off"
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="contactName">Your name</Label>
+            <Input id="contactName" value={form.contactName} onChange={onChange('contactName')} required />
+          </div>
+          <div>
+            <Label htmlFor="contactEmail">Email</Label>
+            <Input id="contactEmail" type="email" value={form.contactEmail} onChange={onChange('contactEmail')} required />
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="projectSummary">Project summary</Label>
+          <Textarea id="projectSummary" rows={4} value={form.projectSummary} onChange={onChange('projectSummary')} required />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="timeline">Ideal timeline</Label>
+            <Input id="timeline" placeholder="e.g., 2–4 weeks" value={form.timeline} onChange={onChange('timeline')} />
+          </div>
+          <div>
+            <Label htmlFor="budget">Approx. budget</Label>
+            <Input id="budget" placeholder="$" value={form.budget} onChange={onChange('budget')} />
+          </div>
+        </div>
+
+        {/* Hidden context for your inbox threading/filtering */}
+        <input type="hidden" name="__clientName" value={client?.name || ''} />
+        <input type="hidden" name="__clientFolder" value={client?.folder || ''} />
+        <input type="hidden" name="__stage" value={currentStage || ''} />
+        <input type="hidden" name="__site" value="Jessabel.Art" />
+
+        <div className="flex gap-3">
+          <Button type="submit" disabled={submitting} className={btnPrimary} style={{ backgroundImage: GRAD_PRIMARY }}>
+            {submitting ? 'Submitting…' : 'Submit intake'}
+          </Button>
+          <a
+            href={CLIENT_INTAKE_URLS[client?.folder] || NOTION_URL_DEFAULT}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center px-4 py-2 rounded-md border-2 font-semibold"
+            style={{ borderColor: THEME.blue, color: THEME.blue }}
+          >
+            Open in Notion
+          </a>
+        </div>
+
+        {okMsg && <p className="text-sm font-semibold text-[#1d7d4f]" role="status">{okMsg}</p>}
+        {errMsg && <p className="text-sm font-semibold text-[#d74708]" role="alert">{errMsg}</p>}
+      </form>
+    </section>
+  );
+};
+
 /* =========================================================
    Component
 ========================================================= */
 const ClientsPage = () => {
   const prefersReducedMotion = useReducedMotion();
+  const { toast } = useToast();
 
-  // PIN (single box, seamless)
+  // PIN (single box)
   const [pinValue, setPinValue] = useState('');
   const [error, setError] = useState('');
   const [shake, setShake] = useState(false);
@@ -132,7 +279,8 @@ const ClientsPage = () => {
       setError('');
       setShake(false);
       setClient(found);
-      setCurrentStage(found.stage || 'Intake');
+      const persisted = localStorage.getItem(storageKeyFor(found));
+      setCurrentStage(persisted || found.stage || 'Intake');
     } else {
       setError('Invalid PIN. Please try again or contact Jessabel.');
       setShake(true);
@@ -172,30 +320,47 @@ const ClientsPage = () => {
     attemptVerify(sanitizedPin);
   };
 
-  const openUploadWidget = () => {
+  const openUploadWidget = async () => {
     if (!client) return;
-    if (!window.cloudinary || !window.cloudinary.createUploadWidget) {
-      setError('Upload widget not available. Please refresh the page.');
+    const ok = await ensureCloudinary();
+    if (!ok) {
+      setError('Upload widget not available right now. Please refresh or use the dedicated Upload page.');
       return;
     }
+    const folder = `${ROOT_FOLDER}/${client.folder}`;
     const widget = window.cloudinary.createUploadWidget(
       {
         cloudName: 'dqqee8c51',
-        uploadPreset: 'Jessabel.Art',
-        folder: client.folder,
+        uploadPreset: 'sanchezservices', // unsigned
+        folder,
         sources: ['local', 'url', 'camera', 'google_drive'],
         multiple: true,
         maxFiles: 10,
         clientAllowedFormats: ['jpg', 'png', 'pdf', 'docx', 'zip'],
         showAdvancedOptions: false,
+        resourceType: 'auto',
       },
       (err, result) => {
-        if (!err && result && result.event === 'success') {
-          console.log('Uploaded:', result.info.secure_url);
+        if (err) {
+          console.error(err);
+          setError('Upload error. Please try again or use the Upload page.');
+          return;
+        }
+        if (result && result.event === 'success') {
+          // Receipt/toast on upload
+          const fname = result.info?.original_filename || 'File';
+          toast?.({
+            title: 'Upload complete',
+            description: `${fname} uploaded to ${client.name}`,
+          });
         }
       }
     );
-    widget.open();
+    try {
+      widget.open();
+    } catch {
+      setError('Could not open uploader. Try the Upload page instead.');
+    }
   };
 
   useEffect(() => {
@@ -212,14 +377,22 @@ const ClientsPage = () => {
 
   const canChangeStatus = Boolean(client?.canChange);
 
+  // Persist stage per client
+  useEffect(() => {
+    if (!client) return;
+    const key = storageKeyFor(client);
+    if (!key) return;
+    localStorage.setItem(key, currentStage);
+  }, [client, currentStage]);
+
   /* ---------------- Stepper ---------------- */
   const Stepper = ({ current }) => {
-    const idx = STEPS.indexOf(current);
-    const pct = Math.max(0, (idx / (STEPS.length - 1)) * 100);
+    const idx = Math.max(0, STEPS.indexOf(current));
+    const pct = (idx / (STEPS.length - 1)) * 100;
 
     return (
       <div className="w-full">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4" role="list" aria-label="Project steps">
           {STEPS.map((label, i) => {
             const isActive = i === idx;
             const isDone = i < idx;
@@ -229,6 +402,7 @@ const ClientsPage = () => {
                   whileHover={canChangeStatus ? { y: -2 } : {}}
                   className={isActive ? nodeActive : isDone ? nodeCompleted : nodeInactive}
                   aria-current={isActive ? 'step' : undefined}
+                  aria-label={`${label}${isActive ? ' (current)' : isDone ? ' (completed)' : ''}`}
                   title={label}
                   style={{
                     backgroundImage: isActive || isDone ? GRAD_PRIMARY : undefined,
@@ -238,7 +412,7 @@ const ClientsPage = () => {
                   {i + 1}
                 </motion.div>
                 {i < STEPS.length - 1 && (
-                  <div className="relative flex-1 mx-3">
+                  <div className="relative flex-1 mx-3" aria-hidden="true">
                     <div className={`h-1.5 rounded-full ${trackBase}`} />
                     <div
                       className="absolute inset-y-0 left-0 h-1.5 rounded-full overflow-hidden"
@@ -246,7 +420,6 @@ const ClientsPage = () => {
                         width: isDone ? '100%' : 0,
                         background: isDone ? GRAD_TRACK : 'transparent',
                       }}
-                      aria-hidden="true"
                     />
                   </div>
                 )}
@@ -256,7 +429,7 @@ const ClientsPage = () => {
         </div>
 
         {/* Progress bar */}
-        <div className={`relative h-2 rounded-full overflow-hidden ${trackBase}`}>
+        <div className={`relative h-2 rounded-full overflow-hidden ${trackBase}`} aria-label="Overall progress">
           <motion.div
             className="absolute left-0 top-0 h-full"
             style={{ background: GRAD_TRACK }}
@@ -270,8 +443,8 @@ const ClientsPage = () => {
           <span className="font-semibold" style={{ color: THEME.warmInk }}>
             {STEPS[Math.max(0, idx)]}
           </span>
-          <span className="text-[hsl(var(--foreground)/0.7)]">
-            {Math.max(0, idx) + 1} / {STEPS.length}
+          <span className="text-[hsl(var(--foreground)/0.7)]" aria-live="polite">
+            {idx + 1} / {STEPS.length}
           </span>
         </div>
       </div>
@@ -403,6 +576,9 @@ const ClientsPage = () => {
     const [hoverIntake, setHoverIntake] = useState(false);
     const [hoverReset, setHoverReset] = useState(false);
 
+    const intakeUrl =
+      client ? CLIENT_INTAKE_URLS[client.folder] || NOTION_URL_DEFAULT : NOTION_URL_DEFAULT;
+
     return (
       <motion.div
         key="welcome"
@@ -431,18 +607,7 @@ const ClientsPage = () => {
             <div className="flex flex-wrap gap-2 mt-4">
               {STEPS.map((s) => {
                 const isCurrent = s === currentStage;
-                return canChangeStatus ? (
-                  <Button
-                    key={s}
-                    size="sm"
-                    className={isCurrent ? btnPrimary : btnGhost}
-                    style={isCurrent ? { backgroundImage: GRAD_PRIMARY } : {}}
-                    onClick={() => setCurrentStage(s)}
-                    aria-pressed={isCurrent}
-                  >
-                    {s}
-                  </Button>
-                ) : (
+                return (
                   <Button
                     key={s}
                     size="sm"
@@ -451,6 +616,7 @@ const ClientsPage = () => {
                     className={isCurrent ? btnPrimary : btnMuted}
                     style={isCurrent ? { backgroundImage: GRAD_PRIMARY } : {}}
                     title="Status is managed by Jessabel"
+                    aria-pressed={isCurrent}
                   >
                     {s}
                   </Button>
@@ -482,7 +648,7 @@ const ClientsPage = () => {
             </span>
 
             <a
-              href={NOTION_URL}
+              href={intakeUrl}
               target="_blank"
               rel="noreferrer"
               className="relative inline-block"
@@ -493,18 +659,11 @@ const ClientsPage = () => {
                 size="lg"
                 variant="outline"
                 className="font-semibold transition border-2"
-                style={{
-                  borderColor: THEME.blue,
-                  color: THEME.blue,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                }}
+                style={{ borderColor: THEME.blue, color: THEME.blue }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'white'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
               >
-                UX/UI Project Intake
+                Open full intake (Notion)
               </Button>
               <SparkleOverlay active={hoverIntake} />
             </a>
@@ -519,6 +678,16 @@ const ClientsPage = () => {
               </Button>
               <SparkleOverlay active={hoverReset} />
             </span>
+          </div>
+
+          {/* Embedded universal intake form */}
+          <EmbeddedIntakeForm client={client} currentStage={currentStage} />
+
+          {/* Secondary actions */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link to="/client-upload" className="underline text-[hsl(var(--foreground)/0.75)]">
+              Having trouble? Open the dedicated upload page
+            </Link>
           </div>
         </div>
       </motion.div>

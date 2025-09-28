@@ -1,8 +1,21 @@
 // src/pages/About.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  useInView,
+} from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Download, Loader2, CheckCircle, BarChart3, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Download,
+  Loader2,
+  CheckCircle,
+  BarChart3,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // assets
@@ -52,13 +65,50 @@ const COPY = {
     },
   ],
   timeline: [
-    { yr: "2011", label: "Design Intern • NUA on the Move", sub: "Helped plan the new studio and learned spatial problem solving." },
-    { yr: "2014", label: "Early Web + SEO", sub: "Ecommerce builds and usability fixes for small businesses." },
-    { yr: "2015–2018", label: "Platform Usability", sub: "Fintech and insurance. Mapped flows, informed features, improved handoffs." },
-    { yr: "2018–2022", label: "Systems Implementation Lead", sub: "Healthcare SaaS. Internal platform rollouts with focus on adoption." },
-    { yr: "2022–Present", label: "UX/UI Designer & Consultant", sub: "Research, UI, and design systems for startups and small teams." },
+    {
+      yr: "2011",
+      label: "Design Intern • NUA on the Move",
+      sub: "Helped plan the new studio and learned spatial problem solving.",
+    },
+    {
+      yr: "2014",
+      label: "Early Web + SEO",
+      sub: "Ecommerce builds and usability fixes for small businesses.",
+    },
+    {
+      yr: "2015–2018",
+      label: "Platform Usability",
+      sub: "Fintech and insurance. Mapped flows, informed features, improved handoffs.",
+    },
+    {
+      yr: "2018–2022",
+      label: "Systems Implementation Lead",
+      sub: "Healthcare SaaS. Internal platform rollouts with focus on adoption.",
+    },
+    {
+      yr: "2022–Present",
+      label: "UX/UI Designer & Consultant",
+      sub: "Research, UI, and design systems for startups and small teams.",
+    },
   ],
 };
+
+/* ------------------ “Systems I work with” ------------------ */
+const SYSTEMS = [
+  "Figma",
+  "FigJam",
+  "VS Code",
+  "Git",
+  "GitHub",
+  "Notion",
+  "Jira",
+  "Confluence",
+  "Slack",
+  "Linear",
+  "Miro",
+  "Trello",
+  "Webflow",
+];
 
 /* ------------------ Animation presets ------------------ */
 const fadeUp = {
@@ -67,7 +117,8 @@ const fadeUp = {
   transition: { duration: 0.6, ease: "easeOut" },
   viewport: { once: true, amount: 0.35 },
 };
-const neonTextShadow = "0 1px 0 rgba(0,0,0,.28), 0 8px 22px rgba(0,0,0,.30)";
+const neonTextShadow =
+  "0 1px 0 rgba(0,0,0,.28), 0 8px 22px rgba(0,0,0,.30)";
 
 /* ------------------ Tiny WebAudio chime ------------------ */
 function useChime(enabled = true) {
@@ -77,7 +128,9 @@ function useChime(enabled = true) {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (AC) ctxRef.current = new AC();
     return () => {
-      try { ctxRef.current?.close(); } catch {}
+      try {
+        ctxRef.current?.close();
+      } catch {}
     };
   }, [enabled]);
 
@@ -99,7 +152,12 @@ function useChime(enabled = true) {
 }
 
 /* ------------------ Pixel helpers ------------------ */
-function burstAt(layerEl, x, y, colors = ["#18E1FF", "#6EC8FF", "#A06CFF", "#FF7AE1", "#7AFF9A"]) {
+function burstAt(
+  layerEl,
+  x,
+  y,
+  colors = ["#18E1FF", "#6EC8FF", "#A06CFF", "#FF7AE1", "#7AFF9A"]
+) {
   if (!layerEl) return;
   const rect = layerEl.getBoundingClientRect();
   const cx = x - rect.left;
@@ -124,13 +182,19 @@ function burstAt(layerEl, x, y, colors = ["#18E1FF", "#6EC8FF", "#A06CFF", "#FF7
     const dx = Math.cos(angle) * dist;
     const dy = Math.sin(angle) * dist;
     const dur = 0.9 + Math.random() * 0.6;
-    dot.animate(
-      [
-        { transform: "translate(0,0) scale(1)", opacity: 1 },
-        { transform: `translate(${dx}px,${dy}px) scale(.86)`, opacity: 0 },
-      ],
-      { duration: dur * 1000, easing: "cubic-bezier(.22,.7,.25,1)", fill: "forwards" }
-    ).onfinish = () => dot.remove();
+    dot
+      .animate(
+        [
+          { transform: "translate(0,0) scale(1)", opacity: 1 },
+          { transform: `translate(${dx}px,${dy}px) scale(.86)`, opacity: 0 },
+        ],
+        {
+          duration: dur * 1000,
+          easing: "cubic-bezier(.22,.7,.25,1)",
+          fill: "forwards",
+        }
+      )
+      .onfinish = () => dot.remove();
   }
 }
 
@@ -141,21 +205,30 @@ export default function About() {
   const rootRef = useRef(null);
   const fxRef = useRef(null);
   const [showMobileDock, setShowMobileDock] = useState(false);
-  const [loadingBtn, setLoadingBtn] = useState({ resume: false, process: false });
+  const [loadingBtn, setLoadingBtn] = useState({
+    resume: false,
+    process: false,
+  });
   const [silhouette, setSilhouette] = useState(false);
 
-  // show mobile CTA dock only while About is in view
+  // sticky mobile dock when section in view
   useEffect(() => {
     const node = rootRef.current;
     if (!node) return;
-    const io = new IntersectionObserver(([entry]) => setShowMobileDock(entry.isIntersecting), { threshold: 0.2 });
+    const io = new IntersectionObserver(
+      ([entry]) => setShowMobileDock(entry.isIntersecting),
+      { threshold: 0.2 }
+    );
     io.observe(node);
     return () => io.disconnect();
   }, []);
 
   /* ---------- Timeline rail fill ---------- */
   const tlRef = useRef(null);
-  const { scrollYProgress: tlProg } = useScroll({ target: tlRef, offset: ["start 75%", "end 25%"] });
+  const { scrollYProgress: tlProg } = useScroll({
+    target: tlRef,
+    offset: ["start 75%", "end 25%"],
+  });
   const tlFill = useTransform(tlProg, [0, 1], [0, 1]);
 
   // CTA loader
@@ -172,34 +245,87 @@ export default function About() {
     const ry = ((e.clientX - r.left) / r.width - 0.5) * 10;
     card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`;
   };
-  const onPortraitLeave = (e) => { e.currentTarget.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg)"; };
-  const onPortraitClick = (e) => { burstAt(fxRef.current, e.clientX, e.clientY); };
+  const onPortraitLeave = (e) => {
+    e.currentTarget.style.transform =
+      "perspective(900px) rotateX(0deg) rotateY(0deg)";
+  };
+  const onPortraitClick = (e) => {
+    burstAt(fxRef.current, e.clientX, e.clientY);
+  };
   useEffect(() => {
     const el = document.getElementById("about-portrait-card");
     if (!el) return;
     let t;
-    const start = () => { clearTimeout(t); t = setTimeout(() => setSilhouette((v) => !v), 650); };
+    const start = () => {
+      clearTimeout(t);
+      t = setTimeout(() => setSilhouette((v) => !v), 650);
+    };
     const clear = () => clearTimeout(t);
     el.addEventListener("pointerdown", start);
     el.addEventListener("pointerup", clear);
     el.addEventListener("pointerleave", clear);
-    return () => { el.removeEventListener("pointerdown", start); el.removeEventListener("pointerup", clear); el.removeEventListener("pointerleave", clear); };
+    return () => {
+      el.removeEventListener("pointerdown", start);
+      el.removeEventListener("pointerup", clear);
+      el.removeEventListener("pointerleave", clear);
+    };
   }, []);
 
+  /* ---------- Interactive Timeline (JumpNav + Scroll Sync) ---------- */
+  const itemsRef = useRef([]);
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  // Scroll sync for JumpNav
+  useEffect(() => {
+    const nodes = itemsRef.current.filter(Boolean);
+    if (!nodes.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const idx = Number(entry.target.getAttribute("data-idx"));
+            if (!Number.isNaN(idx)) setActiveIdx(idx);
+          }
+        });
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0.01 }
+    );
+    nodes.forEach((n) => io.observe(n));
+    return () => io.disconnect();
+  }, [COPY.timeline.length]);
+
+  const jumpTo = (i) => {
+    const el = itemsRef.current[i];
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    setActiveIdx(i);
+  };
+
   return (
-    <section id="about" ref={rootRef} className="relative bg-[--navy-900] text-[--ink] overflow-hidden">
+    <section
+      id="about"
+      ref={rootRef}
+      className="relative bg-[--navy-900] text-[--ink] overflow-hidden"
+    >
       <div ref={fxRef} className="pointer-events-none absolute inset-0 z-10" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
         {/* ===== Header ===== */}
-        <motion.h2 {...fadeUp} className="text-4xl md:text-5xl font-extrabold text-[--blue-300] mb-8 md:mb-10" style={{ textShadow: neonTextShadow }}>
+        <motion.h2
+          {...fadeUp}
+          className="text-4xl md:text-5xl font-extrabold text-[--blue-300] mb-8 md:mb-10"
+          style={{ textShadow: neonTextShadow }}
+        >
           I turn complex ideas into intuitive, human-centered experiences.
         </motion.h2>
 
         {/* ===== Overview row (summary left + portrait right) ===== */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-12 items-start">
           <motion.div {...fadeUp}>
-            <h3 className="text-2xl md:text-3xl font-extrabold text-[--blue-300] mb-4" style={{ textShadow: neonTextShadow }}>
+            <h3
+              className="text-2xl md:text-3xl font-extrabold text-[--blue-300] mb-4"
+              style={{ textShadow: neonTextShadow }}
+            >
               {COPY.overviewTitle}
             </h3>
             <div className="space-y-5">
@@ -220,16 +346,27 @@ export default function About() {
 
             {/* CTAs */}
             <div className="mt-6 flex flex-wrap gap-3">
-              <NeonCTA loading={loadingBtn.resume} onClick={onCTA("resume")} href={resumePdf} download iconLeft={<Download className="h-4 w-4 mr-2" />}>
+              <NeonCTA
+                loading={loadingBtn.resume}
+                onClick={onCTA("resume")}
+                href={resumePdf}
+                download
+                iconLeft={<Download className="h-4 w-4 mr-2" />}
+              >
                 Download Resume
               </NeonCTA>
-              <NeonCTA loading={loadingBtn.process} onClick={onCTA("process")} to="/ux-process" iconRight={<ArrowRight className="h-4 w-4 ml-2" />}>
+              <NeonCTA
+                loading={loadingBtn.process}
+                onClick={onCTA("process")}
+                to="/ux-process"
+                iconRight={<ArrowRight className="h-4 w-4 ml-2" />}
+              >
                 View My UX Process
               </NeonCTA>
             </div>
           </motion.div>
 
-          {/* Portrait card + chips */}
+          {/* Portrait card + chips + systems */}
           <motion.div
             id="about-portrait-card"
             {...fadeUp}
@@ -239,32 +376,78 @@ export default function About() {
             onMouseMove={onPortraitMove}
             onMouseLeave={onPortraitLeave}
             onClick={onPortraitClick}
-            whileHover={{ boxShadow: "0 0 0 2px rgba(24,225,255,.25), 0 20px 54px rgba(0,0,0,.28)" }}
+            whileHover={{
+              boxShadow:
+                "0 0 0 2px rgba(24,225,255,.25), 0 20px 54px rgba(0,0,0,.28)",
+            }}
           >
             <div className="relative p-5">
               <img
                 src={portraitSvg}
                 alt="Digital portrait of Jessy"
                 className="w-full h-auto rounded-2xl select-none pointer-events-none"
-                style={{ filter: silhouette ? "grayscale(1) contrast(1.15) brightness(.9)" : "none", transition: "filter .25s ease" }}
+                style={{
+                  filter: silhouette
+                    ? "grayscale(1) contrast(1.15) brightness(.9)"
+                    : "none",
+                  transition: "filter .25s ease",
+                }}
               />
-              <div className="pointer-events-none absolute inset-0 rounded-2xl" style={{ boxShadow: "inset 0 0 80px rgba(0,0,0,.24), inset 0 0 150px rgba(0,0,0,.18)" }} />
+              <div
+                className="pointer-events-none absolute inset-0 rounded-2xl"
+                style={{
+                  boxShadow:
+                    "inset 0 0 80px rgba(0,0,0,.24), inset 0 0 150px rgba(0,0,0,.18)",
+                }}
+              />
             </div>
 
             {/* expertise chips */}
-            <div className="px-5 pb-5">
+            <div className="px-5 pb-4">
               <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <Chip icon={<CheckCircle className="w-4 h-4" />} title="Human-centered" sub="Clear, inclusive flows" />
-                <Chip icon={<BarChart3 className="w-4 h-4" />} title="Data-informed" sub="Decisions & metrics" />
-                <Chip icon={<Sparkles className="w-4 h-4" />} title="Systems + UI" sub="Design systems & craft" />
+                <Chip
+                  icon={<CheckCircle className="w-4 h-4" />}
+                  title="Human-centered"
+                  sub="Clear, inclusive flows"
+                />
+                <Chip
+                  icon={<BarChart3 className="w-4 h-4" />}
+                  title="Data-informed"
+                  sub="Decisions & metrics"
+                />
+                <Chip
+                  icon={<Sparkles className="w-4 h-4" />}
+                  title="Systems + UI"
+                  sub="Design systems & craft"
+                />
+              </ul>
+            </div>
+
+            {/* Systems I work with */}
+            <div className="px-5 pb-6">
+              <h6 className="text-sm font-bold mb-2 opacity-90">
+                Systems I work with
+              </h6>
+              <ul className="flex flex-wrap gap-2">
+                {SYSTEMS.map((s) => (
+                  <li
+                    key={s}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition"
+                  >
+                    {s}
+                  </li>
+                ))}
               </ul>
             </div>
           </motion.div>
         </div>
 
-        {/* ===== Education Coin-Flip Row (logo face → degree back) ===== */}
+        {/* ===== Education Coin-Flip Row ===== */}
         <div className="mt-16 md:mt-20">
-          <h4 className="text-2xl md:text-3xl font-extrabold text-[--blue-300] mb-5" style={{ textShadow: neonTextShadow }}>
+          <h4
+            className="text-2xl md:3xl font-extrabold text-[--blue-300] mb-5 md:text-3xl"
+            style={{ textShadow: neonTextShadow }}
+          >
             Education
           </h4>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
@@ -280,29 +463,83 @@ export default function About() {
           </div>
         </div>
 
-        {/* ===== Timeline (fills as you scroll) ===== */}
-        <div ref={tlRef} className="relative mt-16 md:mt-20">
-          <h4 className="text-2xl md:text-3xl font-extrabold text-[--blue-300] mb-6" style={{ textShadow: neonTextShadow }}>
-            Journey
-          </h4>
-          <div className="absolute left-2 sm:left-4 top-0 bottom-0 w-[6px] rounded-full bg-white/5" />
-          <motion.div
-            className="absolute left-[11px] sm:left-[13px] top-0 w-[2px] origin-top rounded-full"
-            style={{ scaleY: tlFill, height: "100%", background: "linear-gradient(180deg,#18E1FF,#A06CFF)", boxShadow: "0 0 14px rgba(24,225,255,.22)" }}
-          />
-          <div className="space-y-8 md:space-y-10">
-            {COPY.timeline.map((row, i) => (
-              <TimelineItem key={`${row.yr}-${i}`} row={row} onEnter={() => chime(660 + i * 30, 0.07, 0.045)} />
-            ))}
+        {/* ===== Narrative, Animated Timeline (with JumpNav) ===== */}
+        <div className="mt-16 md:mt-20">
+          <div className="flex items-baseline justify-between gap-4">
+            <h4
+              className="text-2xl md:text-3xl font-extrabold text-[--blue-300]"
+              style={{ textShadow: neonTextShadow }}
+            >
+              Journey
+            </h4>
+
+            {/* Jump navigation */}
+            <nav aria-label="Jump to year/period" className="hidden md:block">
+              <ul className="flex flex-wrap gap-2">
+                {COPY.timeline.map((row, i) => (
+                  <li key={`jump-${row.yr}`}>
+                    <button
+                      onClick={() => jumpTo(i)}
+                      className={`px-3 py-1.5 rounded-full text-sm font-semibold border transition ${
+                        i === activeIdx
+                          ? "bg-[linear-gradient(135deg,#18E1FF,#6EC8FF)] text-[--navy-900] border-transparent"
+                          : "bg-white/5 border-white/10 hover:bg-white/10"
+                      }`}
+                      aria-current={i === activeIdx ? "true" : undefined}
+                    >
+                      {row.yr}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+
+          {/* Timeline rail */}
+          <div ref={tlRef} className="relative mt-6">
+            <div className="absolute left-2 sm:left-4 top-0 bottom-0 w-[6px] rounded-full bg-white/5" />
+            <motion.div
+              className="absolute left-[11px] sm:left-[13px] top-0 w-[2px] origin-top rounded-full"
+              style={{
+                scaleY: tlFill,
+                height: "100%",
+                background: "linear-gradient(180deg,#18E1FF,#A06CFF)",
+                boxShadow: "0 0 14px rgba(24,225,255,.22)",
+              }}
+            />
+
+            <div className="space-y-8 md:space-y-10">
+              {COPY.timeline.map((row, i) => (
+                <TimelineItem
+                  key={`${row.yr}-${i}`}
+                  row={row}
+                  index={i}
+                  onEnter={() => chime(660 + i * 30, 0.07, 0.045)}
+                  refCallback={(el) => (itemsRef.current[i] = el)}
+                  active={i === activeIdx}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Desktop CTA repeat */}
         <div className="hidden sm:flex items-center gap-3 mt-12">
-          <NeonCTA loading={loadingBtn.resume} onClick={onCTA("resume")} href={resumePdf} download iconLeft={<Download className="h-4 w-4 mr-2" />}>
+          <NeonCTA
+            loading={loadingBtn.resume}
+            onClick={onCTA("resume")}
+            href={resumePdf}
+            download
+            iconLeft={<Download className="h-4 w-4 mr-2" />}
+          >
             Download Resume
           </NeonCTA>
-          <NeonCTA loading={loadingBtn.process} onClick={onCTA("process")} to="/ux-process" iconRight={<ArrowRight className="h-4 w-4 ml-2" />}>
+          <NeonCTA
+            loading={loadingBtn.process}
+            onClick={onCTA("process")}
+            to="/ux-process"
+            iconRight={<ArrowRight className="h-4 w-4 ml-2" />}
+          >
             View My UX Process
           </NeonCTA>
         </div>
@@ -313,10 +550,23 @@ export default function About() {
         <div className="sm:hidden fixed left-0 right-0 bottom-3 px-4 z-40">
           <div className="rounded-2xl border border-white/10 bg-[rgba(7,13,29,.82)] backdrop-blur-md p-2 shadow-[0_18px_40px_rgba(0,0,0,.35)]">
             <div className="flex gap-2">
-              <NeonCTA loading={loadingBtn.resume} onClick={onCTA("resume")} href={resumePdf} download small iconLeft={<Download className="h-4 w-4 mr-1.5" />}>
+              <NeonCTA
+                loading={loadingBtn.resume}
+                onClick={onCTA("resume")}
+                href={resumePdf}
+                download
+                small
+                iconLeft={<Download className="h-4 w-4 mr-1.5" />}
+              >
                 Resume
               </NeonCTA>
-              <NeonCTA loading={loadingBtn.process} onClick={onCTA("process")} to="/ux-process" small iconRight={<ArrowRight className="h-4 w-4 ml-1.5" />}>
+              <NeonCTA
+                loading={loadingBtn.process}
+                onClick={onCTA("process")}
+                to="/ux-process"
+                small
+                iconRight={<ArrowRight className="h-4 w-4 ml-1.5" />}
+              >
                 UX Process
               </NeonCTA>
             </div>
@@ -370,7 +620,7 @@ function Chip({ icon, title, sub }) {
   );
 }
 
-// Education coin: front = LOGO, back = DEGREE (opaque) + neon hover glow
+// Education coin
 function FlipCoin({ logo, logoAlt, degree, school }) {
   const [flipped, setFlipped] = useState(false);
   const prefersReduced = useReducedMotion();
@@ -396,7 +646,7 @@ function FlipCoin({ logo, logoAlt, degree, school }) {
           scale: prefersReduced ? 1 : 1.02,
         }}
       >
-        {/* Neon halo (hover) */}
+        {/* Neon halo */}
         <motion.span
           aria-hidden
           className="pointer-events-none absolute inset-[-10%] rounded-full"
@@ -410,12 +660,12 @@ function FlipCoin({ logo, logoAlt, degree, school }) {
           }}
         />
 
-        {/* FRONT FACE (opaque) */}
+        {/* FRONT */}
         <div
           className="absolute inset-0 rounded-full overflow-hidden grid place-items-center"
           style={{
             backfaceVisibility: "hidden",
-            background: "rgba(7,13,29,0.98)",        // opaque, no bleed-through
+            background: "rgba(7,13,29,0.98)",
             transform: "translateZ(1px)",
           }}
         >
@@ -427,7 +677,7 @@ function FlipCoin({ logo, logoAlt, degree, school }) {
           />
         </div>
 
-        {/* BACK FACE (opaque) */}
+        {/* BACK */}
         <div
           className="absolute inset-0 rounded-full overflow-hidden grid place-items-center px-4 text-center"
           style={{
@@ -449,7 +699,9 @@ function FlipCoin({ logo, logoAlt, degree, school }) {
             >
               {degree}
             </div>
-            <div className="mt-1.5 text-[11px] sm:text-xs opacity-85">{school}</div>
+            <div className="mt-1.5 text-[11px] sm:text-xs opacity-85">
+              {school}
+            </div>
           </div>
         </div>
       </motion.div>
@@ -457,27 +709,70 @@ function FlipCoin({ logo, logoAlt, degree, school }) {
   );
 }
 
-function TimelineItem({ row, onEnter }) {
-  const [seen, setSeen] = useState(false);
+/* ===== Timeline item that REVEALS on enter and HIDES on leave ===== */
+function TimelineItem({ row, onEnter, refCallback, index, active }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, {
+    // a comfy window: reveal when 40% of the card enters, hide when it leaves
+    amount: 0.4,
+    margin: "0px 0px -10% 0px",
+  });
+
+  // notify parent for JumpNav anchoring
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.setAttribute("data-idx", String(index));
+      refCallback?.(ref.current);
+    }
+  }, [refCallback, index]);
+
+  useEffect(() => {
+    if (inView) onEnter?.();
+  }, [inView, onEnter]);
+
+  const variants = {
+    hidden: { opacity: 0, y: 24, filter: "blur(6px)" },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: 0.45, ease: "easeOut", delay: index * 0.06 },
+    },
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, amount: 0.35 }}
-      transition={{ duration: 0.35 }}
-      onViewportEnter={() => { if (!seen) { onEnter?.(); setSeen(true); } }}
+      ref={ref}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+      variants={variants}
       className="relative pl-10 sm:pl-16"
     >
       <motion.span
-        initial={{ scale: 0.8, opacity: 0 }}
-        whileInView={{ scale: [0.8, 1.06, 1], opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.45, times: [0, 0.6, 1] }}
+        animate={{ scale: inView ? 1 : 0.8, opacity: inView ? 1 : 0.35 }}
+        transition={{ duration: 0.35 }}
         className="absolute left-0.5 sm:left-1.5 top-2 w-4 h-4 sm:w-5 sm:h-5 rounded-full"
-        style={{ background: "linear-gradient(135deg,#18E1FF,#6EC8FF)", boxShadow: "0 0 16px rgba(24,225,255,.35)" }}
+        style={{
+          background: inView
+            ? "linear-gradient(135deg,#A06CFF,#18E1FF)"
+            : "linear-gradient(135deg,#18E1FF,#6EC8FF)",
+          boxShadow: "0 0 16px rgba(24,225,255,.35)",
+        }}
       />
-      <div className="rounded-2xl p-5 bg-white/5 border border-white/10 shadow-md hover:shadow-lg transition-shadow">
-        <span className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold" style={{ background: "linear-gradient(135deg,#18E1FF,#6EC8FF)", color: "var(--navy-900)" }}>
+      <div
+        className={`rounded-2xl p-5 border shadow-md transition-shadow ${
+          (inView || active)
+            ? "bg-white/8 border-white/14 shadow-lg"
+            : "bg-white/5 border-white/10"
+        }`}
+      >
+        <span
+          className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold ${
+            (inView || active)
+              ? "bg-[linear-gradient(135deg,#A06CFF,#18E1FF)]"
+              : "bg-[linear-gradient(135deg,#18E1FF,#6EC8FF)]"
+          } text-[--navy-900]`}
+        >
           {row.yr}
         </span>
         <h5 className="mt-3 text-lg font-bold">{row.label}</h5>
@@ -487,7 +782,17 @@ function TimelineItem({ row, onEnter }) {
   );
 }
 
-function NeonCTA({ children, to, href, download, onClick, loading, small, iconLeft, iconRight }) {
+function NeonCTA({
+  children,
+  to,
+  href,
+  download,
+  onClick,
+  loading,
+  small,
+  iconLeft,
+  iconRight,
+}) {
   const content = (
     <span className="inline-flex items-center justify-center">
       {iconLeft}
@@ -508,7 +813,10 @@ function NeonCTA({ children, to, href, download, onClick, loading, small, iconLe
         initial={{ x: "-110%" }}
         whileHover={{ x: "110%" }}
         transition={{ duration: 1.2, ease: "easeInOut" }}
-        style={{ background: "linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent)" }}
+        style={{
+          background:
+            "linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent)",
+        }}
       />
       {loading && (
         <span className="absolute inset-0 grid place-items-center">
@@ -522,13 +830,17 @@ function NeonCTA({ children, to, href, download, onClick, loading, small, iconLe
   if (to) {
     return (
       <Button asChild onClick={onClick} className={classBase}>
-        <Link to={to}><Inner /></Link>
+        <Link to={to}>
+          <Inner />
+        </Link>
       </Button>
     );
   }
   return (
     <Button asChild onClick={onClick} className={classBase}>
-      <a href={href} download={download}><Inner /></a>
+      <a href={href} download={download}>
+        <Inner />
+      </a>
     </Button>
   );
 }

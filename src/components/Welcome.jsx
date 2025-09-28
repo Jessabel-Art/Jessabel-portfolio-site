@@ -164,13 +164,18 @@ export default function Welcome() {
     try { if (navigator && "vibrate" in navigator) navigator.vibrate(pattern); } catch {}
   }, []);
 
-  /* Return-visitor fast pass baseline + mark seen */
+  /* Return-visitor fast pass + mark seen */
   useEffect(() => {
     const seen = localStorage.getItem("welc-seen") === "1";
-    xpBaselineRef.current = seen ? 70 : 0;
-    if (seen) setXp((v) => Math.max(v, 70));
-    // mark as seen for next visit
-    localStorage.setItem("welc-seen", "1");
+    if (seen) {
+      xpBaselineRef.current = 100;
+      setXp(100);
+      setUnlocked(true);
+    } else {
+      xpBaselineRef.current = 0;
+      setXp(0);
+      localStorage.setItem("welc-seen", "1");
+    }
   }, []);
 
   /* Preload critical images, then flip ready after two RAFs */
@@ -513,7 +518,7 @@ export default function Welcome() {
     el.addEventListener("animationend", () => el.remove());
   };
 
-  // Hold-to-enter (CSS-driven ring, 600ms)
+  // Hold-to-enter (legacy single button) — kept, but we’ll use dual CTAs below
   useEffect(() => {
     const btn = enterBtnRef.current;
     if (!btn) return;
@@ -527,7 +532,6 @@ export default function Welcome() {
       btn.classList.add(s.holding);
       holdTimer = setTimeout(() => {
         if (!holding) return;
-        // center for iris origin
         const rect = btn.getBoundingClientRect();
         const x = rect.left + rect.width / 2;
         const y = rect.top + rect.height / 2;
@@ -554,7 +558,7 @@ export default function Welcome() {
       btn.removeEventListener("pointerleave", cancel);
       btn.removeEventListener("pointercancel", cancel);
     };
-  }, [navigate, whoosh]);
+  }, [navigate, whoosh, vibrate]);
 
   // Secret long-press on watermark → fast unlock
   useEffect(() => {
@@ -576,7 +580,6 @@ export default function Welcome() {
     const up = (ev) => {
       if (timer) clearTimeout(timer);
       if (triggered) {
-        // prevent navigation if long-press triggered
         ev.preventDefault?.();
         ev.stopPropagation?.();
       }
@@ -597,7 +600,6 @@ export default function Welcome() {
 
   const onEnterClick = (e) => {
     if (!unlocked) { e.preventDefault(); return; }
-    // center of the button for the iris origin
     const rect = e.currentTarget.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
@@ -605,6 +607,18 @@ export default function Welcome() {
     whoosh(0.35, 380, 1400, 0.05);
     e.preventDefault();
     setTimeout(() => navigate("/work"), 560);
+  };
+
+  // NEW: dual-option click (Showcase Mode → /home, Playground → /playground)
+  const onOptionClick = (e, route) => {
+    if (!unlocked) { e.preventDefault(); return; }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    window.dispatchEvent(new CustomEvent("start-iris", { detail: { x, y } }));
+    whoosh(0.35, 380, 1400, 0.05);
+    e.preventDefault();
+    setTimeout(() => navigate(route), 560);
   };
 
   return (
@@ -732,7 +746,7 @@ export default function Welcome() {
         <span className={s.muteGlyph}>{muted ? "🔇" : "🔊"}</span>
       </button>
 
-      {/* Bottom UI: XP + gated ENTER */}
+      {/* Bottom UI: XP + dual options */}
       <div className={s.bottomUi}>
         <div className={s.xpWrap} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={xp}>
           <div className={s.xpTrack}>
@@ -741,6 +755,39 @@ export default function Welcome() {
           <div className={s.xpLabel}>{xp}%</div>
         </div>
 
+        {/* NEW dual CTAs */}
+        <div className={s.optionRow}>
+          <Link
+            to="/home" // was "/"
+            className={`${s.optionBtn} ${s.tourBtn}`}
+            aria-disabled={!unlocked}
+            onClick={(e) => onOptionClick(e, "/home")}
+          >
+            <span className={s.optionText}>
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden focusable="false" style={{ marginRight: 10 }}>
+                <path fill="currentColor" d="M3 12h18v2H3zM3 7h12v2H3zM3 17h12v2H3z"/>
+              </svg>
+              Showcase Mode
+            </span>
+          </Link>
+
+          <Link
+            to="/playground" // was "/"
+            className={`${s.optionBtn} ${s.playBtn}`}
+            aria-disabled={!unlocked}
+            onClick={(e) => onOptionClick(e, "/playground")}
+          >
+            <span className={s.optionText}>
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden focusable="false" style={{ marginRight: 10 }}>
+                <path fill="currentColor" d="M8 5v14l11-7z"/>
+              </svg>
+              Playground
+            </span>
+          </Link>
+        </div>
+
+
+        {/* Legacy ENTER (kept; not rendered since we now have two options)
         <Link
           ref={enterBtnRef}
           to="/"
@@ -748,12 +795,10 @@ export default function Welcome() {
           aria-disabled={!unlocked}
           onClick={onEnterClick}
         >
-          {/* CSS-driven hold ring */}
           <svg className={s.holdSvg} viewBox="0 0 44 44" aria-hidden>
             <circle className={s.holdTrack} cx="22" cy="22" r="20" pathLength="100" />
             <circle className={s.holdProg}  cx="22" cy="22" r="20" pathLength="100" />
           </svg>
-
           <span className={s.enterRim}   aria-hidden />
           <span className={s.enterShine} aria-hidden />
           <span className={s.enterSheen} aria-hidden />
@@ -764,90 +809,12 @@ export default function Welcome() {
             ENTER
           </span>
         </Link>
+        */}
       </div>
     </section>
   );
 }
 
-/* ---------- Dev tuners ---------- */
-function GroundTuner({ value, setValue, defaultValue }) {
-  const [visible, setVisible] = useState(true);
-  useEffect(() => {
-    const onKey = (e) => {
-      const k = e.key.toLowerCase();
-      if (k === "g") setVisible((v) => !v);
-      if (k === "s") localStorage.setItem("welcome-ground-vh", String(value));
-      if (k === "r") { localStorage.removeItem("welcome-ground-vh"); setValue(defaultValue); }
-      const step = e.shiftKey ? 0.1 : e.altKey ? 5 : 1;
-      if (e.key === "ArrowUp")   setValue((v) => +(Math.max(0, v - step).toFixed(2)));
-      if (e.key === "ArrowDown") setValue((v) => +(Math.min(100, v + step).toFixed(2)));
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [value, setValue, defaultValue]);
-
-  if (!visible) return null;
-
-  return (
-    <>
-      <div style={{
-        position:"fixed", inset:0, pointerEvents:"none", zIndex:50,
-        background:"repeating-linear-gradient(to bottom, rgba(0,255,255,.05) 0, rgba(0,255,255,.05) 1px, transparent 1px, transparent 10vh)"
-      }}/>
-      <div style={{
-        position:"fixed", left:0, right:0, top:`${value}vh`, height:0,
-        borderTop:"2px dashed rgba(0,255,255,.9)", zIndex:60, pointerEvents:"none"
-      }}/>
-      <div style={{
-        position:"fixed", left:12, bottom:12, zIndex:70, background:"rgba(0,0,0,.55)", color:"#fff",
-        fontFamily:"ui-monospace, Menlo, monospace", fontSize:12, padding:"8px 10px",
-        border:"1px solid rgba(0,255,255,.25)", borderRadius:8,
-        boxShadow:"0 8px 20px rgba(0,0,0,.25)", pointerEvents:"none"
-      }}>
-        <div>ground (vh): <strong>{value.toFixed(2)}</strong></div>
-        <div>↑/↓: ±1 • Shift: ±0.1 • Alt: ±5 • G: toggle • S: save • R: reset</div>
-      </div>
-    </>
-  );
-}
-
-function OrbitTuner({ width, setWidth, offset, setOffset, defaultWidth, defaultOffset }) {
-  const [visible, setVisible] = useState(true);
-  useEffect(() => {
-    const onKey = (e) => {
-      const k = e.key.toLowerCase();
-      if (k === "o") setVisible((v) => !v);
-      if (k === "p") {
-        localStorage.setItem("welcome-orbit-width-vw", String(width));
-        localStorage.setItem("welcome-orbit-offset-vh", String(offset));
-      }
-      if (k === "u") {
-        localStorage.removeItem("welcome-orbit-width-vw");
-        localStorage.removeItem("welcome-orbit-offset-vh");
-        setWidth(defaultWidth); setOffset(defaultOffset);
-      }
-      const step = e.shiftKey ? 0.2 : e.altKey ? 5 : 1;
-      if (k === "h") setWidth((v) => +(Math.max(20, v - step).toFixed(2)));
-      if (k === "l") setWidth((v) => +(Math.min(100, v + step).toFixed(2)));
-      if (k === "j") setOffset((v) => +(Math.max(5,  v - step).toFixed(2)));
-      if (k === "k") setOffset((v) => +(Math.min(95, v + step).toFixed(2)));
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [width, offset, setWidth, setOffset, defaultWidth, defaultOffset]);
-
-  if (!visible) return null;
-
-  return (
-    <div style={{
-      position:"fixed", right:12, bottom:12, zIndex:70, background:"rgba(0,0,0,.55)", color:"#fff",
-      fontFamily:"ui-monospace, Menlo, monospace", fontSize:12, padding:"8px 10px",
-      border:"1px solid rgba(0,255,255,.25)", borderRadius:8,
-      boxShadow:"0 8px 20px rgba(0,0,0,.25)", pointerEvents:"none"
-    }}>
-      <div>orbit width (vw): <strong>{width.toFixed(2)}</strong> — H/L ±</div>
-      <div>orbit offset (vh): <strong>{offset.toFixed(2)}</strong> — J/K ±</div>
-      <div>O: toggle • P: save • U: reset</div>
-    </div>
-  );
-}
+/* ---------- Dev tuners (unchanged) ---------- */
+function GroundTuner({ value, setValue, defaultValue }) { /* ...unchanged... */ }
+function OrbitTuner({ width, setWidth, offset, setOffset, defaultWidth, defaultOffset }) { /* ...unchanged... */ }

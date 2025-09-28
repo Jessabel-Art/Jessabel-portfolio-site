@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet';
-import { Linkedin, Instagram, Dribbble, ArrowRight, CheckCircle, Copy } from 'lucide-react';
+import { Linkedin, Instagram, Dribbble, ArrowRight, CheckCircle, Copy, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 
@@ -14,11 +14,28 @@ const fadeUp = (delay = 0) => ({
   animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut', delay } },
 });
 
+const PROJECT_TYPES = ['UX Audit', 'UI & Visual Design', 'Design System', 'Front-End Build', 'Other'];
+const TIMELINES = ['ASAP', '0–4 weeks', '1–3 months', 'Flexible'];
+
 const ContactPage = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '', honey: '' });
+  const [formData, setFormData] = useState({
+    name: '', email: '', message: '', honey: '',
+    projectType: '', timeline: '' // optional
+  });
   const [touched, setTouched] = useState({ name: false, email: false, message: false });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Compute "next month YYYY" for the booking badge
+  const nextBookingLabel = useMemo(() => {
+    const d = new Date();
+    // set to first day to avoid DST/edge cases, then add one month
+    d.setDate(1);
+    d.setMonth(d.getMonth() + 1);
+    const month = d.toLocaleString(undefined, { month: 'long' }); // uses user locale
+    const year = d.getFullYear();
+    return `${month} ${year}`;
+  }, []);
 
   // validation
   const errors = useMemo(() => {
@@ -53,6 +70,8 @@ const ContactPage = () => {
           name: formData.name,
           email: formData.email,
           message: formData.message,
+          projectType: formData.projectType || '(not specified)',
+          timeline: formData.timeline || '(not specified)',
           _subject: 'New inquiry from Jessabel.Art',
           _gotcha: formData.honey,
           page: window.location.href,
@@ -106,16 +125,12 @@ const ContactPage = () => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'enter') handleSubmit(e);
   };
 
-  // Buttons: on-brand gradient
+  // Buttons: on-brand gradient + gentle pulse
   const gradBtn =
     'text-white font-semibold shadow-lg border-0 transition-transform duration-200 ' +
     'hover:scale-[1.01] active:scale-[.99] ' +
-    'bg-[linear-gradient(135deg,#06b6d4,#7c4dff)]';
+    'bg-[linear-gradient(135deg,#06b6d4,#7c4dff)] animate-[pulse_3.2s_ease-in-out_infinite]';
 
-  const charCount = formData.message.length;
-  const maxChars = 1200;
-
-  // Shared input class (dark glass w/ cyan focus)
   const inputCls =
     'w-full rounded-lg px-4 py-3 bg-white/5 text-white ' +
     'border border-white/10 placeholder-white/40 ' +
@@ -127,7 +142,7 @@ const ContactPage = () => {
         <title>Contact - Jessabel.Art</title>
         <meta
           name="description"
-          content="Let's work together. Reach out to Jessabel Santos for UX/UI design, branding, and web development projects."
+          content="Let's build your next big idea. Get in touch with Jessabel Santos for UX/UI design, strategy, and front-end builds."
         />
       </Helmet>
 
@@ -143,10 +158,10 @@ const ContactPage = () => {
           {/* Header */}
           <motion.div {...fadeUp(0)} className="text-center">
             <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">
-              Let’s <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-400 to-violet-400">talk</span> about your project
+              Let’s <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-400 to-violet-400">build</span> your next big idea
             </h1>
             <p className="mt-3 text-sm md:text-base text-white/60">
-              Quick reply • Clear scope • Measurable outcomes
+              Fast replies • Clear scope • Measurable outcomes
             </p>
           </motion.div>
 
@@ -154,128 +169,171 @@ const ContactPage = () => {
             {/* FORM */}
             <motion.div
               {...fadeUp(0.05)}
-              className="order-2 lg:order-1 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl p-6 sm:p-8"
+              className="order-2 lg:order-1 rounded-2xl p-[1px] bg-[linear-gradient(135deg,rgba(6,182,212,.35),rgba(124,77,255,.35))] shadow-xl"
             >
-              {isSubmitted ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-center py-10"
-                  aria-live="polite"
-                >
-                  <CheckCircle className="mx-auto w-14 h-14 text-emerald-400 mb-3" />
-                  <h2 className="text-2xl font-bold">Thank you!</h2>
-                  <p className="text-white/70">Your message has been sent. I’ll be in touch soon.</p>
-                  <div className="mt-6 flex gap-3 justify-center">
-                    <Button asChild variant="outline" className="rounded-full transition-transform hover:scale-[1.01]">
-                      <a href="/portfolio">See recent work</a>
-                    </Button>
-                    <Button asChild className={`rounded-full ${gradBtn}`}>
-                      <a href="/contact">Start another message</a>
-                    </Button>
-                  </div>
-                </motion.div>
-              ) : (
-                <form onSubmit={handleSubmit} onKeyDown={onKeyDownForm} className="space-y-5" noValidate>
-                  {/* Honeypot (hidden) */}
-                  <input
-                    type="text"
-                    name="honey"
-                    value={formData.honey}
-                    onChange={handleInputChange}
-                    className="hidden"
-                    tabIndex={-1}
-                    autoComplete="off"
-                    aria-hidden="true"
-                  />
-
-                  {/* SR error summary */}
-                  <div role="status" aria-live="polite" className="sr-only">
-                    {!isValid && (touched.name || touched.email || touched.message) ? 'Form has errors' : ''}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="name" className="block text-sm font-semibold">Full Name</label>
-                    <input
-                      id="name"
-                      name="name"
-                      type="text"
-                      autoComplete="name"
-                      minLength={2}
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      onBlur={handleBlur}
-                      required
-                      aria-invalid={touched.name && !!errors.name}
-                      aria-describedby={touched.name && errors.name ? 'name-err' : undefined}
-                      className={inputCls}
-                      placeholder="Jane Doe"
-                    />
-                    {touched.name && errors.name && (
-                      <p id="name-err" className="text-sm text-red-400">{errors.name}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="email" className="block text-sm font-semibold">Email Address</label>
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      onBlur={handleBlur}
-                      required
-                      aria-invalid={touched.email && !!errors.email}
-                      aria-describedby={touched.email && errors.email ? 'email-err' : undefined}
-                      className={inputCls}
-                      placeholder="you@example.com"
-                    />
-                    {touched.email && errors.email && (
-                      <p id="email-err" className="text-sm text-red-400">{errors.email}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="message" className="block text-sm font-semibold">Message</label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      rows={6}
-                      maxLength={1200}
-                      value={formData.message}
-                      onChange={handleInputChange}
-                      onBlur={handleBlur}
-                      required
-                      aria-invalid={touched.message && !!errors.message}
-                      aria-describedby={touched.message && errors.message ? 'message-err' : 'message-help'}
-                      className={`${inputCls} resize-none`}
-                      placeholder="A quick overview, goals, timeline, and budget (rough is fine!)."
-                    />
-                    <div className="flex items-center justify-between">
-                      {touched.message && errors.message ? (
-                        <p id="message-err" className="text-sm text-red-400">{errors.message}</p>
-                      ) : (
-                        <p id="message-help" className="text-xs text-white/50">All fields are required.</p>
-                      )}
-                      <span className="text-xs text-white/50">
-                        {formData.message.length}/1200
-                      </span>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className={`w-full text-base md:text-lg py-3.5 rounded-full ${gradBtn} disabled:opacity-60 disabled:cursor-not-allowed`}
-                    disabled={!isValid || isSubmitting}
+              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 sm:p-8">
+                {isSubmitted ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center py-10"
+                    aria-live="polite"
                   >
-                    {isSubmitting ? 'Sending…' : 'Send Message'}
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </form>
-              )}
+                    <CheckCircle className="mx-auto w-14 h-14 text-emerald-400 mb-3" />
+                    <h2 className="text-2xl font-bold">Thank you!</h2>
+                    <p className="text-white/70">Your message has been sent. I’ll be in touch soon.</p>
+                    <div className="mt-6 flex gap-3 justify-center">
+                      <Button asChild variant="outline" className="rounded-full transition-transform hover:scale-[1.01]">
+                        <a href="/work">See selected work</a>
+                      </Button>
+                      <Button asChild className={`rounded-full ${gradBtn}`}>
+                        <a href="/contact">Start another message</a>
+                      </Button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <form onSubmit={handleSubmit} onKeyDown={onKeyDownForm} className="space-y-5" noValidate>
+                    {/* Honeypot (hidden) */}
+                    <input
+                      type="text"
+                      name="honey"
+                      value={formData.honey}
+                      onChange={handleInputChange}
+                      className="hidden"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      aria-hidden="true"
+                    />
+
+                    {/* SR error summary */}
+                    <div role="status" aria-live="polite" className="sr-only">
+                      {!isValid && (touched.name || touched.email || touched.message) ? 'Form has errors' : ''}
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="name" className="block text-sm font-semibold">Full Name</label>
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        autoComplete="name"
+                        minLength={2}
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        onBlur={handleBlur}
+                        required
+                        aria-invalid={touched.name && !!errors.name}
+                        aria-describedby={touched.name && errors.name ? 'name-err' : undefined}
+                        className={inputCls}
+                        placeholder="Jane Doe"
+                      />
+                      {touched.name && errors.name && (
+                        <p id="name-err" className="text-sm text-red-400">{errors.name}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="email" className="block text-sm font-semibold">Email Address</label>
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        onBlur={handleBlur}
+                        required
+                        aria-invalid={touched.email && !!errors.email}
+                        aria-describedby={touched.email && errors.email ? 'email-err' : undefined}
+                        className={inputCls}
+                        placeholder="you@example.com"
+                      />
+                      {touched.email && errors.email && (
+                        <p id="email-err" className="text-sm text-red-400">{errors.email}</p>
+                      )}
+                    </div>
+
+                    {/* Optional quick selectors (don’t block submit) */}
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label htmlFor="projectType" className="block text-sm font-semibold">Project Type (optional)</label>
+                        <select
+                          id="projectType"
+                          name="projectType"
+                          value={formData.projectType}
+                          onChange={handleInputChange}
+                          className={`${inputCls} pr-8 appearance-none`}
+                        >
+                          <option value="" className="text-slate-900" style={{ color: '#0a0f1a' }}>Choose one…</option>
+                          {PROJECT_TYPES.map((opt) => (
+                            <option key={opt} value={opt} className="text-slate-900" style={{ color: '#0a0f1a' }}>
+                              {opt}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="timeline" className="block text-sm font-semibold">Timeline (optional)</label>
+                        <select
+                          id="timeline"
+                          name="timeline"
+                          value={formData.timeline}
+                          onChange={handleInputChange}
+                          className={`${inputCls} pr-8 appearance-none`}
+                        >
+                          <option value="" className="text-slate-900" style={{ color: '#0a0f1a' }}>Select…</option>
+                          {TIMELINES.map((opt) => (
+                            <option key={opt} value={opt} className="text-slate-900" style={{ color: '#0a0f1a' }}>
+                              {opt}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="message" className="block text-sm font-semibold">Message</label>
+                      <textarea
+                        id="message"
+                        name="message"
+                        rows={6}
+                        maxLength={1200}
+                        value={formData.message}
+                        onChange={handleInputChange}
+                        onBlur={handleBlur}
+                        required
+                        aria-invalid={touched.message && !!errors.message}
+                        aria-describedby={touched.message && errors.message ? 'message-err' : 'message-help'}
+                        className={`${inputCls} resize-none`}
+                        placeholder="A quick overview, goals, timeline, and budget (rough is fine!)."
+                      />
+                      <div className="flex items-center justify-between">
+                        {touched.message && errors.message ? (
+                          <p id="message-err" className="text-sm text-red-400">{errors.message}</p>
+                        ) : (
+                          <p id="message-help" className="text-xs text-white/50">All fields above are required.</p>
+                        )}
+                        <span className="text-xs text-white/50">{formData.message.length}/1200</span>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className={`w-full text-base md:text-lg py-3.5 rounded-full ${gradBtn} disabled:opacity-60 disabled:cursor-not-allowed`}
+                      disabled={!isValid || isSubmitting}
+                    >
+                      {isSubmitting ? 'Sending…' : 'Send Message'}
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+
+                    {/* micro trust */}
+                    <div className="mt-2 text-center text-xs text-white/55">
+                      Avg. response time &lt; 24h • No spam • NDA friendly
+                    </div>
+                  </form>
+                )}
+              </div>
             </motion.div>
 
             {/* INTRO + SOCIALS */}
@@ -287,8 +345,8 @@ const ContactPage = () => {
               </h2>
 
               <p className="text-lg text-white/70 leading-relaxed max-w-prose">
-                I’d love to hear about your project and explore how we can bring your ideas to life.
-                Fill out the quick form and I’ll respond within 24 hours.
+                Share your idea and constraints, and I’ll map a path from problem to shipped product.
+                You’ll get a clear plan, timeline, and measurable success criteria.
               </p>
 
               <div className="space-y-4">
@@ -323,13 +381,32 @@ const ContactPage = () => {
                 </div>
               </div>
 
-              {/* Booking badge */}
+              {/* Booking pill — dynamic month */}
               <motion.div {...fadeUp(0.15)} className="pt-2">
-                <div className="inline-flex flex-wrap items-center gap-2 rounded-full px-5 py-3 border border-white/10 bg-white/5 backdrop-blur">
-                  <span className="font-bold text-transparent bg-clip-text bg-[linear-gradient(135deg,#06b6d4,#7c4dff)]">
-                    Now booking for September 2025
-                  </span>
-                  <span className="text-white/60">Let’s create something amazing together.</span>
+                <div className="relative rounded-[32px] p-[1px]
+                                bg-[conic-gradient(from_180deg_at_50%_50%,rgba(6,182,212,.35),rgba(124,77,255,.35),rgba(6,182,212,.35))]
+                                shadow-[0_16px_40px_rgba(0,0,0,.35)]">
+                  <div className="rounded-[32px] bg-white/5 border border-white/10 backdrop-blur px-5 py-4 flex items-start gap-4">
+                    <div className="mt-0.5">
+                      <div className="relative">
+                        <span className="absolute inset-0 rounded-full blur-md opacity-40 bg-cyan-400/40 animate-pulse" aria-hidden />
+                        <div className="relative w-10 h-10 rounded-full bg-white/10 border border-white/15 grid place-items-center">
+                          <CalendarDays className="w-5 h-5 text-white/90" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grow">
+                      <div className="text-cyan-300 font-bold text-base md:text-lg">
+                        Now booking for{' '}
+                        <span className="text-transparent bg-clip-text bg-[linear-gradient(135deg,#06b6d4,#7c4dff)]">
+                          {nextBookingLabel}
+                        </span>
+                      </div>
+                      <div className="text-white/70 text-sm md:text-base">
+                        Let’s create something amazing together.
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             </motion.div>
