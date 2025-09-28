@@ -51,9 +51,6 @@
   /* Header/footer */
   --navy-900:#0B0F1A;
 
-  /* Legacy helper kept for rare warm sections (optional) */
-  --warm-brown-hex:#5a3a2a;
-
   /* Headline scrim used on hero overlays (darker for contrast) */
   --hero-scrim: 220 80% 4%;
 }
