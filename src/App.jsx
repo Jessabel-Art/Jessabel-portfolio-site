@@ -7,6 +7,9 @@ import Footer from "@/components/Footer";
 import Welcome from "@/components/Welcome";
 import Home from "@/pages/Home";
 import RouteIris from "@/components/RouteIris";
+import Home from '@/pages/Home';
+import Work from '@/pages/Work';
+import Playground from '@/pages/Playground';
 
 // New pages
 import ContactPage from "@/pages/ContactPage";
@@ -48,6 +51,9 @@ export default function App() {
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
+
+          <Route path="/work" element={<Work />} />
+          <Route path="/playground" element={<Playground />} />  
         </Routes>
       </Layout>
     </Router>
