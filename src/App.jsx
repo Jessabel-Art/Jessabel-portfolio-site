@@ -22,66 +22,59 @@ import PrivacyPage from "@/pages/PrivacyPage";
 import TermsPage from "@/pages/TermsPage";
 import ClientsPage from "@/pages/ClientsPage";
 import ClientUploadPage from "@/pages/ClientUploadPage";
-import UxProcess from "@/pages/UxProcess";
+import UxProcess from "@/pages/UxProcess"; s
 
-/* ---------- Scroll to top on route change ---------- */
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
-    // jump to top and reset focus for a11y
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     const main = document.querySelector("main");
-    if (main) main.focus?.();
+    main?.focus?.();
   }, [pathname]);
   return null;
 }
 
-/* ---------- App Shell / Layout (header + footer) ---------- */
 function Layout() {
-  const location = useLocation();
-  const onWelcome = location.pathname === "/";
+  const { pathname } = useLocation();
+  const onWelcome = pathname === "/";
 
   return (
     <div className="min-h-screen bg-[--navy-900] text-[--ink] antialiased overflow-x-hidden">
       <ScrollToTop />
       {!onWelcome && <Header />}
 
-      {/* main is focusable to support focus reset on navigation */}
+      {/* main is focusable for a11y focus reset on route change */}
       <main className={onWelcome ? "" : "pt-20"} tabIndex={-1}>
         <Outlet />
       </main>
 
       {!onWelcome && <Footer />}
 
-      {/* Global UI */}
       <Toaster />
       <RouteIris />
     </div>
   );
 }
 
-/* ---------- Router ---------- */
 export default function App() {
   return (
     <Router>
       <Routes>
-        {/* All pages share the Layout */}
         <Route element={<Layout />}>
-          {/* Index (root) — Welcome is headerless */}
+          {/* Root (headerless welcome) */}
           <Route index element={<Welcome />} />
 
           {/* Primary pages */}
           <Route path="home" element={<Home />} />
           <Route path="work" element={<Work />} />
           <Route path="playground" element={<Playground />} />
-          <Route path="about" element={<About />} />
 
           {/* Client portal & uploads */}
           <Route path="client-portal" element={<ClientsPage />} />
           <Route path="client-upload" element={<ClientUploadPage />} />
 
           {/* UX process (CTA target) */}
-          <Route path="ux-process" element={<UXProcess />} />
+          <Route path="ux-process" element={<UxProcess />} />
 
           {/* Contact & Legal */}
           <Route path="contact" element={<ContactPage />} />
