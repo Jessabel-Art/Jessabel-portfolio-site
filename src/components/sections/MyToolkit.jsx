@@ -58,7 +58,7 @@ export default function MyToolkit() {
               <motion.div
                 key={item.title}
                 variants={card(i)}
-                className="group relative rounded-2xl border border-white/15 bg-white/5 backdrop-blur
+                className="group relative rounded-2xl border border-white/15 bg-white/10 backdrop-blur
                            shadow-[0_10px_30px_rgba(0,0,0,0.35)] transition-all
                            hover:shadow-[0_0_0_2px_rgba(124,77,255,0.45),0_18px_50px_rgba(124,77,255,0.35)]
                            will-change-transform"
@@ -79,7 +79,11 @@ export default function MyToolkit() {
                     {/* FRONT: icon + title only */}
                     <div
                       className="absolute inset-0 flex items-center gap-3"
-                      style={{ backfaceVisibility: 'hidden' }}
+                      style={{
+                        transform: 'rotateY(0deg) translateZ(0)',
+                        backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden'
+                      }}
                     >
                       {/* HARD-ROUND, OPAQUE GRADIENT CIRCLE (smaller) */}
                       <div
@@ -99,12 +103,15 @@ export default function MyToolkit() {
                       <h3 className="text-base md:text-lg font-semibold text-white">{item.title}</h3>
                     </div>
 
-                    {/* BACK: tiny description (reveals on flip) */}
+                    {/* BACK: bullets only (title removed) */}
                     <div
                       className="absolute inset-0 flex flex-col justify-center"
-                      style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}
+                      style={{
+                        transform: 'rotateY(180deg) translateZ(0)',
+                        backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden'
+                      }}
                     >
-                      <h3 className="text-base md:text-lg font-semibold text-white">{item.title}</h3>
                       <ul className="mt-3 space-y-1.5 text-sm text-white">
                         {item.bullets.map((b) => (
                           <li key={b} className="flex items-start gap-2">
