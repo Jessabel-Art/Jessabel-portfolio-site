@@ -4,10 +4,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
-const INK = "rgba(255,255,255,0.92)";
-const INK_DIM = "rgba(255,255,255,0.72)";
-const CYAN = "var(--cyan-400)"; // #18E1FF
-const BORDER = "rgba(255,255,255,0.10)";
+const HEADER_HEIGHT = 80; // px desktop
+const HEADER_HEIGHT_MOBILE = 64; // px mobile
 
 const links = [
   { id: "work", label: "Work" },
@@ -20,10 +18,9 @@ export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Hide header on welcome entry page (if used)
+  // Hide header on a specific route if needed
   if (location.pathname === "/welcome") return null;
 
-  // Close mobile when route/hash changes
   useEffect(() => setIsOpen(false), [location.pathname, location.hash]);
 
   const goTo = useCallback(
@@ -34,7 +31,6 @@ export default function Header() {
       };
       if (location.pathname !== "/") {
         navigate(`/#${id}`);
-        // let the route update, then scroll
         setTimeout(scrollToEl, 20);
       } else {
         window.history.pushState(null, "", `/#${id}`);
@@ -56,17 +52,22 @@ export default function Header() {
       className="fixed top-0 left-0 right-0 z-50 bg-transparent"
       role="navigation"
       aria-label="Primary"
+      style={{
+        height: "var(--header-h, 80px)", // default, controlled by CSS
+        minHeight: "var(--header-h, 80px)",
+      }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Bar */}
-        <div className="flex items-center justify-between h-20">
-          {/* Brand — neon cyan, no pill */}
+        <div className="flex items-center justify-between" style={{
+          height: "var(--header-h, 80px)",
+          minHeight: "var(--header-h, 80px)",
+        }}>
           <Link
             to="/"
             className="select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-md"
             aria-label="Jessabel.Art — Home"
             style={{
-              color: CYAN,
+              color: "var(--cyan-400)",
               textShadow:
                 "0 0 12px rgba(24,225,255,.55), 0 1px 0 rgba(0,0,0,.35)",
               fontFamily:
@@ -78,8 +79,6 @@ export default function Header() {
           >
             Jessabel<span style={{ opacity: 0.95 }}>.Art</span>
           </Link>
-
-          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
             <div className="relative flex items-center gap-2">
               {links.map((item) => {
@@ -89,15 +88,11 @@ export default function Header() {
                     key={item.id}
                     onClick={() => goTo(item.id)}
                     className="relative px-2 py-1.5 font-semibold"
-                    style={{ color: isActive ? INK : INK_DIM }}
+                    style={{ color: isActive ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.72)" }}
                     aria-current={isActive ? "page" : undefined}
                   >
                     <span className="relative z-10">{item.label}</span>
-                    {/* animated underline */}
-                    <span
-                      className="absolute left-0 right-0 -bottom-0.5 h-[2px] overflow-hidden rounded-full"
-                      aria-hidden
-                    >
+                    <span className="absolute left-0 right-0 -bottom-0.5 h-[2px] overflow-hidden rounded-full" aria-hidden>
                       <motion.span
                         layoutId="nav-underline"
                         style={{
@@ -116,22 +111,18 @@ export default function Header() {
               })}
             </div>
           </div>
-
-          {/* Mobile hamburger */}
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen((v) => !v)}
               aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={isOpen}
               className="rounded-full p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-              style={{ color: INK }}
+              style={{ color: "rgba(255,255,255,0.92)" }}
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
-
-        {/* Mobile drawer */}
         <AnimatePresence initial={false}>
           {isOpen && (
             <motion.div
@@ -141,7 +132,7 @@ export default function Header() {
               exit={{ opacity: 0, height: 0 }}
               className="md:hidden overflow-hidden rounded-2xl border mb-3"
               style={{
-                borderColor: BORDER,
+                borderColor: "rgba(255,255,255,0.10)",
                 background: "rgba(7,13,29,0.92)",
                 backdropFilter: "blur(10px)",
               }}
@@ -157,9 +148,9 @@ export default function Header() {
                         i !== 0 ? "mt-1.5" : "",
                       ].join(" ")}
                       style={{
-                        color: INK,
+                        color: "rgba(255,255,255,0.92)",
                         background: "rgba(255,255,255,0.06)",
-                        border: `1px solid ${BORDER}`,
+                        border: "1px solid rgba(255,255,255,0.10)",
                       }}
                     >
                       {item.label}

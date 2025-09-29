@@ -55,6 +55,15 @@
   --hero-scrim: 220 80% 4%;
 }
 
+:root {
+  --header-h: 80px;
+}
+@media (max-width: 768px) {
+  :root {
+    --header-h: 64px;
+  }
+}
+
 /* ---------- Base ---------- */
 *{ border-color:hsl(var(--border)); }
 html{ scroll-behavior:smooth; }

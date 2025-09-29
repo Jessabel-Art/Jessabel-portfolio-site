@@ -24,9 +24,9 @@ export default function Home() {
         initial="hidden"
         animate="show"
       >
-        <motion.section variants={childFade}>
-          <Hero />
-        </motion.section>
+        <motion.section variants={childFade} className="-mt-[100px]">
+           <Hero />
+         </motion.section>
 
         <motion.section variants={childFade}>
           <MyToolkit />

@@ -1,7 +1,7 @@
 // src/App.jsx
 import React, { useEffect } from "react";
 import {
-  BrowserRouter as Router,
+  BrowserRouter,
   Routes,
   Route,
   Navigate,
@@ -22,12 +22,12 @@ import PrivacyPage from "@/pages/PrivacyPage";
 import TermsPage from "@/pages/TermsPage";
 import ClientsPage from "@/pages/ClientsPage";
 import ClientUploadPage from "@/pages/ClientUploadPage";
-import UxProcess from "@/pages/UxProcess"; s
+import UxProcess from "@/pages/UxProcess";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     const main = document.querySelector("main");
     main?.focus?.();
   }, [pathname]);
@@ -42,14 +42,10 @@ function Layout() {
     <div className="min-h-screen bg-[--navy-900] text-[--ink] antialiased overflow-x-hidden">
       <ScrollToTop />
       {!onWelcome && <Header />}
-
-      {/* main is focusable for a11y focus reset on route change */}
       <main className={onWelcome ? "" : "pt-20"} tabIndex={-1}>
         <Outlet />
       </main>
-
       {!onWelcome && <Footer />}
-
       <Toaster />
       <RouteIris />
     </div>
@@ -58,33 +54,26 @@ function Layout() {
 
 export default function App() {
   return (
-    <Router>
+    <BrowserRouter
+      /* set if deploying under a subpath */
+      // basename="/"
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <Routes>
         <Route element={<Layout />}>
-          {/* Root (headerless welcome) */}
           <Route index element={<Welcome />} />
-
-          {/* Primary pages */}
           <Route path="home" element={<Home />} />
           <Route path="work" element={<Work />} />
           <Route path="playground" element={<Playground />} />
-
-          {/* Client portal & uploads */}
           <Route path="client-portal" element={<ClientsPage />} />
           <Route path="client-upload" element={<ClientUploadPage />} />
-
-          {/* UX process (CTA target) */}
           <Route path="ux-process" element={<UxProcess />} />
-
-          {/* Contact & Legal */}
           <Route path="contact" element={<ContactPage />} />
           <Route path="privacy" element={<PrivacyPage />} />
           <Route path="terms" element={<TermsPage />} />
-
-          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }

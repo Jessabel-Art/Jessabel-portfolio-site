@@ -19,7 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 // assets
-import portraitSvg from "@/assets/images/about-portrait.svg";
+import portraitSvg from "@/assets/images/artist-portrait.png";
 import resumePdf from "@/assets/resume/jessy-ux-resume.pdf";
 import ccriLogo from "@/assets/images/ccri.png";
 import wguLogo from "@/assets/images/wgu.png";

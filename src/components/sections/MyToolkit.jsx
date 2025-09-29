@@ -5,6 +5,7 @@ import {
   Search, LayoutTemplate, PlayCircle, Code2,
   Sparkles, FileText, BarChart3, Target
 } from 'lucide-react';
+import ToolkitBG from "@/assets/images/toolkit-bg.svg";
 
 const ITEMS = [
   { icon: Search, title: 'UX Research', bullets: ['User interviews', 'Usability testing', 'Competitor analysis'] },

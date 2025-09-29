@@ -34,22 +34,21 @@
     <meta property="og:url" content="https://jessabel.art/" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- ✅ Google Fonts: Modak (hero) + Playfair Display (body) -->
+    <!-- ✅ Google Fonts: Modak (hero), Playfair Display (body), Bungee & Sora (UI) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Modak&family=Playfair+Display:wght@400;600;700&display=swap"
-      rel="stylesheet" />
-      <!-- Bungee -->  
-      <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet" />
+      href="https://fonts.googleapis.com/css2?family=Bungee&family=Modak&family=Playfair+Display:wght@400;600;700&family=Sora:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
 
-    <!-- Cloudinary Upload Widget (keep only if you use it) -->
+    <!-- Preload key images (improves LCP) -->
+    <link rel="preload" as="image" href="/src/assets/images/bg-welcome.svg" />
+    <link rel="preload" as="image" href="/src/assets/images/spotlight-radial.svg" />
+
+    <!-- Cloudinary Upload Widget (keep only if used) -->
     <script src="https://widget.cloudinary.com/v2.0/global/all.js" defer></script>
   </head>
-
-<!-- Preload key images (improves LCP) -->
-  <link rel="preload" as="image" href="/src/assets/images/bg-welcome.svg" />
-<link rel="preload" as="image" href="/src/assets/images/spotlight-radial.svg" />
 
   <body class="antialiased">
     <div id="root"></div>
