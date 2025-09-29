@@ -4,8 +4,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
-const HEADER_HEIGHT = 80; // px desktop
-const HEADER_HEIGHT_MOBILE = 64; // px mobile
+const HEADER_HEIGHT = 80;          // px desktop
+const HEADER_HEIGHT_MOBILE = 64;   // px mobile
 
 const links = [
   { id: "work", label: "Work" },
@@ -23,26 +23,44 @@ export default function Header() {
 
   useEffect(() => setIsOpen(false), [location.pathname, location.hash]);
 
-  const goTo = useCallback(
+  const getHeaderOffset = () =>
+    (typeof window !== "undefined" && window.innerWidth < 768)
+      ? HEADER_HEIGHT_MOBILE
+      : HEADER_HEIGHT;
+
+  const scrollToIdWithOffset = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY - getHeaderOffset() - 8; // tiny extra gap
+    window.scrollTo({ top: y, behavior: "smooth" });
+  };
+
+  const handleNav = useCallback(
     (id) => {
-      const scrollToEl = () => {
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      };
+      // Contact is a page
+      if (id === "contact") {
+        navigate("/contact");
+        return;
+      }
+
+      // Work/About are sections on Home
+      const tryScroll = () => scrollToIdWithOffset(id);
+
       if (location.pathname !== "/") {
-        navigate(`/#${id}`);
-        setTimeout(scrollToEl, 20);
+        // Go home, then scroll after mount
+        navigate("/");
+        // Retry a couple times to catch the section after render
+        setTimeout(tryScroll, 250);
+        setTimeout(tryScroll, 650);
       } else {
-        window.history.pushState(null, "", `/#${id}`);
-        scrollToEl();
+        tryScroll();
       }
     },
     [location.pathname, navigate]
   );
 
-  const activeId =
-    (location.hash || "").replace("#", "") ||
-    (links.find((l) => document.getElementById(l.id))?.id ?? "");
+  // Active state: highlight Contact when on /contact
+  const activeId = location.pathname === "/contact" ? "contact" : "";
 
   return (
     <motion.nav
@@ -53,15 +71,18 @@ export default function Header() {
       role="navigation"
       aria-label="Primary"
       style={{
-        height: "var(--header-h, 80px)", // default, controlled by CSS
+        height: "var(--header-h, 80px)",
         minHeight: "var(--header-h, 80px)",
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between" style={{
-          height: "var(--header-h, 80px)",
-          minHeight: "var(--header-h, 80px)",
-        }}>
+        <div
+          className="flex items-center justify-between"
+          style={{
+            height: "var(--header-h, 80px)",
+            minHeight: "var(--header-h, 80px)",
+          }}
+        >
           <Link
             to="/"
             className="select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-md"
@@ -79,6 +100,8 @@ export default function Header() {
           >
             Jessabel<span style={{ opacity: 0.95 }}>.Art</span>
           </Link>
+
+          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
             <div className="relative flex items-center gap-2">
               {links.map((item) => {
@@ -86,13 +109,20 @@ export default function Header() {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => goTo(item.id)}
+                    onClick={() => handleNav(item.id)}
                     className="relative px-2 py-1.5 font-semibold"
-                    style={{ color: isActive ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.72)" }}
+                    style={{
+                      color: isActive
+                        ? "rgba(255,255,255,0.92)"
+                        : "rgba(255,255,255,0.72)",
+                    }}
                     aria-current={isActive ? "page" : undefined}
                   >
                     <span className="relative z-10">{item.label}</span>
-                    <span className="absolute left-0 right-0 -bottom-0.5 h-[2px] overflow-hidden rounded-full" aria-hidden>
+                    <span
+                      className="absolute left-0 right-0 -bottom-0.5 h-[2px] overflow-hidden rounded-full"
+                      aria-hidden
+                    >
                       <motion.span
                         layoutId="nav-underline"
                         style={{
@@ -100,9 +130,7 @@ export default function Header() {
                             "linear-gradient(90deg, var(--cyan-400), var(--blue-300))",
                         }}
                         className="block h-[2px] rounded-full"
-                        animate={{
-                          opacity: isActive ? 1 : 0,
-                        }}
+                        animate={{ opacity: isActive ? 1 : 0 }}
                         transition={{ type: "spring", stiffness: 500, damping: 40 }}
                       />
                     </span>
@@ -111,6 +139,8 @@ export default function Header() {
               })}
             </div>
           </div>
+
+          {/* Mobile hamburger */}
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen((v) => !v)}
@@ -123,6 +153,8 @@ export default function Header() {
             </button>
           </div>
         </div>
+
+        {/* Mobile drawer */}
         <AnimatePresence initial={false}>
           {isOpen && (
             <motion.div
@@ -142,7 +174,7 @@ export default function Header() {
                   {links.map((item, i) => (
                     <button
                       key={item.id}
-                      onClick={() => goTo(item.id)}
+                      onClick={() => handleNav(item.id)}
                       className={[
                         "w-full h-11 px-4 rounded-lg font-semibold text-left",
                         i !== 0 ? "mt-1.5" : "",
