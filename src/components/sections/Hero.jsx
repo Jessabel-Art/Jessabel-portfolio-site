@@ -1,3 +1,4 @@
+// src/components/sections/Hero.jsx
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import s from "./hero.module.css";
@@ -18,11 +19,14 @@ export default function Hero() {
     const titleNode = titleRef.current;
     if (!titleNode) return;
 
+    // Split into spans so we can animate each letter
     const chars = splitCharsWithGradient(titleNode);
+
     if (prefersReduced) return;
 
-    const EACH = 0.12;
-    const DUR = 1.1;
+    // Slightly slower, true "fall into scene"
+    const EACH = 0.10;
+    const DUR = 1.2;
     animateCharsSequentially(chars, fxRef.current, EACH, DUR);
 
     const total = (chars.length - 1) * EACH + DUR;
@@ -39,102 +43,54 @@ export default function Hero() {
     );
   }, []);
 
-  const bgUrl   = `${import.meta.env.BASE_URL}hero-bg.svg`;
   const gridUrl = `${import.meta.env.BASE_URL}hero-bg-grid.svg`;
-
-  // Image assets for the title lines
-  const hiUrl = new URL("@/assets/images/hi-hero-text.png", import.meta.url).href;
-  const imJessyUrl = new URL("@/assets/images/imjessy-hero-text.png", import.meta.url).href;
 
   return (
     <section id="hero" className={s.root} aria-label="Intro">
-      <div aria-hidden className={s.fullBleedBg} style={{ backgroundImage: `url(${bgUrl})` }} />
+      {/* Full-bleed video background */}
+      <div aria-hidden className={s.fullBleedBg}>
+        <video
+          src="https://res.cloudinary.com/dqqee8c51/video/upload/v1759267558/hero-bg_r54b6e.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </div>
+
+      {/* Grid overlay (unchanged) */}
       <div aria-hidden className={s.fullBleedOverlay} style={{ backgroundImage: `url(${gridUrl})` }} />
 
       {/* Content is always vertically and horizontally centered */}
       <div className={s.inner}>
-        {/* Keep the original H1 for accessibility + GSAP bursts, but hide it visually */}
-        <h1
-          ref={titleRef}
-          className={`${s.title} ${s.glowOnHover}`}
-          style={{
-            position: "absolute",
-            width: 1,
-            height: 1,
-            padding: 0,
-            margin: -1,
-            overflow: "hidden",
-            clip: "rect(0, 0, 0, 0)",
-            whiteSpace: "nowrap",
-            border: 0,
-          }}
-        >
-          Hi, I’m Jessy
-        </h1>
-
-        {/* Visible title as two PNG text lines */}
-        <div
-          aria-hidden
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            // Responsive gap: tighter on phones, modest on large screens
-            gap: "clamp(0.08rem, 0.6vw, 0.22rem)",
-            width: "min(92vw, 1100px)",
-            marginInline: "auto",
-            position: "relative",
-          }}
-        >
-          {/* Line 1: "Hi" — smaller, left oriented, shifted into the white-box area */}
-          <img
-            src={hiUrl}
-            alt="Hi,"
-            draggable="false"
-            style={{
-              alignSelf: "flex-start",
-              width: "min(38vw, 280px)",
-              height: "auto",
-              imageRendering: "auto",
-              userSelect: "none",
-              // Shift right and slightly down responsively to hit that target spot
-              transform: "translateX(clamp(10vw, 10vw, 10vw)) translateY(clamp(0.2rem, 0.9vw, 1.2rem))",
-            }}
-          />
-
-          {/* Line 2: "I'm Jessy" — larger, centered */}
-          <img
-          src={imJessyUrl}
-          alt="I’m Jessy"
-          draggable="false"
-          style={{
-            alignSelf: "center",
-            width: "min(240vw, 980px)", // bumped up size (was 160vw/820px)
-            height: "auto",
-            imageRendering: "auto",
-            userSelect: "none",
-            marginTop: "-3.8rem", // raises it slightly
-            transform: "translateY(-0.3rem)", // fine-tune upward lift
-            }}
-          />
+        <div className={s.titleWrap}>
+          <h1
+            ref={titleRef}
+            className={`${s.title} zeplin ${s.title3d} ${s.titleExtrude} ${s.glowOnHover || ""}`}
+            style={{ margin: 0, fontWeight: 800 }}
+          >
+            Hi, I’m Jessy
+          </h1>
         </div>
 
-        {/* === Repositioned subtitle + tagline === */}
+        {/* Subtitle + tagline (unchanged) */}
         <div
           aria-hidden
+          className={s.subBrush}   // ⬅️ add this
           style={{
             position: "absolute",
-            // Anchor roughly where your white box sits; tweak these three values to taste
-            left: "55%",
-            top: "75%",
-            transform: "translate(-2%, -2%)",
+            left: "40%",
+            top: "68%",
+            transform: "translate(-2%, -5%)",
             maxWidth: "min(52vw, 740px)",
-            textAlign: "left",
+            textAlign: "center",
           }}
         >
           <p
             ref={subtitleRef}
-            className={`${s.subtitle} ${s.glowOnHover}`}
+            className={`${s.subtitle} ${s.glowOnHover || ""}`}
             style={{ margin: 0, fontSize: "clamp(1.50rem, 2.3vw, 1.35rem)" }}
           >
             UX and UI Designer • Systems Thinker
@@ -148,7 +104,6 @@ export default function Hero() {
             I design clear, human centered interfaces that ship. Beautiful, usable, measurable.
           </p>
         </div>
-        {/* ====================================== */}
       </div>
 
       <div ref={fxRef} className={s.fx} aria-hidden />
@@ -159,11 +114,11 @@ export default function Hero() {
 /* --- Animation/text helper functions for GSAP --- */
 
 const GRADIENT_STYLE = {
-  backgroundImage: "linear-gradient(135deg, #18E1FF, #6EC8FF)",
-  WebkitBackgroundClip: "text",
-  backgroundClip: "text",
-  color: "transparent",
+  color: "#fff",                  // solid fill (no gradient/clip)
+  display: "inline-block",
+  whiteSpace: "pre",
 };
+
 function splitCharsWithGradient(node) {
   const text = node.textContent || "";
   node.textContent = "";
@@ -179,17 +134,20 @@ function splitCharsWithGradient(node) {
   }
   return spans;
 }
-function animateCharsSequentially(chars, layer, each = 0.12, dur = 1.1) {
+
+function animateCharsSequentially(chars, layer, each = 0.10, dur = 1.2) {
   chars.forEach((el, i) => {
     gsap.fromTo(
       el,
-      { y: 38, opacity: 0, rotate: 6, filter: "blur(12px)" },
+      // start above the baseline so letters "fall" into place
+      { y: -60, opacity: 0, rotate: -4, filter: "blur(12px)" },
       { y: 0, opacity: 1, rotate: 0, filter: "blur(0px)", duration: dur, ease: "power3.out", delay: i * each,
         onStart: () => burstOneChar(el, layer),
       }
     );
   });
 }
+
 function burstOneChar(el, layer) {
   if (!layer) return;
   const rainbow = ["#FF5D5D", "#FFB84D", "#FFE34D", "#71F56C", "#18E1FF", "#6EC8FF", "#A06CFF"];

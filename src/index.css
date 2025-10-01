@@ -277,3 +277,11 @@ a:focus-visible{ outline:2px solid hsl(var(--primary)); outline-offset:3px; }
 /* Hide horizontal scrollbar on overflow rows (used by filter chips on mobile) */
 .no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none; }
 .no-scrollbar::-webkit-scrollbar{ display:none; }
+
+/* e.g., src/styles/fonts.css (or your global stylesheet) */
+.zeplin {
+  font-family: zeplin-vf, sans-serif;         /* ← use the exact name from the kit CSS */
+  font-style: normal;
+  font-variation-settings: "CONX" 1, "CONY" 1;
+  font-synthesis-weight: none;                /* prevents fake bold if the font isn't loaded yet */
+}

@@ -1,0 +1,10 @@
+/* src/styles/fonts.css */
+.zeplin {
+  font-family: zeplin-vf, sans-serif;  /* use the exact family name from the kit CSS */
+  font-style: normal;
+  font-variation-settings: "CONX" 1, "CONY" 1;
+  font-synthesis-weight: none;         /* avoid fake bold if the font isn’t loaded yet */
+}
+
+/* Optional: make your existing .title use Zeplin via the CSS var it already reads */
+:root { --hero-font: zeplin-vf, sans-serif; }

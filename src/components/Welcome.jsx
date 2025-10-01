@@ -110,8 +110,8 @@ export default function Welcome() {
     return saved ? parseFloat(saved) : DEFAULT_GROUND;
   });
 
-  const DEFAULT_ORBIT_OFFSET_VH = 70;
-  const DEFAULT_ORBIT_WIDTH_VW  = 42;
+  const DEFAULT_ORBIT_OFFSET_VH = 80;
+  const DEFAULT_ORBIT_WIDTH_VW  = 40;
   const [orbitOffset, setOrbitOffset] = useState(() => {
     const v = localStorage.getItem("welcome-orbit-offset-vh");
     return v ? parseFloat(v) : DEFAULT_ORBIT_OFFSET_VH;
@@ -770,22 +770,7 @@ export default function Welcome() {
               Showcase Mode
             </span>
           </Link>
-
-          <Link
-            to="/playground" // was "/"
-            className={`${s.optionBtn} ${s.playBtn}`}
-            aria-disabled={!unlocked}
-            onClick={(e) => onOptionClick(e, "/playground")}
-          >
-            <span className={s.optionText}>
-              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden focusable="false" style={{ marginRight: 10 }}>
-                <path fill="currentColor" d="M8 5v14l11-7z"/>
-              </svg>
-              Playground
-            </span>
-          </Link>
         </div>
-
 
         {/* Legacy ENTER (kept; not rendered since we now have two options)
         <Link

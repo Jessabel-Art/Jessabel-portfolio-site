@@ -67,18 +67,17 @@
 
 /* ---------- Type ---------- */
 .title{
+  position: relative;                    /* needed for ::before banner */
   font-family: var(--hero-font, system-ui, Inter, ui-sans-serif);
   font-weight: 900;
   letter-spacing: -0.01em;
-  line-height: 1.05;
-  font-size: clamp(40px, 7.4vw, 92px);
-  background: linear-gradient(135deg, #18E1FF, #6EC8FF);
-  -webkit-background-clip:text; background-clip:text;
-  color: transparent;
-  text-shadow:
-    0 1px 0 rgba(0,0,0,.35),
-    0 2px 10px rgba(0,0,0,.35),
-    0 0 28px rgba(24,225,255,.20);
+  line-height: 0.92;
+  font-size: clamp(80px, 12vw, 200px);   /* BIGGER */
+  color: #fff;                           /* solid fill now */
+  text-shadow: none;                     /* remove old glow */
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  font-synthesis-weight: none;           /* no fake bold fallback */
 }
 
 .subtitle{
@@ -113,4 +112,143 @@
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce){
   .title, .subtitle, .tagline{ transition:none !important; }
+}
+
+.title { font-synthesis-weight: none; }
+
+/* Apply the thick outline to each animated glyph span */
+.title span{
+  /* WebKit/Chromium stroke */
+  -webkit-text-stroke: clamp(6px, 1vw, 14px) #000;
+  paint-order: stroke fill;
+
+  /* Firefox-ish fallback: stacked shadows approximating an outline */
+  text-shadow:
+    0 0   1px #000,
+    0 2px 0   #000,  0 -2px 0  #000,  2px 0 0   #000, -2px 0 0  #000,
+    2px 2px 0 #000, -2px 2px 0 #000,  2px -2px 0 #000, -2px -2px 0 #000,
+    4px 0 0   #000,  0 4px 0  #000,  -4px 0 0   #000,  0 -4px 0  #000;
+}
+
+/* Black slanted banner behind the title (like your reference) */
+.title::before{
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) skewY(-4deg);   /* tilt like the example */
+  bottom: -0.12em;                             /* tucks under the glyphs */
+  width: calc(100% + clamp(24px, 6vw, 80px));
+  height: clamp(36px, 9vw, 110px);
+  background: #000;
+  border-radius: 10px;
+  z-index: -1;                                 /* behind the text */
+  box-shadow:
+    0 8px 24px rgba(0,0,0,.45),
+    0 0 0 2px rgba(0,0,0,1) inset;             /* crisp edge */
+}
+
+/* Optional: tighten on small screens */
+@media (max-width: 640px){
+  .title{ font-size: clamp(58px, 15vw, 120px); }
+  .title::before{ height: clamp(28px, 12vw, 80px); }
+}
+
+/* 3D stage for the title */
+.titleWrap{
+  position: relative;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+/* Gentle 3D tilt; feels dimensional even when static */
+.title3d{
+  transform: rotateX(6deg) rotateY(-8deg);
+  transform-style: preserve-3d;
+  transition: transform .9s cubic-bezier(.2,.8,.2,1);
+}
+
+/* A tiny interactive nudge on desktop */
+@media (hover:hover){
+  .title3d:hover{ transform: rotateX(2deg) rotateY(-2deg); }
+}
+
+/* Faux-extrusion: stack drop-shadows to “build” depth */
+.titleExtrude{
+  filter:
+    drop-shadow(0.5px 0.5px 0 #000)
+    drop-shadow(1px 1px 0 #000)
+    drop-shadow(1.5px 1.5px 0 #000)
+    drop-shadow(2px 2px 0 #000)
+    drop-shadow(2.5px 2.5px 0 #000)
+    drop-shadow(3px 3px 0 #000)
+    drop-shadow(3.5px 3.5px 0 #000)
+    drop-shadow(4px 4px 0 #000)
+    drop-shadow(4.5px 4.5px 0 #000)
+    drop-shadow(5px 5px 0 #000);
+}
+
+/* Brushy, tilted gradient box behind the subheader/tagline */
+.subBrush{
+  position: relative;
+  display: inline-block;
+  padding: clamp(14px, 1.6vw, 22px) clamp(18px, 2.2vw, 28px);
+  transform: rotate(-3.2deg) skewY(-1deg);   /* purposely imperfect */
+  z-index: 3;
+}
+
+/* The “brush stroke” shape */
+.subBrush::before{
+  content: "";
+  position: absolute;
+  inset: -14px -18px;                        /* overhang beyond content */
+  z-index: -1;
+  /* neon cyan → navy → purple */
+  background: linear-gradient(100deg, #16E7FF 0%);
+  /* rough edge via clip-path polygon (jagged, asymmetric) */
+  clip-path: polygon(
+    2% 12%, 9% 3%, 22% 0%, 40% 6%, 58% 2%, 72% 8%, 88% 4%, 96% 12%,
+    98% 36%, 95% 54%, 98% 74%, 94% 90%, 82% 96%, 60% 98%, 38% 94%,
+    22% 98%, 10% 92%, 4% 78%, 2% 60%, 3% 42%, 2% 28%
+  );
+  border-radius: 16px;                        /* softens corners under clip */
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.45),
+    0 6px 0 rgba(0,0,0,.35);                  /* shadow/bulk */
+  filter: saturate(1.05) contrast(1.05);
+}
+
+/* subtle texture on top for “painty” feel */
+.subBrush::after{
+  content: "";
+  position: absolute;
+  inset: -14px -18px;
+  z-index: -1;
+  background-image:
+    radial-gradient(rgba(255,255,255,.15) 0.5px, transparent 0.5px),
+    radial-gradient(rgba(255,255,255,.09) 0.5px, transparent 0.5px);
+  background-size: 18px 18px, 9px 9px;
+  background-position: 0 0, 4px 6px;
+  mix-blend-mode: overlay;
+  opacity: .35;
+  clip-path: inherit;                          /* match the brush edge */
+  border-radius: 16px;
+}
+
+/* Make the text read as “bold black” on the gradient, no glow */
+.subBrush .subtitle{
+  color: #0A0A0A !important;
+  text-shadow: none !important;
+  font-weight: 800;
+}
+.subBrush .tagline{
+  color: #111 !important;
+  text-shadow: none !important;
+  font-weight: 600;
+  opacity: .95;
+}
+
+/* On small screens, tighten the tilt and padding a hair */
+@media (max-width: 640px){
+  .subBrush{ transform: rotate(-2.2deg) skewY(-0.6deg); }
+  .subBrush::before, .subBrush::after{ inset: -10px -12px; }
 }

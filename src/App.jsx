@@ -23,6 +23,7 @@ import TermsPage from "@/pages/TermsPage";
 import ClientsPage from "@/pages/ClientsPage";
 import ClientUploadPage from "@/pages/ClientUploadPage";
 import UxProcess from "@/pages/UxProcess";
+import "@/styles/fonts.css";
 
 function ScrollToTop() {
   const { pathname } = useLocation();

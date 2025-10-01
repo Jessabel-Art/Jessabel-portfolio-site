@@ -1,5 +1,7 @@
+// src/components/RouteIris.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { burstEvents } from "@/lib/events";
 
 export default function RouteIris() {
   const [burst, setBurst] = useState(null); // { x, y, id }
@@ -7,10 +9,12 @@ export default function RouteIris() {
 
   useEffect(() => {
     const onStart = (e) => {
-      // e.detail: { x, y } in viewport coords
-      const { x, y } = e.detail || {};
-      // give each burst a unique key
+      const { x = window.innerWidth / 2, y = window.innerHeight / 2 } = e.detail || {};
       setBurst({ x, y, id: Math.random().toString(36).slice(2) });
+
+      // 🔥 fire pixel burst right as the iris begins
+      burstEvents.emit({ x, y });
+
       clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => setBurst(null), 700);
     };
